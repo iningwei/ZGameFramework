@@ -43,6 +43,12 @@ public class WindowAutoRegister
         str += "}";
 
         string writePath = Application.dataPath + "/Scripts/Window/WindowNames.cs";
+        string d = writePath.Substring(0, writePath.LastIndexOf('/'));
+        if (!Directory.Exists(d))
+        {
+            Directory.CreateDirectory(d);
+        }
+
         if (!File.Exists(writePath))
         {
             File.Create(writePath).Dispose();
@@ -78,6 +84,13 @@ public class WindowAutoRegister
         str += "}";
 
         string writePath = Application.dataPath + "/Scripts/Window/WindowRegister.cs";
+        string d = writePath.Substring(0, writePath.LastIndexOf('/'));
+        if (!Directory.Exists(d))
+        {
+            Directory.CreateDirectory(d);
+        }
+
+
         if (!File.Exists(writePath))
         {
             File.Create(writePath).Dispose();
