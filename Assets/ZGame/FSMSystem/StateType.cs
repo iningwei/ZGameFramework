@@ -8,7 +8,7 @@ public enum StateType
     //States for player
     PlayerInit,
     PlayerMove,
-   
+   PlayerBuild,
     PlayerStop,
 
     //State for garbage

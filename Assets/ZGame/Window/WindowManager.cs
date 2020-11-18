@@ -306,7 +306,7 @@ namespace ZGame.Window
         /// <param name="layerName">layer to host this window</param>
         /// <param name="datas">datas for window init use</param>
         /// <returns></returns>
-        public Window ShowWindow(string name, bool isCache, string layerName, params object[] datas)
+        public Window ShowWindow(string name, bool isCache, string layerName, Action onWindowShowed, params object[] datas)
         {
             WindowResSource source = WindowResSource.Unknown;
             Window window = genTargetWindow(name, ref source);
@@ -328,6 +328,7 @@ namespace ZGame.Window
             windowObj.transform.SetParent(LayerDic[layerName]);
 
             window.Show(layerName, datas);
+            onWindowShowed?.Invoke();
             return window;
         }
         public void ShowWindowAsync(string name, bool isCache, string layerName, Action onWindowShowed, bool forbidUIListener = true, params object[] datas)

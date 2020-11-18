@@ -112,8 +112,6 @@ namespace ZGame.TimerTween
                 timer.Update();
             }
 
-
-
             this.timers.RemoveAll(t => t.IsDone);
 
         }

@@ -7,7 +7,7 @@ public enum TransitionType
     None,
     //Transitions for player
     PlayerToMove,
-    
+    PlayerToBuild,
     PlayerToStop,
 
     //Transitions for garbage

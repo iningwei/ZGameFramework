@@ -27,4 +27,28 @@ public static class NumberExt
 
         return formatStr;
     }
+
+    public static string FormatHHMMSS(this int seconds)
+    {
+        string hms = "00:00:00";
+        int h = seconds / 3600;
+        seconds = seconds % 3600;
+        int m = seconds / 60;
+        seconds = seconds % 60;
+
+        string hStr = "";
+        if (h > 24)
+        {
+            hStr = h.ToString();
+        }
+        else
+        {
+            hStr = h.ToString().PadLeft(2, '0');
+        }
+
+        string mStr = m.ToString().PadLeft(2, '0');
+        string sStr = seconds.ToString().PadLeft(2, '0');
+        hms = hStr + ":" + mStr + ":" + sStr;
+        return hms;
+    }
 }

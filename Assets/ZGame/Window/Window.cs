@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Reflection;
+using DG.Tweening;
 using UnityEngine;
+using ZGame.cc;
 
 namespace ZGame.Window
 {
@@ -8,11 +10,9 @@ namespace ZGame.Window
     {
         public string name;
         public string windowLayer;
-
         public bool isCache = false;
 
-
-
+        public Transform ui_AniBg;
         public Window(GameObject obj, string windowName)
         {
             this.rootObj = obj;
@@ -56,6 +56,12 @@ namespace ZGame.Window
 
             rt.localScale = Vector3.one;
             this.rootObj.SetActive(true);
+
+
+            if (ui_AniBg != null)
+            {
+                DoShowAniamtion();
+            }
         }
 
         public virtual void HandleMessage(int msgId, params object[] paras)
@@ -76,5 +82,15 @@ namespace ZGame.Window
             RemoveUIEventListener();
             GameObject.Destroy(this.rootObj);
         }
+
+        public virtual void DoShowAniamtion()
+        {
+            if (ui_AniBg != null)
+            {
+                ui_AniBg.localScale = new Vector3(0.95f, 0.95f, 1f);
+                ui_AniBg.gameObject.RunTween(new ScaleTo(1, Vector3.one).Easing(Ease.OutElastic));
+            }
+        }
+
     }
 }

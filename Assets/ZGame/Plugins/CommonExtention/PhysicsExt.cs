@@ -40,5 +40,7 @@ public class PhysicsExt
         Vector3 halfExtents = targetBoxArea.size.MultiplyVector3(targetBoxArea.transform.lossyScale) * 0.5f;
         Quaternion oritation = targetBoxArea.transform.rotation;
         return Physics.CheckBox(center, halfExtents, oritation, layerMask);
+
+         
     }
 }

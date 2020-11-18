@@ -45,7 +45,6 @@ namespace ZGame.TimerTween
             return timer;
         }
 
-
         public static Timer Value(float from, float to, float duration, Action<float> updateCallback, Action complteCallback)
         {
             float gap = to - from;
@@ -75,7 +74,6 @@ namespace ZGame.TimerTween
             return timer;
         }
 
-
         public static Timer Delay(float delayTime, Action call)
         {
             Timer timer = new Timer(delayTime, onComplete: () =>
@@ -88,7 +86,6 @@ namespace ZGame.TimerTween
             TimerManager.Instance.RegisterTimer(timer);
             return timer;
         }
-
 
         public static Timer Repeat(float interval, Func<bool> repeatCallback)
         {

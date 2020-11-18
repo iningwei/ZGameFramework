@@ -9,7 +9,7 @@ namespace ZGame.Window
     {
         public GameObject rootObj;
 
-   
+
 
         public void AutoLinkUI(UIRoot uiRoot)
         {
@@ -23,21 +23,16 @@ namespace ZGame.Window
                 {
                     continue;
                 }
-               
+
                 Component tmpCom = this.rootObj.transform.FindComponent(field.FieldType, field.Name.Replace("ui_", ""), true);
                 if (tmpCom == null)
                 {
-                    Debug.LogError("window " + trueType.Name + ",can not find：" + field.Name.Replace("ui_", ""));
+                    Debug.LogWarning("window " + trueType.Name + ",can not find：" + field.Name.Replace("ui_", ""));
                     continue;
                 }
 
                 field.SetValue(uiRoot, tmpCom);
             }
         }
-
-
-   
-
-    
     }
 }

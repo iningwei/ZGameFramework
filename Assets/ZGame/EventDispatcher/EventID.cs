@@ -9,6 +9,7 @@
     public const int OnGarbageDestroy = 300;
 
     public const int OnDistanceTravelled = 310;
+    public const int OnADSpeedingCleanerTrigger = 320;
 
     public const int OnCleanerArriveAtGarbage = 400;
 
