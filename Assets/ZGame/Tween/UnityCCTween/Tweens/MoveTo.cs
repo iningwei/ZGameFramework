@@ -30,16 +30,13 @@ namespace ZGame.cc
         }
 
 
+
         public override Tween Delay(float time)
         {
             return new Sequence(new DelayTime(time), this);
         }
 
-        public override Tween Easing(Ease ease)
-        {
-            this.easeFunc = EaseTool.Get(ease);
-            return this;
-        }
+
 
 
         public override event EventHandler<TweenFinishedEventArgs> TweenFinished;
@@ -88,6 +85,27 @@ namespace ZGame.cc
 
             if (this.repeatedTimes == 0)
             {
+                if (fromPara != null)
+                {
+                    if (!(fromPara is Vector3))
+                    {
+                        Debug.LogError("wrong type,para should be Vector3");
+
+                    }
+
+                    if (relativeSpace == Space.Self)
+                    {
+                        this.holder.transform.localPosition = (Vector3)fromPara;
+                    }
+                    else
+                    {
+                        this.holder.transform.position = (Vector3)fromPara;
+                    }
+                }
+
+
+
+
                 this.startPos = relativeSpace == Space.Self ? this.holder.transform.localPosition : this.holder.transform.position;
             }
             else

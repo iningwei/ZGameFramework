@@ -105,5 +105,10 @@ namespace ZGame.FSM
         {
 
         }
+
+        public virtual void Destroy()
+        {
+
+        }
     }
 }

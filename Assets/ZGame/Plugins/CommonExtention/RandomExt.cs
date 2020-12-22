@@ -8,7 +8,7 @@ public class RandomExt
     static int randomTimes = 0;
     static int lastValue = 0;
 
-    static System.Random ran = new System.Random();
+
 
     /// <summary>
     /// 允许min值大于max，最终产生的数在一个 左闭右开 的区间

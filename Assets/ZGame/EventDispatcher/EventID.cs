@@ -1,26 +1,30 @@
 ﻿public class EventID
 {
 
-    public const int OnABResLoaded = 100;
-    public const int OnRootObjDestroy = 101;
-    public const int OnChildObjDestroy = 102;
+    public const string OnABResLoaded = "100";
+    public const string OnRootObjDestroy = "101";
+    public const string OnChildObjDestroy = "102";
 
 
-    public const int OnGarbageDestroy = 300;
+    public const string OnBannerAdShowed = "200";
+    public const string OnGarbageDestroy = "300";
 
-    public const int OnDistanceTravelled = 310;
-    public const int OnADSpeedingCleanerTrigger = 320;
+    public const string OnDistanceTravelled = "310";
 
-    public const int OnCleanerArriveAtGarbage = 400;
-
-    public const int OnCurCityCollectGarbageFinished = 500;//当前城市垃圾收集完毕
-
-
-    public const int OnServerGameDataChanged = 1000;
+    public const string OnADSpeedingUpTrigger = "320";
+    public const string onADSpeedingUpEnd = "321";//广告加速时间用尽
 
 
+    public const string OnCleanerArriveAtGarbage = "400";
 
-    public const int OnBeginDownloadResFiles = 10000;
-    public const int OnResFileDownloading = 10001;
-    public const int OnResFileDownloaded = 10002;
+    public const string OnCurCityCollectGarbageFinished = "500";//当前城市垃圾收集完毕
+
+
+    public const string OnServerGameDataChanged = "1000";
+
+
+
+    public const string OnBeginDownloadResFiles = "10000";
+    public const string OnResFileDownloading = "10001";
+    public const string OnResFileDownloaded = "10002";
 }

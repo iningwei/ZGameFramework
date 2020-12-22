@@ -219,6 +219,12 @@ namespace ZGame.Window
             return target;
         }
 
+        public bool IsWindowOpen(string windowName)
+        {
+            openedWindows.TryGetValue(windowName, out Window target);
+            return target == null ? false : true;
+        }
+
 
         public Window GetWindow(string windowName)
         {

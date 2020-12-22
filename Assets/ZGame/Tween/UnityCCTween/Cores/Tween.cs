@@ -91,7 +91,13 @@ namespace ZGame.cc
 
         public abstract void Finish();
 
+        protected Func<float, float> easeFunc = EaseTool.Get(Ease.Linear);
 
+        public virtual Tween Easing(Ease ease)
+        {
+            this.easeFunc = EaseTool.Get(ease);
+            return this;
+        }
 
 
         public bool IsDone()
@@ -143,8 +149,9 @@ namespace ZGame.cc
         public virtual void SetHolder(GameObject holder)
         {
             this.holder = holder;
-
         }
+
+
 
         public GameObject GetHolder()
         {
@@ -213,6 +220,12 @@ namespace ZGame.cc
             return this.tweenName;
         }
 
+        public object fromPara = null;
+        public virtual Tween From(object para)
+        {
+            fromPara = para;
+            return this;
+        }
         /// <summary>
         /// 
         /// </summary>

@@ -73,6 +73,10 @@ namespace ZGame.FSM
             Debug.LogError("DeleteState:" + state.ToString() + " failed,it is not exist in state list");
         }
 
+        public void DeleteAllState()
+        {
+            this.states.Clear();
+        }
 
         public void PerformTransition(TransitionType trans, params object[] paras)
         {

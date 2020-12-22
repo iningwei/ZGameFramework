@@ -5,13 +5,13 @@ using System.Linq;
 using UnityEngine;
 //using XLua;
 
-public delegate void EventAction(int evtId, params object[] paras);
+public delegate void EventAction(string evtId, params object[] paras);
 
 public class EventDispatcher : Singleton<EventDispatcher>
 {
     //c#事件
-    private Dictionary<int, EventAction> mEventHandlers;
-    private Dictionary<int, EventAction> mEventOnceHandlers;
+    private Dictionary<string, EventAction> mEventHandlers;
+    private Dictionary<string, EventAction> mEventOnceHandlers;
 
 
 
@@ -22,16 +22,13 @@ public class EventDispatcher : Singleton<EventDispatcher>
 
     void init()
     {
-        mEventHandlers = new Dictionary<int, EventAction>();
-        mEventOnceHandlers = new Dictionary<int, EventAction>();
+        mEventHandlers = new Dictionary<string, EventAction>();
+        mEventOnceHandlers = new Dictionary<string, EventAction>();
     }
 
-    internal void AddListener(object onFuPiaoDropWater)
-    {
-        throw new NotImplementedException();
-    }
+   
 
-    public void DispatchEvent(int evtId, params object[] paras)
+    public void DispatchEvent(string evtId, params object[] paras)
     {
         if (checkEventId(evtId) == false)
         {
@@ -57,7 +54,7 @@ public class EventDispatcher : Singleton<EventDispatcher>
 
 
 
-    private bool checkEventId(int evtId)
+    private bool checkEventId(string evtId)
     {
         if (!mEventHandlers.ContainsKey(evtId) &&
             !mEventOnceHandlers.ContainsKey(evtId))
@@ -68,7 +65,7 @@ public class EventDispatcher : Singleton<EventDispatcher>
         return true;
     }
 
-    EventAction getHandler(Dictionary<int, EventAction> eventDic, int evtId)
+    EventAction getHandler(Dictionary<string, EventAction> eventDic, string evtId)
     {
         EventAction handler = null;
         eventDic.TryGetValue(evtId, out handler);
@@ -76,25 +73,25 @@ public class EventDispatcher : Singleton<EventDispatcher>
     }
 
 
-    public void AddListener(int evtId, EventAction handler)
+    public void AddListener(string evtId, EventAction handler)
     {
         addListener(mEventHandlers, evtId, handler);
     }
-    public void AddListenerOnce(int evtId, EventAction handler)
+    public void AddListenerOnce(string evtId, EventAction handler)
     {
         addListener(mEventOnceHandlers, evtId, handler);
     }
 
 
 
-    public void RemoveListener(int evtId, EventAction handler)
+    public void RemoveListener(string evtId, EventAction handler)
     {
         removeListener(mEventHandlers, evtId, handler);
         removeListener(mEventOnceHandlers, evtId, handler);
     }
 
 
-    private void removeListener(Dictionary<int, EventAction> eventDic, int evtId, EventAction handler)
+    private void removeListener(Dictionary<string, EventAction> eventDic, string evtId, EventAction handler)
     {
         EventAction eventAction = getHandler(eventDic, evtId);
         if (eventAction != null)
@@ -114,7 +111,7 @@ public class EventDispatcher : Singleton<EventDispatcher>
 
 
 
-    private void addListener(Dictionary<int, EventAction> eventDic, int evtId, EventAction handler)
+    private void addListener(Dictionary<string, EventAction> eventDic, string evtId, EventAction handler)
     {
         EventAction eventAction = getHandler(eventDic, evtId);
         if (eventAction != null)
@@ -125,7 +122,7 @@ public class EventDispatcher : Singleton<EventDispatcher>
             }
             else
             {
-                Debug.LogError(evtId + "多次添加重复事件");
+                Debug.LogWarning(evtId + "多次添加重复事件");
             }
         }
         else

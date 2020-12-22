@@ -9,8 +9,6 @@ namespace ZGame.Window
     {
         public GameObject rootObj;
 
-
-
         public void AutoLinkUI(UIRoot uiRoot)
         {
             Type trueType = uiRoot.GetType();

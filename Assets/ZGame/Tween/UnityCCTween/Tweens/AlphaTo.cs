@@ -34,10 +34,6 @@ namespace ZGame.cc
             this.includeInactive = includeInactive;
             this.SetTweenName("AlphaTo");
         }
-
-
-
-
         public override Tween Delay(float time)
         {
             return new Sequence(new DelayTime(time), this);
@@ -68,7 +64,7 @@ namespace ZGame.cc
             return this;
         }
 
-      
+
 
         public override void Run()
         {
@@ -76,15 +72,16 @@ namespace ZGame.cc
 
             if (this.repeatedTimes == 0)
             {
+                //TODO:Set From Alpha
                 #region 3D物体或者Unity2D物体
                 Renderer[] allRenderers;
                 if (includeChilds)
                 {
-                    allRenderers = this.GetHolder().GetComponentsInChildren<Renderer>(includeInactive);
+                    allRenderers = this.holder.GetComponentsInChildren<Renderer>(includeInactive);
                 }
                 else
                 {
-                    allRenderers = this.GetHolder().GetComponents<Renderer>();
+                    allRenderers = this.holder.GetComponents<Renderer>();
                 }
 
                 for (int i = 0; i < allRenderers.Length; i++)
@@ -160,13 +157,13 @@ namespace ZGame.cc
             }
 
             //Debug.Log(this.GetTarget() + "  AlphaTo 相关mat个数：" + allMaterials.Count);
-            this.startTime =this.GetTime() - this.GetTotalPausedTime();
+            this.startTime = this.GetTime() - this.GetTotalPausedTime();
             this.truePartialRunTime = 0f;
         }
 
 
 
-         
+
 
         public override bool Update()
         {
