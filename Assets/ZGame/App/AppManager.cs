@@ -2,17 +2,19 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using ZGame.Net.Tcp;
+using ZGame.HotUpdate;
 
 namespace ZGame
 {
     public class AppManager : SingletonMonoBehaviour<AppManager>
     {
-        public string LanguageType = "CN";
-
+        public string languageType = "EN";
+        public LuaSocketManager luaSocketManager = new LuaSocketManager();
 
 
         Action<bool> appPause = (b) =>
-    {
+        {
             //Debug.Log("app pause:" + b);
         };
         Action appExit = () =>
@@ -24,6 +26,14 @@ namespace ZGame
             //Debug.Log("app focus:" + b);
             Time.timeScale = b ? 1 : 0;
         };
+
+
+        [HideInInspector]
+        public PackType packType = PackType.DEV;
+        [HideInInspector]
+
+
+        public bool UseOriginLuaScript = true;
 
         public bool IsFirstGame = false;
         public void Init()
@@ -40,22 +50,43 @@ namespace ZGame
                 IsFirstGame = false;
             }
 
-#if UNITY_EDITOR
-            LanguageType = "EN";
-           
-#elif UNITY_IOS
-          LanguageType = "EN";
+
+            Screen.sleepTimeout = SleepTimeout.NeverSleep;//不息屏
+            Application.runInBackground = true;//这个只对pc有效， ios、安卓无效
+            Application.targetFrameRate = 30;//限帧
+
+#if DEV
+        packType = PackType.DEV;
+#elif PUB
+        packType = PackType.PUB;
+#elif AUDIT
+        packType = PackType.AUDIT;
+#elif TEST
+        packType = PackType.TEST;
 #else
-        LanguageType = "EN";
-         // var cc = new AndroidJavaClass("com.zgame.sdk.CountyCode");
-         //    string code;
-         //    using (AndroidJavaClass jc = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
-         //    {
-         //        object jo = jc.GetStatic<AndroidJavaObject>("currentActivity");
-         //        code = cc.CallStatic<string>("Get", jo); 
-         //    }
-         //   LanguageType = code;
+            packType = PackType.DEV;
 #endif
+
+            ScriptManager.Instance.Init();
+        }
+
+
+        private void Update()
+        {
+            luaSocketManager.Update();
+        }
+        private void LateUpdate()
+        {
+            luaSocketManager.LateUpdate();
+        }
+        private void OnDestroy()
+        {
+            luaSocketManager.Destroy();
+        }
+
+        public void Quit()
+        {
+            Application.Quit();
         }
 
         public void RegisterAppFocusAct(Action<bool> act)

@@ -21,7 +21,7 @@ namespace ZGame.SDK
                     instance = adSdkObj.AddComponent<EditorAdSdkManager>();
 #else
 #if !SDK
-                     
+                       
                         instance = adSdkObj.AddComponent<EditorAdSdkManager>();
 #else
 #if UNITY_ANDROID
@@ -29,7 +29,7 @@ namespace ZGame.SDK
                      //TODO:这里千万不要instance=new IronSourceAdSdkManager()
                                         instance = adSdkObj.AddComponent<IronSourceAdSdkManager>(); 
 #elif UNITY_IOS
-                                   instance = adSdkObj.AddComponent<IronSourceAdSdkManager>();     
+                                   instance = adSdkObj.AddComponent<EditorAdSdkManager>();     
 #endif
 #endif
 #endif

@@ -27,5 +27,5 @@ public enum TransitionType
     CleanerToPlayDropAnim,
     CleanerToDropTarget,
     CleanerToMoveBackToCar,
-    CleanerToAnchor,
+    CleanerToPatrolFollowCar,
 }

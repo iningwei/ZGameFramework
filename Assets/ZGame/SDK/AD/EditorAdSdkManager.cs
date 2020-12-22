@@ -10,17 +10,15 @@ namespace ZGame.SDK
         {
             Debug.Log("EditorAdSdk init....");
         }
-
-        public override void ShowInterstitial(Action onNotAvailable, Action onShowSuccess, Action onShowFail, Action<bool> onAdClose = null)
+        public override void ShowInterstitial(Action onNotAvailable, Action onShowSuccess, Action onShowFail)
         {
-            onAdClose?.Invoke(true);
+            onShowSuccess?.Invoke();
         }
-
-        public override void ShowRewardedVideo(Action onNotAvailable, Action onShowSuccess, Action onShowFail, Action<bool> onAdClose = null)
+        public override void ShowRewardedVideo(Action onNotAvailable, Action onShowSuccess, Action onShowFail)
         {
             if (this.IsRewardedVideoAvailable())
             {
-                onAdClose?.Invoke(true);
+                onShowSuccess?.Invoke();
             }
             else
             {

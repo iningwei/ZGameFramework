@@ -3,139 +3,201 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-//using XLua;
+#if XLua
+using XLua;
+#endif
 
-public delegate void EventAction(string evtId, params object[] paras);
-
-public class EventDispatcher : Singleton<EventDispatcher>
+namespace ZGame.Event
 {
-    //c#事件
-    private Dictionary<string, EventAction> mEventHandlers;
-    private Dictionary<string, EventAction> mEventOnceHandlers;
+    public delegate void EventAction(string evtId, params object[] paras);
 
-
-
-    public EventDispatcher()
+    public class EventDispatcher : Singleton<EventDispatcher>
     {
-        init();
-    }
+        //c#事件
+        private Dictionary<string, EventAction> mEventHandlers;
+        private Dictionary<string, EventAction> mEventOnceHandlers;
 
-    void init()
-    {
-        mEventHandlers = new Dictionary<string, EventAction>();
-        mEventOnceHandlers = new Dictionary<string, EventAction>();
-    }
+        //lua事件
+        private HashSet<string> mEventLuaHandlers;
+        private HashSet<string> mEventLuaOnceHandlers;
 
-   
-
-    public void DispatchEvent(string evtId, params object[] paras)
-    {
-        if (checkEventId(evtId) == false)
+        public EventDispatcher()
         {
-            return;
+            init();
+        }
+
+        void init()
+        {
+            mEventHandlers = new Dictionary<string, EventAction>();
+            mEventOnceHandlers = new Dictionary<string, EventAction>();
+
+            mEventLuaHandlers = new HashSet<string>();
+            mEventLuaOnceHandlers = new HashSet<string>();
         }
 
 
 
-        EventAction handler = getHandler(mEventHandlers, evtId);
-        if (handler != null)
+        Action<string, object> luaDispatcher = null;
+        public void DispatchEvent(string evtId, params object[] paras)
         {
-            int count = handler.GetInvocationList().Length;
-            //Debug.LogWarning("evtID:" + evtId + "，有" + count + "个delegate");//加上这个log，防止编码者忘记remove delegate
-            handler(evtId, paras);
+            if (checkEventId(evtId) == false)
+            {
+                return;
+            }
+
+#if XLua
+            //先调用lua的 DisPatch函数
+            if (mEventLuaHandlers.Contains(evtId)||mEventLuaOnceHandlers.Contains(evtId))
+            {
+                if (luaDispatcher==null)
+                {
+                    LuaTable luaEventDispatcher = ScriptManager.Instance.GetTable("EventDispatcher");
+                    if (luaEventDispatcher!=null)
+                    {
+                        luaDispatcher = luaEventDispatcher.Get<Action<string, object>>("CSCallLuaDispatch");
+                    }
+                }
+
+                luaDispatcher?.Invoke(evtId, paras);
+            }
+#endif
+
+
+            EventAction handler = getHandler(mEventHandlers, evtId);
+            if (handler != null)
+            {
+                //////int count = handler.GetInvocationList().Length;
+                handler(evtId, paras);
+            }
+            handler = getHandler(mEventOnceHandlers, evtId);
+            if (handler != null)
+            {
+                removeListener(mEventOnceHandlers, evtId, handler);
+                handler(evtId, paras);
+            }
         }
-        handler = getHandler(mEventOnceHandlers, evtId);
-        if (handler != null)
+
+
+
+        private bool checkEventId(string evtId)
         {
+            if (!mEventHandlers.ContainsKey(evtId) && !mEventOnceHandlers.ContainsKey(evtId)
+                && !mEventLuaHandlers.Contains(evtId) && !mEventLuaOnceHandlers.Contains(evtId))
+            {
+                Debug.LogWarning("evtId:" + evtId + " not regist");
+                return false;
+            }
+            return true;
+        }
+
+        EventAction getHandler(Dictionary<string, EventAction> eventDic, string evtId)
+        {
+            eventDic.TryGetValue(evtId, out EventAction handler);
+            return handler;
+        }
+
+
+        public void AddListener(string evtId, EventAction handler)
+        {
+            addListener(mEventHandlers, evtId, handler);
+        }
+        public void AddListenerOnce(string evtId, EventAction handler)
+        {
+            addListener(mEventOnceHandlers, evtId, handler);
+        }
+
+        public void AddLuaListener(string evtId)
+        {
+            addLuaListener(mEventLuaHandlers, evtId);
+        }
+        public void AddLuaListenerOnce(string evtId)
+        {
+            addLuaListener(mEventLuaOnceHandlers, evtId);
+        }
+
+
+        public void RemoveListener(string evtId, EventAction handler)
+        {
+            removeListener(mEventHandlers, evtId, handler);
             removeListener(mEventOnceHandlers, evtId, handler);
-            handler(evtId, paras);
         }
-    }
 
 
-
-    private bool checkEventId(string evtId)
-    {
-        if (!mEventHandlers.ContainsKey(evtId) &&
-            !mEventOnceHandlers.ContainsKey(evtId))
+        private void removeListener(Dictionary<string, EventAction> eventDic, string evtId, EventAction handler)
         {
-            Debug.LogWarning("evtId:" + evtId + ",未注册");
-            return false;
-        }
-        return true;
-    }
-
-    EventAction getHandler(Dictionary<string, EventAction> eventDic, string evtId)
-    {
-        EventAction handler = null;
-        eventDic.TryGetValue(evtId, out handler);
-        return handler;
-    }
-
-
-    public void AddListener(string evtId, EventAction handler)
-    {
-        addListener(mEventHandlers, evtId, handler);
-    }
-    public void AddListenerOnce(string evtId, EventAction handler)
-    {
-        addListener(mEventOnceHandlers, evtId, handler);
-    }
-
-
-
-    public void RemoveListener(string evtId, EventAction handler)
-    {
-        removeListener(mEventHandlers, evtId, handler);
-        removeListener(mEventOnceHandlers, evtId, handler);
-    }
-
-
-    private void removeListener(Dictionary<string, EventAction> eventDic, string evtId, EventAction handler)
-    {
-        EventAction eventAction = getHandler(eventDic, evtId);
-        if (eventAction != null)
-        {
-            if (eventAction.GetInvocationList().Contains(handler))
+            EventAction eventAction = getHandler(eventDic, evtId);
+            if (eventAction != null)
             {
-                eventAction -= handler;
-                eventDic[evtId] = eventAction;
-            }
+                if (eventAction.GetInvocationList().Contains(handler))
+                {
+                    eventAction -= handler;
+                    eventDic[evtId] = eventAction;
+                }
 
-            if (eventAction == null || eventAction.GetInvocationList().Length == 0)
-            {
-                eventDic.Remove(evtId);
+                if (eventAction == null || eventAction.GetInvocationList().Length == 0)
+                {
+                    eventDic.Remove(evtId);
+                }
             }
         }
-    }
 
 
-
-    private void addListener(Dictionary<string, EventAction> eventDic, string evtId, EventAction handler)
-    {
-        EventAction eventAction = getHandler(eventDic, evtId);
-        if (eventAction != null)
+        private void addLuaListener(HashSet<string> eventHandlers, string evtId)
         {
-            if (!eventAction.GetInvocationList().Contains(handler))
+            if (!eventHandlers.Contains(evtId))
             {
-                eventAction += handler;
+                eventHandlers.Add(evtId);
+            }
+
+        }
+
+        private void addListener(Dictionary<string, EventAction> eventDic, string evtId, EventAction handler)
+        {
+            EventAction eventAction = getHandler(eventDic, evtId);
+            if (eventAction != null)
+            {
+                if (!eventAction.GetInvocationList().Contains(handler))
+                {
+                    eventAction += handler;
+                }
+                else
+                {
+                    Debug.LogWarning($"handler:{nameof(handler)} has already exist with evtId {evtId},you can not add again");
+                }
             }
             else
             {
-                Debug.LogWarning(evtId + "多次添加重复事件");
+                eventAction = handler;
+            }
+            eventDic[evtId] = eventAction;
+        }
+
+
+        public void RemoveLuaListener(string evtId, int setId)
+        {
+            if (setId == 0)
+            {
+                mEventLuaHandlers.Remove(evtId);
+            }
+            else if (setId == 1)
+            {
+                mEventLuaOnceHandlers.Remove(evtId);
+            }
+            else if (setId == 2)
+            {
+                mEventLuaHandlers.Remove(evtId);
+                mEventLuaOnceHandlers.Remove(evtId);
             }
         }
-        else
+
+
+        public void ClearAll()
         {
-            eventAction = handler;
+            mEventHandlers.Clear();
+            mEventOnceHandlers.Clear();
+
+            mEventLuaHandlers.Clear();
+            mEventLuaOnceHandlers.Clear();
         }
-        eventDic[evtId] = eventAction;
-    }
-
-
-    public void ClearAll()
-    {
-        mEventHandlers.Clear();
-        mEventOnceHandlers.Clear();
     }
 }

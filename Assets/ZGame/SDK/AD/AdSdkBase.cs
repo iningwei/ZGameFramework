@@ -55,15 +55,16 @@ namespace ZGame.SDK
         }
 
 
-        public virtual void ShowInterstitial(Action onNotAvailable, Action onShowSuccess, Action onShowFail, Action<bool> onAdClose = null)
+        public virtual void ShowInterstitial(Action onNotAvailable, Action onShowSuccess, Action onShowFail)
         {
 
         }
 
-        public virtual void ShowRewardedVideo(Action onNotAvailable, Action onShowSuccess, Action onShowFail, Action<bool> onAdClose = null)
+        public virtual void ShowRewardedVideo(Action onNotAvailable, Action onShowSuccess, Action onShowFail)
         {
 
         }
+
 
     }
 }

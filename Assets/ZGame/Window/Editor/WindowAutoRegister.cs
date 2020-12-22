@@ -33,7 +33,7 @@ public class WindowAutoRegister
         var assembly = Assembly.Load(buffer);
         foreach (var t in assembly.GetTypes())
         {
-            if (t.IsClass && t.BaseType != null && t.BaseType.Name == typeof(Window).Name && t.Name.EndsWith("Window"))
+            if (t.IsClass && t.BaseType != null && t.BaseType.Name == typeof(Window).Name && t.Name.EndsWith("Window") && t.Name != "LuaBridgeWindow")
             {
                 str += "\tpublic static string " + t.Name + " = \"" + t.Name + "\";\n";
                 Debug.Log(t.Name);
@@ -61,7 +61,7 @@ public class WindowAutoRegister
     {
         Debug.Log("RegisterWindow--->");
         string str = "using ZGame.Window;\npublic class WindowRegister\n{\n";
-        str += "\tpublic static void Regist()\n\t{\n";
+        str += "\tpublic static void Register()\n\t{\n";
         str += "\t\tvar winManager=WindowManager.Instance;\n";
 
         //TODO:
@@ -74,9 +74,9 @@ public class WindowAutoRegister
         var assembly = Assembly.Load(buffer);
         foreach (var t in assembly.GetTypes())
         {
-            if (t.IsClass && t.BaseType != null && t.BaseType.Name == typeof(Window).Name && t.Name.EndsWith("Window"))
+            if (t.IsClass && t.BaseType != null && t.BaseType.Name == typeof(Window).Name && t.Name.EndsWith("Window") && t.Name != "LuaBridgeWindow")
             {
-                str += $"\t\twinManager.RegisterWindowType(WindowNames.{t.Name},typeof({t.Name}),\"{t.Name}\");\n";
+                str += $"\t\twinManager.RegisterWindowType(WindowNames.{t.Name},typeof({t.Name}).ToString(),\"{t.Name}\");\n";
                 Debug.Log(t.Name);
             }
         }

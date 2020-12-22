@@ -36,10 +36,6 @@ public class AnalyticsEventID
     public const string Main_AD_BtnClick_GoldDouble_15m = "Main_AD_BtnClick_GoldDouble_15m";
     //获得3分钟加速buffer
     public const string Main_AD_BtnClick_Speedup = "Main_AD_BtnClick_Speedup";
-
-    //点击商店按钮
-    public const string Main_BtnClick_Shop = "Main_BtnClick_Shop";
-   
     #endregion
 
     #region 升级界面
@@ -84,7 +80,6 @@ public class AnalyticsEventID
     public const string Skin_BtnClick_Close = "Skin_BtnClick_Close";
     #endregion
     #region 城市界面
-
     //点击GetReward按钮
     public const string City_BtnClick_GetRewards = "City_BtnClick_GetRewards";
     //关闭按钮
@@ -131,57 +126,6 @@ public class AnalyticsEventID
     public const string RewardVideo_VideoLoadSucc = "RewardVideo_VideoLoadSucc";
     //激励视频 用户点击广告界面
     public const string RewardVideo_Click = "RewardVideo_Click";
-
-    #endregion
-
-    #region 建筑页面
-
-    //进入建造建筑状态
-    public const string Build_Enter = "Build_Enter";
-    
-    //玩家花费钻石建造建筑
-    public const string Build_BtnClick_GemBuild = "Build_BtnClick_GemBuild";
-    //观看广告建造建筑，观看完广告成功发放奖励后打点
-    public const string Build_AD_BtnClick_GemBuild = "Build_AD_BtnClick_GemBuild";
-    //玩家选择不建造建筑时打点
-    public const string Build_BtnClick_NOThanks = "Build_BtnClick_NOThanks";
-
-    #endregion
-
-    #region 无垃圾回收时
-
-    //当街道上无垃圾时，垃圾车进入Dash状态
-    public const string Dash_Enter = "Dash_Enter";
-    //当遇到垃圾时，垃圾车退出Dash状态
-    public const string Dash_Exit = "Dash_Exit";
-
-    #endregion
-
-    #region 商店页面 
-
-    //玩家点击领取免费钻石按钮，点击按钮打点
-    public const string Shop_BtnClick_FreeGem = "Shop_BtnClick_FreeGem";
-
-    //玩家点击购买500钻石按钮，点击按钮打点
-    public const string Shop_BtnClick_Gem_500 = "Shop_BtnClick_Gem_500";
-    //玩家点击购买去除广告按钮，点击按钮打点
-    public const string Shop_BtnClick_NOAD = "Shop_BtnClick_NOAD";
-    //玩家点击购买150钻石按钮，点击按钮打点
-    public const string Shop_BtnClick_Gem_150 = "Shop_BtnClick_Gem_150";
-    //玩家点击购买2000钻石按钮，点击按钮打点
-    public const string Shop_BtnClick_Gem_2000 = "Shop_BtnClick_Gem_2000";
-    //玩家点击购买15000钻石按钮，点击按钮打点
-    public const string Shop_BtnClick_Gem_15000 = "Shop_BtnClick_Gem_15000";
-   
-    #endregion
-
-    #region 清理区域
-    //进入清理建造区域状态
-    public const string Clear_Enter = "Clear_Enter";
-   
-    //完成清理建造区域状态
-    public const string Clear_Finish = "Clear_Finish";
-
     #endregion
 
 }

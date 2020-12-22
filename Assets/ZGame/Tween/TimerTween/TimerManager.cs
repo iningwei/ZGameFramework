@@ -8,7 +8,7 @@ using UnityEngine;
 namespace ZGame.TimerTween
 {
     class TimerManager : SingletonMonoBehaviour<TimerManager>
-    {        
+    {
         private List<Timer> timers = new List<Timer>();
 
         private List<Timer> timersToAdd = new List<Timer>();
@@ -64,7 +64,7 @@ namespace ZGame.TimerTween
             {
                 this.timers.Remove(timer);
             }
-            timer.Cancel();
+            timer?.Cancel();
         }
 
         public Timer GetTimer(int id)
@@ -90,10 +90,7 @@ namespace ZGame.TimerTween
         public void CancelTimer(int id)
         {
             Timer timer = GetTimer(id);
-            if (timer != null)
-            {
-                timer.Cancel();
-            }
+            CancelTimer(timer);
         }
 
         private void Update()

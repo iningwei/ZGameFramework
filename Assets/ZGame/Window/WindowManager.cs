@@ -5,12 +5,13 @@ using System.IO;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using ZGame.Ress.AB;
 
 namespace ZGame.Window
 {
     public class WindowInfo
     {
-        public Type type;
+
         public string scriptName;
         public bool isLuaWindow;
 
@@ -19,10 +20,10 @@ namespace ZGame.Window
         /// </summary>
         public string resName;
 
-        public WindowInfo(Type t, string resName, bool isLuaWindow)
+        public WindowInfo(string scriptName, string resName, bool isLuaWindow)
         {
-            this.type = t;
-            this.scriptName = t.Name.ToString();
+
+            this.scriptName = scriptName;
 
             this.resName = resName;
             this.isLuaWindow = isLuaWindow;
@@ -70,13 +71,13 @@ namespace ZGame.Window
                 if (windowInfos == null)
                 {
                     windowInfos = new Dictionary<string, WindowInfo>();
-                    WindowRegister.Regist();
+                    WindowRegister.Register();
                 }
                 return windowInfos;
             }
         }
 
-        WindowResType windowResType = WindowResType.Prefab;
+        WindowResType windowResType = WindowResType.AssetBundle;
 
 
         //Cached windows, all of them's active is false
@@ -107,7 +108,7 @@ namespace ZGame.Window
             for (int i = 0; i < WindowLayer.LayerList.Count; i++)
             {
                 var layerName = WindowLayer.LayerList[i];
-                layerDic[layerName] = Canvas.Find(layerName);
+                LayerDic[layerName] = Canvas.Find(layerName);
             }
         }
 
@@ -122,21 +123,40 @@ namespace ZGame.Window
             }
         }
 
-        public void RegisterWindowType(string name, Type type, string resName)
+        public void RegisterWindowType(string name, string scriptName, string resName)
         {
-            WindowInfo info = null;
-            windowInfos.TryGetValue(name, out info);
+            WindowInfos.TryGetValue(name, out WindowInfo info);
             if (info == null)
             {
-                info = new WindowInfo(type, resName, false);
-                windowInfos[name] = info;
+                info = new WindowInfo(scriptName, resName, false);
+                WindowInfos[name] = info;
             }
             else
             {
-                Debug.LogError("error,already registed WindowType:" + type.ToString());
+                Debug.LogError("error,already registed C# WindowType:" + scriptName);
             }
         }
 
+
+
+        public void RegisterLuaWindowType(string name,string resName)
+        {
+            WindowInfos.TryGetValue(name, out WindowInfo info);
+            if (info == null)
+            {
+                Debug.Log("RegisterLuaWindowType:" + name);
+                info = new WindowInfo(name, resName, true);
+               WindowInfos[name] = info;
+            }
+            else
+            {
+                //一种情况是C#侧已经注册了该窗体
+                //一种情况是LUA侧已经注册了该窗体
+                Debug.Log("Force RegisterLuaWindowType:" + name);
+                info = new WindowInfo(name, resName, true);
+                WindowInfos[name] = info;
+            }
+        }
 
 
 
@@ -272,8 +292,7 @@ namespace ZGame.Window
 
                     if (windowResType == WindowResType.AssetBundle)
                     {
-                        //TODO:
-                        //uiObj = ABManager.Instance.LoadWindow(info.resName);
+                        uiObj = ABManager.Instance.LoadWindow(info.resName);
                     }
                     else if (windowResType == WindowResType.Prefab)
                     {
@@ -281,8 +300,15 @@ namespace ZGame.Window
                     }
 
                     source = WindowResSource.Newborn;
-                    Type t = Type.GetType(windowName);
-                    target = Activator.CreateInstance(t, new object[] { uiObj, windowName }) as Window;
+                    if (info.isLuaWindow)
+                    {
+                        target = new LuaBridgeWindow(uiObj, windowName);
+                    }
+                    else
+                    {
+                        Type t = Type.GetType(windowName);
+                        target = Activator.CreateInstance(t, new object[] { uiObj, windowName }) as Window;
+                    }
                 }
             }
             if (target == null)

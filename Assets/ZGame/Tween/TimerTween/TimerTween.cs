@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ZGame.TimerTween
 {
-    class TimerTween
+    public class TimerTween
     {
         public static Timer Value(float from, float to, float duration, float interval, Action<float> updateCallback, Action complteCallback)
         {
@@ -28,7 +28,7 @@ namespace ZGame.TimerTween
             },
                 onUpdate: (t) =>
             {
-                UnityEngine.Debug.Log("  t:" + t);
+                //UnityEngine.Debug.Log("  t:" + t);
                 if (Math.Abs(t - lastTime) >= interval)
                 {
                     tickedCount++;
@@ -132,32 +132,19 @@ namespace ZGame.TimerTween
             return timer;
         }
 
-        public static void Cancel(int id)
+        public static void Cancel(Timer timer)
         {
-            if (id > 0)
-            {
-                Timer timer = TimerManager.Instance.GetTimer(id);
-                timer.Cancel();
-            }
+            TimerManager.Instance.CancelTimer(timer);
         }
 
-        public static void Pause(int id)
+        public static void Pause(Timer timer)
         {
-            if (id > 0)
-            {
-                Timer timer = TimerManager.Instance.GetTimer(id);
-                timer.Pause();
-            }
+            timer?.Pause();
         }
 
-        public static void Resume(int id)
+        public static void Resume(Timer timer)
         {
-            if (id > 0)
-            {
-                Timer timer = TimerManager.Instance.GetTimer(id);
-                timer.Pause();
-            }
+            timer?.Resume();
         }
-
     }
 }

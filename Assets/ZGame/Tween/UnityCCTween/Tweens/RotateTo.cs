@@ -9,7 +9,8 @@ namespace ZGame.cc
         Vector3 startAngle;
         Vector3 targetAngle;
         Space relativeSpace;
-        public RotateTo(float duration, Vector3 targetAngle, Space relativeSpace)
+        bool ignoreClosest = false;
+        public RotateTo(float duration, Vector3 targetAngle, Space relativeSpace, bool ignoreClosest = false)
         {
             if (duration < 0)
             {
@@ -20,6 +21,7 @@ namespace ZGame.cc
             this.targetAngle = targetAngle;
             //Debug.LogError("targetAngle:" + this.targetAngle);
             this.relativeSpace = relativeSpace;
+            this.ignoreClosest = ignoreClosest;
             this.SetTweenName("RotateTo");
         }
 
@@ -94,14 +96,18 @@ namespace ZGame.cc
             {
                 this.startAngle = this.relativeSpace == Space.Self ? this.holder.transform.localEulerAngles : this.holder.transform.eulerAngles;
 
-                //caculate more suitable targetAngle
-                //if not
-                //Such as statAngle x=300, targetAngle x=10, then it will rotate from 300 to 10 like 290、270、260...10. It rotated 290 degree.In fact we need it rotate 70 degree in xAxis
 
-                Vector3 suitTargetAngle = new Vector3(closestRot(this.startAngle.x, this.targetAngle.x), closestRot(this.startAngle.y, this.targetAngle.y), closestRot(this.startAngle.z, this.targetAngle.z));
-                Debug.LogError($"startAngle:{startAngle}, targetAngle:{targetAngle},suitTargetAngle:{suitTargetAngle}");
+                if (this.ignoreClosest == false)
+                {
+                    //caculate more suitable targetAngle
+                    //if not
+                    //Such as statAngle x=300, targetAngle x=10, then it will rotate from 300 to 10 like 290、270、260...10. It rotated 290 degree.In fact we need it rotate 70 degree in xAxis
 
-                this.targetAngle = suitTargetAngle;
+                    Vector3 suitTargetAngle = new Vector3(closestRot(this.startAngle.x, this.targetAngle.x), closestRot(this.startAngle.y, this.targetAngle.y), closestRot(this.startAngle.z, this.targetAngle.z));
+                    //Debug.LogError($"startAngle:{startAngle}, targetAngle:{targetAngle},suitTargetAngle:{suitTargetAngle}");
+
+                    this.targetAngle = suitTargetAngle;
+                }
             }
             else
             {

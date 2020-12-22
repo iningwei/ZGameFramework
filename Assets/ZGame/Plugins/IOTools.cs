@@ -259,4 +259,16 @@ public class IOTools
         }
         File.WriteAllText(path, content);
     }
+
+
+    /// <summary>
+    /// 获得文件所在的文件夹名
+    /// </summary>
+    /// <param name="filePath"></param>
+    /// <returns></returns>
+    public static string GetFileFolderName(string filePath)
+    {
+        var directory = Path.GetDirectoryName(filePath);
+        return Path.GetFileNameWithoutExtension(directory);
+    }
 }

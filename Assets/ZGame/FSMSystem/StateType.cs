@@ -28,5 +28,5 @@ public enum StateType
     CleanerPlayDropAnim,
     CleanerDropTarget,
     CleanerMoveBackToCar,
-    CleanerAnchor,
+    CleanerPatrolFollowCar,
 }

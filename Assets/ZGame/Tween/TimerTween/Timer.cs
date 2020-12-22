@@ -8,7 +8,7 @@ using UnityEngine.Rendering;
 
 namespace ZGame.TimerTween
 {
-    class Timer
+    public class Timer
     {
 
         private Action onComplete;

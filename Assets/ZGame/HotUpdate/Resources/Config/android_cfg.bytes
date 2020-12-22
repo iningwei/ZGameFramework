@@ -1,0 +1,24 @@
+{
+	"appversion":"1.0.3",
+	"appbundleversion":"12",
+	"resbigversion": "1.0",
+	"ressmallversion": "0",
+	"channelid": 100,
+	"ftpurllist": {
+		"ftpinnerurl": "http://10.200.0.109:8088/hotupdate",
+		"ftpdevurl": "https://slots.appcdn.top/res",
+		"ftppuburl": "http://cdn.slotsmastergames.com/res"
+	},
+
+	"postcmdurllist": {
+		"daidevurl":"http://10.20.1.213:40100/capi/unicmd",
+		"onlineurl": "http://api.crazyslotsgame.com/capi/unicmd"
+	},
+	"subgamelist": [{
+		"name": "goldminer",
+		"abname": "subgamegoldminer",
+		"size": 9661068,
+		"md5": "3e2f33e6a917f52570efca245195e0e5",
+		"install": true
+	}]
+}
