@@ -26,15 +26,15 @@ namespace ZGame.Ress.AB
             string path = "";
             if (IOTools.IsResInPDir(name))
             {
-                path = IOTools.GetResPPath(name);
+                path = IOTools.GetResPersistantPath(name);
             }
             else
             {
-                path = IOTools.GetResSPath(name);
+                path = IOTools.GetResStreamingPath(name);
             }
 
 
-            //Debug.Log("loadAB--->" + name + ",  path:" + path);
+             //Debug.Log("loadAB--->" + name + ",  path:" + path);
             ab = AssetBundle.LoadFromFile(path);
             if (ab == null)
             {

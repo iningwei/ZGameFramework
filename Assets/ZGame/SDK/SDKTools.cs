@@ -40,19 +40,19 @@ namespace ZGame.SDK
 
         public static string GetDeviceId()
         {
-#if UNITY_EDITOR
+#if  UNITY_EDITOR
             return "0_" + getGUID() + "@@" + getMacAddress();
 #elif UNITY_ANDROID
-           var uniqueID = new AndroidJavaClass("com.zgame.sdk.DeviceID");
-        string id;
-        using (AndroidJavaClass jc = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
-        {
-            object jo = jc.GetStatic<AndroidJavaObject>("currentActivity");
-            id = uniqueID.CallStatic<string>("Get", jo);
-        }
-        id="1_"+id;
-        Debug.Log("get device ID：" + id);
-        return id;
+            var uniqueID = new AndroidJavaClass("com.zgame.sdk.DeviceID");
+            string id;
+            using (AndroidJavaClass jc = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
+            {
+                object jo = jc.GetStatic<AndroidJavaObject>("currentActivity");
+                id = uniqueID.CallStatic<string>("Get", jo, false);
+            }
+            id = "1_" + id;
+            Debug.Log("get device ID：" + id);
+            return id;
 #elif UNITY_IOS
          string sid = DeviceUniqueId();
           sid = sid.Replace("-", "");

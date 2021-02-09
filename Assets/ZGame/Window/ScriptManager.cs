@@ -6,6 +6,7 @@ using UnityEngine;
 #if XLua
 using XLua;
 using ZGame.Net.Tcp;
+using ZGame.Ress.AB;
 #endif
 
 public class LuaResLoader : Singleton<LuaResLoader>
@@ -23,10 +24,11 @@ public class LuaResLoader : Singleton<LuaResLoader>
         //得到脚本路径下所有.lua脚本
         Debug.Log("lua script：load by ordinary .lua file");
         getAllLuaFiles(Application.dataPath + "/../LuaScript");
-        onLogicFileLoaded();
+        onLogicFileLoaded?.Invoke();
 #else
-            Debug.Log("lua logic：load by ab");
-            LoadScriptBundle("logic");
+        Debug.Log("lua logic：load by ab");
+        LoadScriptBundle("logic");
+        onLogicFileLoaded?.Invoke();
 #endif
     }
 
@@ -82,38 +84,30 @@ public class LuaResLoader : Singleton<LuaResLoader>
     /// </summary> 
     public void LoadScriptBundle(string name)
     {
-        //////BundleAsset.LoadLogicBundle(name + IOTools.abSuffix,
-        //////    (AssetBundle ab) =>
-        //////    {
-        //////        LoadScriptBundle2(ab);
-        //////        if (onLogicFileLoaded != null)
-        //////        {
-        //////            onLogicFileLoaded();
-        //////        }
-        //////    });
-    }
 
-    public void LoadScriptBundle2(AssetBundle luaBundleRes)
-    {
-        var ress = luaBundleRes.LoadAllAssets<TextAsset>();
-        for (int i = 0; i < ress.Length; i++)
+        var tas = ABManager.Instance.LoadLogic(name);
+        for (int i = 0; i < tas.Length; i++)
         {
-            string key = ress[i].name.ToLower();
+            string key = tas[i].name.ToLower();
             if (codeFileMap.ContainsKey(key))
             {
-                codeFileMap[key] = ress[i].text;
+                codeFileMap[key] = tas[i].text;
             }
             else
             {
-                codeFileMap.Add(key, ress[i].text);
+                codeFileMap.Add(key, tas[i].text);
             }
         }
-        luaBundleRes.Unload(false);
+
+
+
     }
+
+
 
     /// <summary>
     /// 重写 读取lua文件函数
-    /// 编辑器环境下，若开启HOTUPDATE宏，则从bundle读取；否则从外部指定目录直接读取lua        
+    /// 编辑器环境下，若开启HOTUPDATE宏，则从bundle读取；否则从外部指定目录直接读取lua
     /// 在非编辑器环境下，统一从lua  bundle文件读取，bundle文件可用来更新
     /// </summary> 
     public string ReadFile(string fileName)
@@ -143,17 +137,17 @@ public class LuaResLoader : Singleton<LuaResLoader>
         return str;
 #else
 
-            string str = null;
-            codeFileMap.TryGetValue(fileName, out str);
-            if (str != null)
-            {
-                return str;
-            }
-            else
-            {
-                Debug.LogError("can not file file:" + fileName);
-                return null;
-            }
+        string str = null;
+        codeFileMap.TryGetValue(fileName, out str);
+        if (str != null)
+        {
+            return str;
+        }
+        else
+        {
+            Debug.LogError("can not file file:" + fileName);
+            return null;
+        }
 
 #endif
 
@@ -207,12 +201,12 @@ public class ScriptManager : Singleton<ScriptManager>
 #endif
     }
 #if XLua
-    public void SetSocketMsg(string serverAddress, string identityToken )
+    public void SetSocketMsg(string serverAddress, string identityToken)
     {
         Action<string> luaSetSocketMsg = ScriptManager.Instance.GetLuaActionWithP1<string>("SetSocketMsg");
         if (luaSetSocketMsg != null)
         {
-            string msg = serverAddress + "|" + identityToken  ;
+            string msg = serverAddress + "|" + identityToken;
             luaSetSocketMsg(msg);
         }
         else

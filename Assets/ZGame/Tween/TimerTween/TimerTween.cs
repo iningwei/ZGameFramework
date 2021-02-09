@@ -9,7 +9,7 @@ namespace ZGame.TimerTween
 {
     public class TimerTween
     {
-        public static Timer Value(float from, float to, float duration, float interval, Action<float> updateCallback, Action complteCallback)
+        public static Timer ValueByInterval(float from, float to, float duration, float interval, Action<float> updateCallback, Action complteCallback)
         {
             float lastTime = 0;
             float gap = to - from;

@@ -155,7 +155,7 @@ namespace ZGame.RessEditor
                         if (mat != null)
                         {
 
-                            if (mat.name == "Defaul-ParticleSystem")
+                            if (mat.name == "Default-ParticleSystem")
                             {
                                 Debug.LogError("使用了默认材质球， mat.name:" + mat.name + ", objPath:" + render.transform.Hierarchy());
                                 return false;
@@ -248,10 +248,12 @@ namespace ZGame.RessEditor
                 return true;
             }
 
-            if (shaderName == "GUI/Text Shader")//TODO:TextMesh组件使用的MeshRender
-            {
-                return true;
-            }
+            //////if (shaderName == "GUI/Text Shader")//TODO:TextMesh组件使用的MeshRender
+            //////{
+            //////    return true;
+            //////}
+            ///
+
             if (shaderName == "Spine/Skeleton")//TODO:暂时spine骨骼还没有做shader、图片等拆分
             {
                 return true;
@@ -344,7 +346,7 @@ namespace ZGame.RessEditor
                     img.sprite.name == "DropdownArrow" ||
                     img.sprite.name == "Checkmark")
                 {
-                    Debug.LogError("使用了默认贴图," + img.name);
+                    Debug.LogError("使用了默认贴图," + img.name + ", 贴图名：" + img.sprite.name);
                     return false;
                 }
             }

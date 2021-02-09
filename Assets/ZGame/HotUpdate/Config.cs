@@ -16,9 +16,17 @@ namespace ZGame.HotUpdate
     }
     public class PostCMDConfig
     {
-        //代哥开发服
+        /// <summary>
+        /// 代哥开发服
+        /// </summary>
         public string daiDevUrl;
-        //线上地址
+        /// <summary>
+        /// 外网测试地址
+        /// </summary>
+        public string outerTestUrl;
+        /// <summary>
+        /// 线上地址
+        /// </summary>
         public string onLineUrl;
     }
 
@@ -79,6 +87,7 @@ namespace ZGame.HotUpdate
             postCMDConfig = new PostCMDConfig();
             var postCmdDic = dic["postcmdurllist"] as Dictionary<string, object>;
             postCMDConfig.daiDevUrl = (string)postCmdDic["daidevurl"];
+            postCMDConfig.outerTestUrl = (string)postCmdDic["outertesturl"];
             postCMDConfig.onLineUrl = (string)postCmdDic["onlineurl"];
 
             var subgameList = (List<object>)dic["subgamelist"];

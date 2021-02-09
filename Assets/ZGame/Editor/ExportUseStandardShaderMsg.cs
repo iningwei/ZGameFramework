@@ -20,13 +20,16 @@ public class ExportUseStandardShaderMsg : Editor
             {
                 continue;
             }
+
             Material[] mats = meshRenderer.sharedMaterials;
+             
             if (mats.Length > 0)
             {
                 for (int j = 0; j < mats.Length; j++)
                 {
                     Material mat = mats[j];
-                    if (mat.shader != null && mat.shader.name.Contains("Standard"))
+
+                    if (mat != null && mat.shader != null && mat.shader.name.Contains("Standard"))
                     {
                         string path = meshRenderer.gameObject.name;
                         Transform tempParent = meshRenderer.transform.parent;

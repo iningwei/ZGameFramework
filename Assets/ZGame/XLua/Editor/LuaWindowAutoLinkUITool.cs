@@ -179,8 +179,21 @@ public class LuaWindowAutoLinkUITool : Editor
         }
         else if (trans.name.EndsWith("Btn"))
         {
-            descSB.AppendFormat("\t\t---@field public {0} UnityEngine.UI.Button\r\n", trans.name);
-            contentSB.AppendFormat("\t\tuis.{0}=ui:Find(\"{1}\"):GetComponent(typeof(CS.UnityEngine.UI.Button))\r\n", trans.name, path);
+            if (trans.name.EndsWith("PressBtn"))
+            {
+                descSB.AppendFormat("\t\t---@field public {0} ZGame.UGUIExtention.PressButton\r\n", trans.name);
+                contentSB.AppendFormat("\t\tuis.{0}=ui:Find(\"{1}\"):GetComponent(typeof(CS.ZGame.UGUIExtention.PressButton))\r\n", trans.name, path);
+            }
+            else if (trans.name.EndsWith("SwitchBtn"))
+            {
+                descSB.AppendFormat("\t\t---@field public {0} ZGame.UGUIExtention.SwitchButton\r\n", trans.name);
+                contentSB.AppendFormat("\t\tuis.{0}=ui:Find(\"{1}\"):GetComponent(typeof(CS.ZGame.UGUIExtention.SwitchButton))\r\n", trans.name, path);
+            }
+            else
+            {
+                descSB.AppendFormat("\t\t---@field public {0} UnityEngine.UI.Button\r\n", trans.name);
+                contentSB.AppendFormat("\t\tuis.{0}=ui:Find(\"{1}\"):GetComponent(typeof(CS.UnityEngine.UI.Button))\r\n", trans.name, path);
+            }
         }
         else if (trans.name.EndsWith("Txt"))
         {
@@ -196,6 +209,16 @@ public class LuaWindowAutoLinkUITool : Editor
         {
             descSB.AppendFormat("\t\t---@field public {0} UnityEngine.UI.Slider\r\n", trans.name);
             contentSB.AppendFormat("\t\tuis.{0}=ui:Find(\"{1}\"):GetComponent(typeof(CS.UnityEngine.UI.Slider))\r\n", trans.name, path);
+        }
+        else if (trans.name.EndsWith("Holder"))
+        {
+            descSB.AppendFormat("\t\t---@field public {0} UnityEngine.Transform\r\n", trans.name);
+            contentSB.AppendFormat("\t\tuis.{0}=ui:Find(\"{1}\")\r\n", trans.name, path);
+        }
+        else if (trans.name.EndsWith("RadioButtonGroup"))
+        {
+            descSB.AppendFormat("\t\t---@field public {0} ZGame.UGUIExtention.RadioButtonGroup\r\n", trans.name);
+            contentSB.AppendFormat("\t\tuis.{0}=ui:Find(\"{1}\"):GetComponent(typeof(CS.ZGame.UGUIExtention.RadioButtonGroup))\r\n", trans.name, path);
         }
         else
         {

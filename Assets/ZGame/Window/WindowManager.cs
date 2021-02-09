@@ -139,14 +139,14 @@ namespace ZGame.Window
 
 
 
-        public void RegisterLuaWindowType(string name,string resName)
+        public void RegisterLuaWindowType(string name, string resName)
         {
             WindowInfos.TryGetValue(name, out WindowInfo info);
             if (info == null)
             {
                 Debug.Log("RegisterLuaWindowType:" + name);
                 info = new WindowInfo(name, resName, true);
-               WindowInfos[name] = info;
+                WindowInfos[name] = info;
             }
             else
             {
@@ -328,22 +328,52 @@ namespace ZGame.Window
                 window.HandleMessage(msgId, datas);
             }
         }
+        public void SendMessageToAllOpenedWindow(int msgId, params object[] datas)
+        {
+            foreach (var item in this.openedWindows)
+            {
+                item.Value.HandleMessage(msgId, datas);
+            }
+        }
+
+
+        public void CloseAllWindow(bool forceDestroy = false)
+        {
+            List<Window> windows = new List<Window>(this.openedWindows.Values);
+            for (int i = windows.Count - 1; i >= 0; i--)
+            {
+                if (windows[i].neverClose)
+                {
+                    continue;
+                }
+
+                Debug.LogError("close window:" + windows[i].name);
+                CloseWindow(windows[i].name, forceDestroy);
+            }
+        }
 
 
 
 
 
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="name"></param>
-        /// <param name="isCache">whether cache, if not,after window close,we will destroy it</param>     
         /// <param name="layerName">layer to host this window</param>
-        /// <param name="datas">datas for window init use</param>
+        /// <param name="neverClose">can the window be close</param>
+        /// <param name="isCache">whether cache, if not,after window close,we will destroy it</param>
+        /// <param name="onWindowShowed"></param>
+        /// <param name="datas"></param>
         /// <returns></returns>
-        public Window ShowWindow(string name, bool isCache, string layerName, Action onWindowShowed, params object[] datas)
+        public Window ShowWindow(string name, string layerName, bool neverClose, bool isCache, Action onWindowShowed, params object[] datas)
         {
             WindowResSource source = WindowResSource.Unknown;
             Window window = genTargetWindow(name, ref source);
 
             window.isCache = isCache;
+            window.neverClose = neverClose;
+
             if (source == WindowResSource.Cache)
             {
                 updateCachedWindows(window, false);
@@ -363,7 +393,7 @@ namespace ZGame.Window
             onWindowShowed?.Invoke();
             return window;
         }
-        public void ShowWindowAsync(string name, bool isCache, string layerName, Action onWindowShowed, bool forbidUIListener = true, params object[] datas)
+        public void ShowWindowAsync(string name, string layerName, bool neverClose, bool isCache, Action onWindowShowed, params object[] datas)
         {
             //TODO:forbidUIListener
 
@@ -375,6 +405,8 @@ namespace ZGame.Window
                 {
                     Window window = wr.asset as Window;
                     window.isCache = isCache;
+                    window.neverClose = neverClose;
+
                     if (wr.source == WindowResSource.Cache)
                     {
                         updateCachedWindows(window, false);

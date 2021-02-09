@@ -10,6 +10,7 @@ namespace ZGame.Window
         public string name;
         public string windowLayer;
         public bool isCache = false;
+        public bool neverClose = false;
 
         public Transform ui_AniBg;
         public Window(GameObject obj, string windowName)

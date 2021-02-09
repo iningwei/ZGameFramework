@@ -25,7 +25,7 @@ namespace ZGame.Window
                 Component tmpCom = this.rootObj.transform.FindComponent(field.FieldType, field.Name.Replace("ui_", ""), true);
                 if (tmpCom == null)
                 {
-                    Debug.LogWarning("window " + trueType.Name + ",can not find：" + field.Name.Replace("ui_", ""));
+                    //////Debug.LogWarning("window " + trueType.Name + ",can not find：" + field.Name.Replace("ui_", ""));
                     continue;
                 }
 

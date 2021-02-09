@@ -57,6 +57,12 @@ namespace ZGame.Ress
             }
         }
 
+        public bool CheckRefTrs(Transform refTrs)
+        {
+            var f = this.refTrs.Contains(refTrs);
+            return f;
+        }
+
         void destroyRes()
         {
             if (this is SpriteRes)

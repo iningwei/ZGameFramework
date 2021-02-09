@@ -18,8 +18,9 @@ public class OpenByNotepadPP : MonoBehaviour
         if (!(path.EndsWith(".cs") || path.EndsWith(".txt")
             || path.EndsWith(".bin") || path.EndsWith(".xml")
             || path.EndsWith(".shader")
-            ||path.EndsWith(".bin")
-            || path.EndsWith(".bytes")))
+            || path.EndsWith(".bin")
+            || path.EndsWith(".bytes")
+             || path.EndsWith(".json")))
         {
             UnityEngine.Debug.LogError("you can only open .cs .txt .bin .xml .shader .bin .bytes file");
             return;

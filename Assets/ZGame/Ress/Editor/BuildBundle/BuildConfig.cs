@@ -103,17 +103,25 @@ namespace ZGame.RessEditor
             if (resPath.EndsWith(".prefab"))
             {
                 var holder = (asset as GameObject).GetComponent<MatTextureHolder>();
-                if (holder.abType == ABType.Window)
+                if (holder == null)
                 {
-                    return new BuildWindow().Build;
+                    Debug.LogError("no MatTextureHolder attach to:" + resPath);
+                    return null;
                 }
-                else if (holder.abType == ABType.Effect)
+                else
                 {
-                    return new BuildEffect().Build;
-                }
-                else if (holder.abType == ABType.OtherPrefab)
-                {
-                    return new BuildOtherPrefab().Build;
+                    if (holder.abType == ABType.Window)
+                    {
+                        return new BuildWindow().Build;
+                    }
+                    else if (holder.abType == ABType.Effect)
+                    {
+                        return new BuildEffect().Build;
+                    }
+                    else if (holder.abType == ABType.OtherPrefab)
+                    {
+                        return new BuildOtherPrefab().Build;
+                    }
                 }
             }
 

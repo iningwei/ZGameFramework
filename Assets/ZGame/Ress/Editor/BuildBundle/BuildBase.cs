@@ -7,6 +7,8 @@ using System;
 using System.Threading;
 using ZGame.Ress.AB.Holder;
 using ZGame.Ress.AB;
+using Spine.Unity;
+using static ZGame.Ress.AB.Holder.MatTextureHolder;
 
 namespace ZGame.RessEditor
 {
@@ -58,108 +60,6 @@ namespace ZGame.RessEditor
 
 
 
-        #region 处理U2D预制件相关依赖
-        public virtual List<AssetBundleBuild> GetSpriteMapOfU2D(GameObject prefab)
-        {
-            List<AssetBundleBuild> buildMap = new List<AssetBundleBuild>();
-            var holder = prefab.GetComponent<U2DSpriteHolder>();
-            if (holder != null)
-            {
-                GameObject.DestroyImmediate(holder);
-            }
-
-            string prefabPath = AssetDatabase.GetAssetPath(prefab);
-            var newPrefab = PrefabUtility.InstantiatePrefab(prefab) as GameObject;
-            newPrefab.name = "tempNewPrefab_" + prefab.name;
-
-
-
-            holder = newPrefab.AddComponent<U2DSpriteHolder>();
-
-            //holder = prefab.AddComponent<UGUITextureHolder>();//报错
-            holder.entities = new List<U2DSpriteHolder.SpriteEntity>();
-
-            //保存需要打包的图片
-            //key为图片名，value为路径
-            var needBuildTextures = new Dictionary<string, string>();
-
-            var allChilds = newPrefab.GetComponentsInChildren(typeof(Transform), true);
-            for (int i = 0; i < allChilds.Length; i++)
-            {
-                SpriteRenderer sr = allChilds[i].GetComponent<SpriteRenderer>();
-                if (sr != null)
-                {
-                    U2DSpriteHolder.SpriteEntity entity = new U2DSpriteHolder.SpriteEntity
-                        (sr.transform, sr.sprite != null ? sr.sprite.texture.name : "", sr.sprite != null ? sr.sprite.name : "", sr.sharedMaterial, sr.sharedMaterial.shader.name);
-                    holder.entities.Add(entity);
-
-                    if (sr.sprite != null)
-                    {
-                        string texPath = AssetDatabase.GetAssetPath(sr.sprite);
-                        //Debug.LogWarning("atlasName:" + sr.sprite.texture.name + ",spriteName:" + sr.sprite.name + ", texPath:" + texPath);
-                        needBuildTextures[sr.sprite.texture.name] = texPath;
-                    }
-                }
-            }
-
-
-            //处理打包map                    
-            foreach (var item in needBuildTextures)
-            {
-                AssetBundleBuild build = new AssetBundleBuild();
-                build.assetBundleName = ABTypeUtil.GetPreFix(ABType.Sprite) + item.Key.ToLower() + IOTools.abSuffix;
-                build.assetNames = new string[] { item.Value };
-                buildMap.Add(build);
-            }
-
-            bool isSuccess = false;
-            PrefabUtility.SaveAsPrefabAsset(newPrefab, prefabPath, out isSuccess);
-            GameObject.DestroyImmediate(newPrefab);
-
-            return buildMap;
-        }
-
-        public virtual void SetTextHolderOfU2D(GameObject prefab)
-        {
-            List<AssetBundleBuild> buildMap = new List<AssetBundleBuild>();
-            var holder = prefab.GetComponent<U2DTextHolder>();
-            if (holder != null)
-            {
-                GameObject.DestroyImmediate(holder);
-            }
-
-            string prefabPath = AssetDatabase.GetAssetPath(prefab);
-            var newPrefab = PrefabUtility.InstantiatePrefab(prefab) as GameObject;
-            newPrefab.name = "tempNewPrefab_" + prefab.name;
-
-
-
-            holder = newPrefab.AddComponent<U2DTextHolder>();
-
-
-            holder.entities = new List<U2DTextHolder.TextEntity>();
-
-
-
-            var allChilds = newPrefab.GetComponentsInChildren(typeof(Transform), true);
-            for (int i = 0; i < allChilds.Length; i++)
-            {
-                TextMesh text = allChilds[i].GetComponent<TextMesh>();
-                if (text != null && text.font != null)
-                {
-                    U2DTextHolder.TextEntity entity = new U2DTextHolder.TextEntity
-                        (text.transform, text.font.name);
-                    holder.entities.Add(entity);
-                }
-            }
-
-
-            bool isSuccess = false;
-            PrefabUtility.SaveAsPrefabAsset(newPrefab, prefabPath, out isSuccess);
-            GameObject.DestroyImmediate(newPrefab);
-        }
-
-        #endregion
 
 
 
@@ -167,29 +67,20 @@ namespace ZGame.RessEditor
         class BuildTextureValue
         {
             public string path;
-            public MatTextureHolder.MatInfo.MatType matType;
-            public BuildTextureValue(string path, MatTextureHolder.MatInfo.MatType matType)
+
+            public bool isSprite;
+            public BuildTextureValue(string path, bool isSprite)
             {
                 this.path = path;
-                this.matType = matType;
+
+                this.isSprite = isSprite;
             }
         }
 
         public List<AssetBundleBuild> GetMatTexMap(string originPath, GameObject tmpPrefab)
         {
             List<AssetBundleBuild> buildMap = new List<AssetBundleBuild>();
-            //////var holder = prefab.GetComponent<MatTexHolder>();
-            //////if (holder != null)
-            //////{
-            //////    GameObject.DestroyImmediate(holder);
-            //////}
 
-            //////string prefabPath = AssetDatabase.GetAssetPath(prefab);
-            ////////新版本的预制件系统，已经不能直接对预制件进行操作(比如AddComponent)了，必须把预制件实例化物体
-            //////var newPrefab = PrefabUtility.InstantiatePrefab(prefab) as GameObject;
-            //////newPrefab.name = "tempNewPrefab_" + prefab.name;
-
-            //////holder = newPrefab.AddComponent<MatTexHolder>();
 
 
             var holder = tmpPrefab.GetComponent<MatTextureHolder>();
@@ -208,7 +99,9 @@ namespace ZGame.RessEditor
             }
 
 
-            holder.allMatInfos = new List<MatTextureHolder.TransformMatInfo>();
+            holder.allTransformInfos = new List<MatTextureHolder.TransformInfo>();
+            holder.allSpriteSequenceInfos = new List<SpriteSequenceInfo>();
+
 
             //保存需要打包的图片 或图集名
             var needBuildTextures = new Dictionary<string, BuildTextureValue>();
@@ -218,30 +111,32 @@ namespace ZGame.RessEditor
             //还有 SpriteRenderer,其中SpriteRenderer使用的图片类型为 精灵 格式
             var rendererChilds = new List<Renderer>();
             tmpPrefab.GetComponentsInChildren<Renderer>(true, rendererChilds);
+            Debug.Log(tmpPrefab.name + "'s Renderer count:" + rendererChilds.Count);
 
             var imageChilds = new List<Image>();//UGUI Image组件，使用的图片类型为 精灵 格式
             tmpPrefab.GetComponentsInChildren<Image>(true, imageChilds);
-
+            Debug.Log(tmpPrefab.name + "'s Image count:" + imageChilds.Count);
 
             var textChilds = new List<Text>();
             tmpPrefab.GetComponentsInChildren<Text>(true, textChilds);
+            Debug.Log(tmpPrefab.name + "'s Text count:" + textChilds.Count);
 
-
+            var spriteSequenceChilds = new List<SpriteSequence>();//UGUI ext组件。使用图片类型为 精灵 格式
+            tmpPrefab.GetComponentsInChildren<SpriteSequence>(true, spriteSequenceChilds);
+            Debug.Log(tmpPrefab.name + "'s SpriteSequence count:" + spriteSequenceChilds.Count);
             //TODO:其它类型有图片依赖的
-            Debug.Log(tmpPrefab.name + "'s Renderer count:" + rendererChilds.Count);
+
+
+
             for (int i = 0; i < rendererChilds.Count; i++)
             {
                 Renderer renderer = rendererChilds[i];
 
-                //if (
-                //    renderer.transform.Hierarchy().Contains("guaiwu") ||
-                //    renderer.transform.Hierarchy().Contains("bullet") ||
-                //    renderer.transform.Hierarchy().Contains("missile") ||
-                //    renderer.transform.Hierarchy().Contains("trail") ||
-                //    renderer.transform.Hierarchy().Contains("body"))
-                //{
-                //    continue;//说明是Spine做的东西，不需要处理依赖
-                //}
+                if (renderer.gameObject.GetComponent<SkeletonAnimation>() != null)
+                {
+                    continue;//说明是Spine做的东西，不需要处理依赖
+                }
+
 
                 bool isSprite = false;
                 var matInfos = new List<MatTextureHolder.MatInfo>();
@@ -267,12 +162,12 @@ namespace ZGame.RessEditor
 
 
                     string texPath = AssetDatabase.GetAssetPath(sr.sprite.texture);
-                    needBuildTextures[sr.sprite.texture.name] = new BuildTextureValue(texPath, MatTextureHolder.MatInfo.MatType.SpriteRenderer);
+                    needBuildTextures[sr.sprite.texture.name] = new BuildTextureValue(texPath, true);
 
                     matInfos.Add(matInfo);
-                    MatTextureHolder.TransformMatInfo trsMatInfo = new MatTextureHolder.TransformMatInfo(renderer.transform, matInfos);
+                    MatTextureHolder.TransformInfo trsMatInfo = new MatTextureHolder.TransformInfo(renderer.transform, matInfos);
 
-                    holder.allMatInfos.Add(trsMatInfo);
+                    holder.allTransformInfos.Add(trsMatInfo);
                 }
                 else
                 {
@@ -311,12 +206,12 @@ namespace ZGame.RessEditor
                                         continue;
                                     }
                                     //TODO:这里需要检测使用的图片是否是基本图片类型，不允许使用sprite类型
-
+                                    //TODO:
                                     string atlasName = "";
                                     string texName = tex.name;
 
 
-                                    needBuildTextures[tex.name] = new BuildTextureValue(texPath, MatTextureHolder.MatInfo.MatType.NormalRenderer);
+                                    needBuildTextures[tex.name] = new BuildTextureValue(texPath, false);
 
                                     MatTextureHolder.TextureInfo texInfo = new MatTextureHolder.TextureInfo(isSprite, propertyName, texName, atlasName);
                                     texInfos.Add(texInfo);
@@ -330,9 +225,9 @@ namespace ZGame.RessEditor
                             matInfos.Add(matInfo);
                         }
 
-                        MatTextureHolder.TransformMatInfo trsMatInfo = new MatTextureHolder.TransformMatInfo(renderer.transform, matInfos);
+                        MatTextureHolder.TransformInfo trsMatInfo = new MatTextureHolder.TransformInfo(renderer.transform, matInfos);
 
-                        holder.allMatInfos.Add(trsMatInfo);
+                        holder.allTransformInfos.Add(trsMatInfo);
                     }
                     else
                     {
@@ -341,8 +236,6 @@ namespace ZGame.RessEditor
                 }
             }
 
-
-            Debug.Log(tmpPrefab.name + "'s Image count:" + imageChilds.Count);
             for (int i = 0; i < imageChilds.Count; i++)
             {
                 Image image = imageChilds[i];
@@ -367,18 +260,15 @@ namespace ZGame.RessEditor
                 if (image.sprite != null)
                 {
                     string texPath = AssetDatabase.GetAssetPath(image.sprite.texture);
-                    needBuildTextures[image.sprite.texture.name] = new BuildTextureValue(texPath, MatTextureHolder.MatInfo.MatType.Image);
+                    needBuildTextures[image.sprite.texture.name] = new BuildTextureValue(texPath, true);
                 }
 
                 matInfos.Add(matInfo);
-                MatTextureHolder.TransformMatInfo trsMatInfo = new MatTextureHolder.TransformMatInfo(image.transform, matInfos);
+                MatTextureHolder.TransformInfo trsMatInfo = new MatTextureHolder.TransformInfo(image.transform, matInfos);
 
-                holder.allMatInfos.Add(trsMatInfo);
+                holder.allTransformInfos.Add(trsMatInfo);
             }
 
-
-
-            Debug.Log(tmpPrefab.name + "'s Text Count:" + textChilds.Count);
             for (int i = 0; i < textChilds.Count; i++)
             {
                 Text text = textChilds[i];
@@ -397,9 +287,39 @@ namespace ZGame.RessEditor
 
 
                 matInfos.Add(matInfo);
-                MatTextureHolder.TransformMatInfo trsMatInfo = new MatTextureHolder.TransformMatInfo(text.transform, matInfos);
+                MatTextureHolder.TransformInfo trsMatInfo = new MatTextureHolder.TransformInfo(text.transform, matInfos);
 
-                holder.allMatInfos.Add(trsMatInfo);
+                holder.allTransformInfos.Add(trsMatInfo);
+            }
+
+
+
+            for (int i = 0; i < spriteSequenceChilds.Count; i++)
+            {
+
+
+                SpriteSequence seq = spriteSequenceChilds[i];
+                var sprites = seq.sprites;
+
+                List<TextureInfo> texInfos = new List<TextureInfo>();
+                if (sprites != null && sprites.Length > 0)
+                {
+                    for (int j = 0; j < sprites.Length; j++)
+                    {
+                        Sprite s = sprites[j];
+                        bool isSprite = true;
+                        var matInfos = new List<MatTextureHolder.MatInfo>();
+                        string atlasName = s.texture.name;
+                        string texName = s.name;
+                        MatTextureHolder.TextureInfo texInfo = new MatTextureHolder.TextureInfo(isSprite, "", texName, atlasName);
+                        texInfos.Add(texInfo);
+
+                        string texPath = AssetDatabase.GetAssetPath(s.texture);
+                        needBuildTextures[atlasName] = new BuildTextureValue(texPath, true);
+                    }
+                }
+                var spriteSequenceInfo = new SpriteSequenceInfo(seq.transform, texInfos);
+                holder.allSpriteSequenceInfos.Add(spriteSequenceInfo);
             }
 
 
@@ -409,19 +329,14 @@ namespace ZGame.RessEditor
             {
                 AssetBundleBuild build = new AssetBundleBuild();
                 string preFix = "";
-                switch (item.Value.matType)
+
+                if (item.Value.isSprite)
                 {
-                    case MatTextureHolder.MatInfo.MatType.Image:
-                        preFix = ABTypeUtil.GetPreFix(ABType.Sprite);
-                        break;
-                    case MatTextureHolder.MatInfo.MatType.SpriteRenderer:
-                        preFix = ABTypeUtil.GetPreFix(ABType.Sprite);
-                        break;
-                    case MatTextureHolder.MatInfo.MatType.NormalRenderer:
-                        preFix = ABTypeUtil.GetPreFix(ABType.Texture);
-                        break;
-                    default:
-                        break;
+                    preFix = ABTypeUtil.GetPreFix(ABType.Sprite);
+                }
+                else
+                {
+                    preFix = ABTypeUtil.GetPreFix(ABType.Texture);
                 }
                 build.assetBundleName = preFix + item.Key.ToLower() + IOTools.abSuffix;
                 build.assetNames = new string[] { item.Value.path };

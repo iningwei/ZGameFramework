@@ -1,6 +1,8 @@
 // Unity built-in shader source. Copyright (c) 2016 Unity Technologies. MIT license (see license.txt)
 
-Shader "Particles/Standard Unlit"
+//Origin is Particles/Standard Unlit
+
+Shader "My/ParticleSystem/Default"
 {
     Properties
     {

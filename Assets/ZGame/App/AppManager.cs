@@ -24,7 +24,7 @@ namespace ZGame
         Action<bool> appFocus = (b) =>
         {
             //Debug.Log("app focus:" + b);
-            Time.timeScale = b ? 1 : 0;
+            //Time.timeScale = b ? 1 : 0;
         };
 
 
@@ -33,7 +33,9 @@ namespace ZGame
         [HideInInspector]
 
 
-        public bool UseOriginLuaScript = true;
+        //使用原始Lua脚本的方式
+        //当且仅当在Editor和未开启HOTUPDATE宏的情况下才使用
+        public bool UseOriginLuaScript = false;
 
         public bool IsFirstGame = false;
         public void Init()
@@ -66,6 +68,14 @@ namespace ZGame
 #else
             packType = PackType.DEV;
 #endif
+
+
+#if UNITY_EDITOR && !HOTUPDATE
+            UseOriginLuaScript = true;
+#else
+            UseOriginLuaScript = false;
+#endif
+
 
             ScriptManager.Instance.Init();
         }

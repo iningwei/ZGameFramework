@@ -1,6 +1,6 @@
 {
-	"appversion":"1.0.3",
-	"appbundleversion":"12",
+	"appversion":"1.0.1",
+	"appbundleversion":"1",
 	"resbigversion": "1.0",
 	"ressmallversion": "0",
 	"channelid": 100,
@@ -11,7 +11,8 @@
 	},
 
 	"postcmdurllist": {
-		"daidevurl":"http://10.20.1.213:40100/capi/unicmd",
+		"daidevurl":"http://10.20.1.213:58010/capi/unicmd",
+		"outertesturl":"http://103.192.215.35:58010/capi/unicmd",
 		"onlineurl": "http://api.crazyslotsgame.com/capi/unicmd"
 	},
 	"subgamelist": [{

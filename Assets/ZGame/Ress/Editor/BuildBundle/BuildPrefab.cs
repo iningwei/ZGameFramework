@@ -38,13 +38,8 @@ namespace ZGame.RessEditor
 
 
             var texMap = GetMatTexMap(path, tmpPrefab);
-            ////////处理Sprite图片依赖
-            //////var spriteMap = GetSpriteMapOfU2D(tmpPrefab);
-
-            ////////处理字体依赖
-            ////////字体放到common内了，这里不需要手动处理了
-            //////SetTextHolderOfU2D(tmpPrefab);
-
+      
+            
             //处理真实目标,以及设置依赖关系
             EditorUtility.SetDirty(tmpPrefab);
             AssetDatabase.SaveAssets();

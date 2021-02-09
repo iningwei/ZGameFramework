@@ -5,7 +5,7 @@
 // - no lightmap support
 // - no per-material color
 
-Shader "Unlit/Texture" {
+Shader "My/Unlit/Texture" {
 Properties {
     _MainTex ("Base (RGB)", 2D) = "white" {}
 }

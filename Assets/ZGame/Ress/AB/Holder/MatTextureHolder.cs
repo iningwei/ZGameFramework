@@ -65,6 +65,8 @@ namespace ZGame.Ress.AB.Holder
                 SpriteRenderer,//对应Unity2D的SpriteRenderer组件，只有一个材质球，使用Sprite格式贴图
                 NormalRenderer,//对应基本的Renderer组件（诸如 3D obj以及ParticalSystem）
                 Text,//对应UGUI的Text组件，只有一个材质球，无贴图
+
+                None,//对应无材质球的情况
             };
 
 
@@ -83,12 +85,12 @@ namespace ZGame.Ress.AB.Holder
         }
 
         [System.Serializable]
-        public class TransformMatInfo
+        public class TransformInfo
         {
             public Transform target;
             public List<MatInfo> matInfos;
 
-            public TransformMatInfo(Transform target, List<MatInfo> matInfos)
+            public TransformInfo(Transform target, List<MatInfo> matInfos)
             {
                 this.target = target;
                 this.matInfos = matInfos;
@@ -96,8 +98,24 @@ namespace ZGame.Ress.AB.Holder
 
         }
 
-        public List<TransformMatInfo> allMatInfos;
+        [System.Serializable]
+        public class SpriteSequenceInfo
+        {
+            public Transform target;
 
+            public List<TextureInfo> texInfos;
+
+
+            public SpriteSequenceInfo(Transform target, List<TextureInfo> texInfos)
+            {
+                this.target = target;
+                this.texInfos = texInfos;
+            }
+        }
+
+
+        public List<TransformInfo> allTransformInfos;
+        public List<SpriteSequenceInfo> allSpriteSequenceInfos;
 
     }
 }

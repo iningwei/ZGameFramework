@@ -30,9 +30,9 @@ public class IOTools
         }
     }
 
-    static string sPath;//StreamingAssetPath 
-    static string sPathAB;
-    static string pPath;//PersistantDataPath
+    static string resStreamingPath;
+
+    static string resPersistantPath;
 
     /// <summary>
     /// 后缀
@@ -73,48 +73,45 @@ public class IOTools
 
     static void init()
     {
-        pPath = Application.persistentDataPath + "/ResEx/" + PlatformFolderName;
-        if (!Directory.Exists(pPath))
+        resPersistantPath = Application.persistentDataPath + "/ResEx";
+        if (!Directory.Exists(resPersistantPath))
         {
-            Directory.CreateDirectory(pPath);
+            Directory.CreateDirectory(resPersistantPath);
         }
 
-        sPath = Application.streamingAssetsPath + "/ResEx/" + PlatformFolderName;
-        sPathAB = sPath;
+        resStreamingPath = Application.streamingAssetsPath + "/ResEx";
+
         if (Application.platform == RuntimePlatform.Android)
         {
-            sPathAB = Application.dataPath + "!assets/ResEx/" + PlatformFolderName;
+            resStreamingPath = Application.dataPath + "!assets/ResEx";
         }
         else if (Application.platform == RuntimePlatform.IPhonePlayer)
         {
 #if UNITY_IOS
             //设置iOS沙盒不备份该路径
             //iOS上可能会因为这个原因审核不通过
-            UnityEngine.iOS.Device.SetNoBackupFlag(pPath);
+            UnityEngine.iOS.Device.SetNoBackupFlag(Application.persistentDataPath);
 #endif
         }
         else
         {
-            sPath = Application.dataPath + "/" + "../ResEx/" + PlatformFolderName;
-            sPathAB = sPath;
+            resStreamingPath = Application.dataPath + "/" + "../ResEx/" + PlatformFolderName;
+
         }
     }
 
 
-    public static string GetResSPath(string resName)
+    public static string GetResStreamingPath(string resName)
     {
-        return sPath + "/" + resName;
-    }
-
-    public static string GetResSPathAB(string resName)
-    {
-        return sPathAB + "/" + resName;
+        return resStreamingPath + "/" + resName;
     }
 
 
-    public static string GetResPPath(string resName)
+
+
+    public static string GetResPersistantPath(string resName)
     {
-        return pPath + "/" + resName;
+        return resPersistantPath + "/" + resName;
     }
 
 
@@ -125,7 +122,7 @@ public class IOTools
 
     public static bool IsResInPDir(string resName)
     {
-        string uppath = pPath + "/" + resName;
+        string uppath = resPersistantPath + "/" + resName;
         if (File.Exists(uppath))
         {
             return true;
@@ -140,17 +137,17 @@ public class IOTools
     public static void WriteFileToUpdateDir(string name, byte[] data)
     {
         if (data != null && data.Length > 0)
-            File.WriteAllBytes(pPath + name, data);
+            File.WriteAllBytes(resPersistantPath + name, data);
     }
 
     public static void WriteStringToUpdateDir(string name, string str)
     {
-        File.WriteAllText(pPath + name, str);
+        File.WriteAllText(resPersistantPath + name, str);
     }
 
     public static void DeleteFileFromUpdateDir(string name)
     {
-        string s = pPath + name;
+        string s = resPersistantPath + name;
         if (File.Exists(s))
             File.Delete(s);
     }
@@ -270,5 +267,16 @@ public class IOTools
     {
         var directory = Path.GetDirectoryName(filePath);
         return Path.GetFileNameWithoutExtension(directory);
+    }
+
+
+    public static string CreateFolder(string path)
+    {
+        if (!Directory.Exists(path))
+        {
+            Directory.CreateDirectory(path);
+        }
+
+        return path;
     }
 }

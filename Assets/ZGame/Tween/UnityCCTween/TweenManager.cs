@@ -13,6 +13,10 @@ namespace ZGame.cc
         int maxCount = 10000;
 
         int curCount = 0;
+        public int GetTweenCount()
+        {
+            return curCount;
+        }
         public int AddTween(GameObject target, Tween tween)
         {
             //Debug.LogError("curCount:" + curCount);
@@ -123,6 +127,7 @@ namespace ZGame.cc
                 tweenComp = tweenComps[i];
                 GameObject.Destroy(tweenComp);
                 this.curCount--;
+
             }
             dicOfObjTweens.Remove(target);
             return true;
@@ -172,6 +177,7 @@ namespace ZGame.cc
                     tweenComps.Remove(tweenComp);
                     GameObject.Destroy(tweenComp);
                     this.curCount--;
+                    //////Debug.LogError("this.curCount:" + this.curCount);
                     if (tweenComps.Count == 0)
                     {
                         dicOfObjTweens.Remove(target);

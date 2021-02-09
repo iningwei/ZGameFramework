@@ -8,10 +8,40 @@ using ZGame.Ress.AB.Holder;
 
 namespace ZGame.Ress.AB
 {
-    public class ABManager : SingletonMonoBehaviour<ABManager>
+    public class ABManagerMono : SingletonMonoBehaviour<ABManagerMono>
+    {
+        //以下List为辅助inspector显示的
+        public List<WindowRes> windowResList = new List<WindowRes>();
+        public List<EffectRes> effectResList = new List<EffectRes>();
+        public List<OtherPrefabRes> opResList = new List<OtherPrefabRes>();
+
+        public List<SpriteRes> spriteResList = new List<SpriteRes>();
+        public List<TextureRes> texResList = new List<TextureRes>();
+        public List<AudioRes> audioResList = new List<AudioRes>();
+    }
+
+
+    public class ABManager : Singleton<ABManager>
     {
 
         bool isInit = false;
+
+        public ABManager()
+        {
+            if (!isInit)
+            {
+                Debug.LogError("ab load: common");
+                AssetBundle commonAB = AB.Load("common");
+                commonAB.LoadAllAssets();
+
+                EventDispatcher.Instance.AddListener(EventID.OnABResLoaded, onABResLoaded);
+                EventDispatcher.Instance.AddListener(EventID.OnRootObjDestroy, onRootObjDestroy);
+                EventDispatcher.Instance.AddListener(EventID.OnChildObjDestroy, onChildObjDestroy);
+
+                isInit = true;
+            }
+        }
+
         /// <summary>
         /// Key为AB类型，Value为该类型下所有的资源（Value中的Key为资源名，Value中的Value为具体资源信息）
         /// TODO:美术端需要提供工具保证每种类型内的资源，名字要唯一
@@ -41,17 +71,7 @@ namespace ZGame.Ress.AB
                     resCacheDic[ABType.Model] = new Dictionary<string, Res>();
                     resCacheDic[ABType.Material] = new Dictionary<string, Res>();
 
-                    if (!isInit)
-                    {
-                        AssetBundle commonAB = AB.Load("common");
-                        commonAB.LoadAllAssets();
 
-                        EventDispatcher.Instance.AddListener(EventID.OnABResLoaded, onABResLoaded);
-                        EventDispatcher.Instance.AddListener(EventID.OnRootObjDestroy, onRootObjDestroy);
-                        EventDispatcher.Instance.AddListener(EventID.OnChildObjDestroy, onChildObjDestroy);
-
-                        isInit = true;
-                    }
                 }
 
                 return resCacheDic;
@@ -74,14 +94,7 @@ namespace ZGame.Ress.AB
 
 
 
-        //以下List为辅助inspector显示的
-        public List<WindowRes> windowResList = new List<WindowRes>();
-        public List<EffectRes> effectResList = new List<EffectRes>();
-        public List<OtherPrefabRes> opResList = new List<OtherPrefabRes>();
 
-        public List<SpriteRes> spriteResList = new List<SpriteRes>();
-        public List<TextureRes> texResList = new List<TextureRes>();
-        public List<AudioRes> audioResList = new List<AudioRes>();
 
 
 
@@ -90,27 +103,35 @@ namespace ZGame.Ress.AB
         private void onChildObjDestroy(string evtId, object[] paras)
         {
             GameObject obj = paras[0] as GameObject;
-
+          
             //TODO:这里循环检索，有点耗，需要改进
             SpriteRes sr;
-            for (int i = spriteResList.Count - 1; i >= 0; i--)
+            for (int i = ABManagerMono.Instance.spriteResList.Count - 1; i >= 0; i--)
             {
-                sr = spriteResList[i];
-                sr.RemoveRefTrs(obj.transform);
+                sr = ABManagerMono.Instance.spriteResList[i];
+                if (sr.CheckRefTrs(obj.transform))
+                {
+                    sr.RemoveRefTrs(obj.transform);
+                }
+
                 if (sr.refTrsCount == 0)
                 {
-                    spriteResList.Remove(sr);
+                    ABManagerMono.Instance.spriteResList.Remove(sr);
                 }
             }
 
             TextureRes tr;
-            for (int j = texResList.Count - 1; j >= 0; j--)
+            for (int j = ABManagerMono.Instance.texResList.Count - 1; j >= 0; j--)
             {
-                tr = texResList[j];
-                tr.RemoveRefTrs(obj.transform);
+                tr = ABManagerMono.Instance.texResList[j];
+                if (tr.CheckRefTrs(obj.transform))
+                {
+                    tr.RemoveRefTrs(obj.transform);
+                }
+
                 if (tr.refTrsCount == 0)
                 {
-                    texResList.Remove(tr);
+                    ABManagerMono.Instance.texResList.Remove(tr);
                 }
             }
         }
@@ -118,30 +139,38 @@ namespace ZGame.Ress.AB
         void onRootObjDestroy(string evtId, object[] paras)
         {
             GameObject obj = paras[0] as GameObject;
-            ABType abType = obj.GetComponent<MatTextureHolder>().abType;
-            if (abType == ABType.Window)
+            MatTextureHolder holder = obj.GetComponent<MatTextureHolder>();
+            if (holder != null)
             {
-                for (int i = 0; i < windowResList.Count; i++)
+                ABType abType = holder.abType;
+                if (abType == ABType.Window)
                 {
-                    if (windowResList[i].resObj == obj)
+                    for (int i = 0; i < ABManagerMono.Instance.windowResList.Count; i++)
                     {
-                        windowResList.Remove(windowResList[i]);
-                        return;
+                        if (ABManagerMono.Instance.windowResList[i].resObj == obj)
+                        {
+                            ABManagerMono.Instance.windowResList.Remove(ABManagerMono.Instance.windowResList[i]);
+                            return;
+                        }
                     }
+                }
+                else if (abType == ABType.Effect)
+                {
+                    for (int i = 0; i < ABManagerMono.Instance.effectResList.Count; i++)
+                    {
+                        if (ABManagerMono.Instance.effectResList[i].resObj == obj)
+                        {
+                            ABManagerMono.Instance.effectResList.Remove(ABManagerMono.Instance.effectResList[i]);
+                            return;
+                        }
+                    }
+                }
+                else
+                {
+                    Debug.LogError("TODO:::");
                 }
             }
 
-            else if (abType == ABType.Effect)
-            {
-                for (int i = 0; i < effectResList.Count; i++)
-                {
-                    if (effectResList[i].resObj == obj)
-                    {
-                        effectResList.Remove(effectResList[i]);
-                        return;
-                    }
-                }
-            }
 
         }
 
@@ -172,13 +201,13 @@ namespace ZGame.Ress.AB
                 //}
                 //TODO:用上述方法，不知道是什么原因导致的inspector面板上ResObj没有显示出来
 
-                var older = windowResList.Find(a => a.resName == wRes.resName);
+                var older = ABManagerMono.Instance.windowResList.Find(a => a.resName == wRes.resName);
                 if (older != null)
                 {
-                    windowResList.Remove(older);
+                    ABManagerMono.Instance.windowResList.Remove(older);
                 }
 
-                windowResList.Add(wRes);
+                ABManagerMono.Instance.windowResList.Add(wRes);
 
                 GameObject obj = wRes.resObj as GameObject;
                 fillMatTexHolder(obj);
@@ -190,12 +219,12 @@ namespace ZGame.Ress.AB
                 ResCacheDic[ABType.Effect][effRes.resName] = effRes;
 
                 //可视化处理       
-                var older = effectResList.Find(a => a.resName == effRes.resName);
+                var older = ABManagerMono.Instance.effectResList.Find(a => a.resName == effRes.resName);
                 if (older != null)
                 {
-                    effectResList.Remove(older);
+                    ABManagerMono.Instance.effectResList.Remove(older);
                 }
-                effectResList.Add(effRes);
+                ABManagerMono.Instance.effectResList.Add(effRes);
 
 
 
@@ -209,12 +238,12 @@ namespace ZGame.Ress.AB
                 ResCacheDic[ABType.OtherPrefab][opRes.resName] = opRes;
 
                 //可视化处理       
-                var older = opResList.Find(a => a.resName == opRes.resName);
+                var older = ABManagerMono.Instance.opResList.Find(a => a.resName == opRes.resName);
                 if (older != null)
                 {
-                    opResList.Remove(older);
+                    ABManagerMono.Instance.opResList.Remove(older);
                 }
-                opResList.Add(opRes);
+                ABManagerMono.Instance.opResList.Add(opRes);
 
 
 
@@ -225,19 +254,19 @@ namespace ZGame.Ress.AB
             else if (res is SpriteRes)
             {
                 SpriteRes sRes = res as SpriteRes;
-                spriteResList.Add(sRes);
+                ABManagerMono.Instance.spriteResList.Add(sRes);
                 ResCacheDic[ABType.Sprite][sRes.resName] = sRes;
             }
             else if (res is TextureRes)
             {
                 TextureRes tRes = res as TextureRes;
-                texResList.Add(tRes);
+                ABManagerMono.Instance.texResList.Add(tRes);
                 ResCacheDic[ABType.Texture][tRes.resName] = tRes;
             }
             else if (res is AudioRes)
             {
                 AudioRes aRes = res as AudioRes;
-                audioResList.Add(aRes);
+                ABManagerMono.Instance.audioResList.Add(aRes);
                 ResCacheDic[ABType.Audio][aRes.resName] = aRes;
             }
 
@@ -274,7 +303,13 @@ namespace ZGame.Ress.AB
         }
 
 
-        public GameObject LoadEffect(string name)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="reUse">对于同一时间只会存在一个的特效，reUse值为true</param>
+        /// <returns></returns>
+        public GameObject LoadEffect(string name, bool reUse = true)
         {
             GameObject effect = null;
 
@@ -285,7 +320,15 @@ namespace ZGame.Ress.AB
             }
             else
             {
-                effect = cache.GetRes<GameObject>(name);
+                if (reUse)
+                {
+                    effect = cache.GetRes<GameObject>(name);
+                }
+                else
+                {
+                    effect = ABPrefab.Load(name, ABType.Effect);
+                }
+
             }
             return effect;
         }
@@ -313,9 +356,11 @@ namespace ZGame.Ress.AB
                 //Debug.Log(target + " 已经设置了材质，不可重复设置");
                 return;
             }
-            if (matTexHolder != null && matTexHolder.allMatInfos != null && matTexHolder.allMatInfos.Count > 0)
+
+
+            if (matTexHolder != null && matTexHolder.allTransformInfos != null && matTexHolder.allTransformInfos.Count > 0)
             {
-                foreach (var item in matTexHolder.allMatInfos)
+                foreach (var item in matTexHolder.allTransformInfos)
                 {
                     Transform childTarget = item.target;
 
@@ -401,6 +446,40 @@ namespace ZGame.Ress.AB
                     }
                 }
             }
+
+
+
+
+            //处理spriteSequence
+            if (matTexHolder != null && matTexHolder.allSpriteSequenceInfos != null && matTexHolder.allSpriteSequenceInfos.Count > 0)
+            {
+                for (int j = 0; j < matTexHolder.allSpriteSequenceInfos.Count; j++)
+                {
+                    var ssi = matTexHolder.allSpriteSequenceInfos[j];
+                    var childTarget = ssi.target;
+
+                    if (ssi.texInfos != null && ssi.texInfos.Count > 0)
+                    {
+                        var ss = childTarget.GetComponent<SpriteSequence>();
+                        for (int k = 0; k < ssi.texInfos.Count; k++)
+                        {
+                            var ti = ssi.texInfos[k];
+                            LoadSpriteToSeq(ss, ti.atlasName, ti.texName, k);
+                        }
+                    }
+
+
+                    if (childTarget.gameObject.activeInHierarchy)//TODO:偶尔会出现有物体不渲染，暂时没有搞明白导致的原因，通过该方式hack
+                    {
+                        childTarget.gameObject.SetActive(false);
+                        childTarget.gameObject.SetActive(true);
+                    }
+                }
+            }
+
+
+
+
             matTexHolder.finishedSet = true;
         }
 
@@ -492,6 +571,15 @@ namespace ZGame.Ress.AB
 
         }
 
+        public void LoadSpriteToSeq(SpriteSequence ss, string atlasName, string spriteName, int index)
+        {
+            Sprite sprite = loadSprite(atlasName, spriteName);
+            ss.sprites[index] = sprite;
+
+            ImgRes imgRes = getCachedAbRes(ABType.Sprite, atlasName) as ImgRes;
+            imgRes.AddRefTrs(ss.transform);
+        }
+
 #if XLua
         public void LoadSpriteToSpriteRenderer(string atlasName, string spriteName, SpriteRenderer targetSR)
         {
@@ -537,6 +625,19 @@ namespace ZGame.Ress.AB
 
         }
 
+        public TextAsset[] LoadLogic(string name)
+        {
+            TextAsset[] ta = ABLogic.LoadAll(name);
+            return ta;
+        }
+
+
+        public void UnpackLogicABToMap(string logicABName)
+        {
+#if XLua
+            LuaResLoader.Instance.LoadScriptBundle(logicABName);
+#endif
+        }
 
 
 

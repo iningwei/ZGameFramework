@@ -43,8 +43,7 @@ public static class GameObjectExt
 
         if (root == gameObject)
         {
-            Debug.LogError("GetUpperPath error, root is self");
-            return "";
+            return root.name;
         }
 
         if (gameObject.transform.parent.gameObject == root)
@@ -98,6 +97,17 @@ public static class GameObjectExt
     //}
 
 
+    public static string GetPathInHierarchy(this GameObject gameObject)
+    {
+        GameObject tmp = gameObject;
+        string path = tmp.name;
+        while (tmp.transform.parent != null)
+        {
+            tmp = tmp.transform.parent.gameObject;
+            path = tmp.name + "/" + path;
+        }
+        return path;
+    }
 
 
     /// <summary>

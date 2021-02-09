@@ -1,18 +1,17 @@
 // Unity built-in shader source. Copyright (c) 2016 Unity Technologies. MIT license (see license.txt)
 
-Shader "Legacy Shaders/Transparent/Cutout/Diffuse" {
+Shader "My/Legacy Shaders/Transparent/Diffuse" {
 Properties {
     _Color ("Main Color", Color) = (1,1,1,1)
     _MainTex ("Base (RGB) Trans (A)", 2D) = "white" {}
-    _Cutoff ("Alpha cutoff", Range(0,1)) = 0.5
 }
 
 SubShader {
-    Tags {"Queue"="AlphaTest" "IgnoreProjector"="True" "RenderType"="TransparentCutout"}
+    Tags {"Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent"}
     LOD 200
 
 CGPROGRAM
-#pragma surface surf Lambert alphatest:_Cutoff
+#pragma surface surf Lambert alpha:fade
 
 sampler2D _MainTex;
 fixed4 _Color;
@@ -29,5 +28,5 @@ void surf (Input IN, inout SurfaceOutput o) {
 ENDCG
 }
 
-Fallback "Legacy Shaders/Transparent/Cutout/VertexLit"
+Fallback "Legacy Shaders/Transparent/VertexLit"
 }
