@@ -36,14 +36,14 @@ public class EffectUtils : Singleton<EffectUtils>
 
         TimerTween.Delay(time, () =>
         {
-            if (holder == null)
+            //有可能在Delay期间，holder因为各种原因被清除            
+            if (holder != null)
             {
-                Debug.LogError("error,holder has become null,but you are still use it play effect:" + effectName);
-            }
-            if (holder.childCount > 0)
-            {
-                onPlayFinished?.Invoke();
-                this.ClearEffect(holder);
+                if (holder.childCount > 0)
+                {
+                    onPlayFinished?.Invoke();
+                    this.ClearEffect(holder);
+                }
             }
         }).Start();
     }

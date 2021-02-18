@@ -347,7 +347,7 @@ namespace ZGame.Window
                     continue;
                 }
 
-                Debug.LogError("close window:" + windows[i].name);
+                //Debug.LogError("close window:" + windows[i].name);
                 CloseWindow(windows[i].name, forceDestroy);
             }
         }
