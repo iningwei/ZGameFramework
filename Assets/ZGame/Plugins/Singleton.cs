@@ -33,4 +33,9 @@ public class Singleton<T> where T : new()
     {
 
     }
+
+    public virtual void FixedUpdate()
+    {
+
+    }
 }
