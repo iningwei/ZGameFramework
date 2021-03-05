@@ -113,4 +113,33 @@ public class TimeExt
         return 1;
     }
 
+
+    /// <summary> 
+    /// 判断两个日期是否在同一周 
+    /// </summary> 
+    /// <param name="start"> 开始日期 </param> 
+    /// <param name="end"> 结束日期 </param>
+    /// <returns></returns> 
+    public static bool IsInSameWeek(DateTime start, DateTime end)
+    {
+        double dbl = 0;
+        TimeSpan ts = end - start;
+        if (ts.TotalMilliseconds < 0)
+        {
+            DateTime tmp = start;
+            start = end;
+            end = tmp;
+            dbl = -ts.TotalDays;
+        }
+        else
+        {
+            dbl = ts.TotalDays;
+        }
+        ///周日的话，对应的枚举是0，故要转成7
+        int intDow = Convert.ToInt32(end.DayOfWeek);
+        if (intDow == 0) intDow = 7;
+        if (dbl >= 7 || dbl >= intDow) return false;
+        else return true;
+    }
+
 }
