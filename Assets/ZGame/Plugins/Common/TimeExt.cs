@@ -30,6 +30,67 @@ public class TimeExt
     }
 
     /// <summary>
+    /// 获得下周一 0点对应的时间戳(单位毫秒)
+    /// </summary>
+    /// <returns></returns>
+    public static long GetNextMondayZeroTimeStamp()
+    {
+        int dayInt = 1;
+        var dw = DateTime.Now.DayOfWeek;
+        if (dw == 0)
+        {
+            dayInt = 7;
+        }
+        else
+        {
+            dayInt = (int)dw;
+        }
+
+        //从今天0点到下周一0点需要增加的天数
+        int dayOffset = 7 - dayInt + 1;
+
+
+        //获得今天0点对应的DateTime
+        var todayZeroTime = DateTime.Now.Date;
+        var targetZeroTime = todayZeroTime.AddDays(dayOffset);
+        long targetStamp = (targetZeroTime.ToUniversalTime().Ticks - 621355968000000000) / 10000;
+        return targetStamp;
+    }
+
+
+    /// <summary>
+    /// 格式化秒数量
+    /// 1 day 24h 36m 43s
+    /// </summary>
+    /// <returns></returns>
+    public static string FormatSeconds(int seconds)
+    {
+        int day = 0;
+        int h = 0;
+        int m = 0;
+        int s = 0;
+
+        day = seconds / (3600 * 24);
+        seconds = seconds - (day * 3600 * 24);
+        h = seconds / 3600;
+        seconds = seconds - h * 3600;
+        m = seconds / 60;
+        s = seconds - m * 60;
+        if (day > 0)
+        {
+            return $"{day}d {h}h {m}m {s}s";
+        }
+        else if (h > 0)
+        {
+            return $"{h}h {m}m {s}s";
+        }
+        else
+        {
+            return $"{m}m {s}s";
+        }
+    }
+
+    /// <summary>
     /// 单位毫秒
     /// </summary>
     /// <param name="date"></param>
