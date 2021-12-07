@@ -1,14 +1,18 @@
-﻿/*
- * file TransformExtension.cs
- */
-
-using System;
+﻿using System;
 using UnityEngine;
 /// <summary>
 /// Transform扩展方法
 /// </summary>
 public static class TransformExt
 {
+    public static void HideAllChilds(this Transform transform)
+    {
+        int count = transform.childCount;
+        for (int i = count - 1; i >= 0; i--)
+        {
+            transform.GetChild(i).gameObject.SetActive(false);
+        }
+    }
 
     public static void DestroyAllChilds(this Transform transform, bool destroyImmediate,Action beforeDestroyFunc=null)
     {
