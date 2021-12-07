@@ -5,80 +5,88 @@ using ZGame;
 using ZGame.FSM;
 using ZGame.SkillSystem.Buffer;
 
-public class Entity
+namespace ZGame.FSM
 {
-    public GameObject obj = null;
-    public FSMSystem fsm = null;
-
-    public List<IBuffer> bufferList = new List<IBuffer>();
-    public Entity(GameObject obj)
+    public class Entity
     {
-        this.obj = obj;
-        this.fsm = new FSMSystem();
-        this.InitFSMSystem();
-    }
+        public GameObject obj = null;
+        public FSMSystem fsm = null;
 
-    public virtual void InitFSMSystem()
-    {
-
-    }
-
-    public IBuffer AddBuffer(BufferID id)
-    {
-        if (this.GetBuffer(id) != null)
+        public List<IBuffer> bufferList = new List<IBuffer>();
+        public Entity(GameObject obj)
         {
-            Debug.LogError("exist same buffer:" + id.ToString());
+            this.obj = obj;
+            this.fsm = new FSMSystem( );
+            this.InitFSMSystem();
+        }
+
+        public virtual void InitFSMSystem()
+        {
+
+        }
+
+        public IBuffer AddBuffer(BufferID id)
+        {
+            if (this.GetBuffer(id) != null)
+            {
+                Debug.LogError("exist same buffer:" + id.ToString());
+                return null;
+            }
+
+            var buffer = BufferMachine.Instance.Spwan(id);
+            this.bufferList.Add(buffer);
+            buffer.OnRelease(this);
+            return buffer;
+        }
+
+        public bool RemoveBuffer(BufferID id)
+        {
+            for (int i = 0; i < bufferList.Count; i++)
+            {
+                if ((bufferList[i] as Buffer).id == id)
+                {
+                    bufferList[i].OnStop();
+                    this.bufferList.RemoveAt(i);
+
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public IBuffer GetBuffer(BufferID id)
+        {
+            for (int i = 0; i < bufferList.Count; i++)
+            {
+                if ((bufferList[i] as Buffer).id == id)
+                {
+                    return bufferList[i];
+                }
+            }
             return null;
         }
 
-        var buffer = BufferMachine.Instance.Spwan(id);
-        this.bufferList.Add(buffer);
-        buffer.OnRelease(this);
-        return buffer;
-    }
-
-    public bool RemoveBuffer(BufferID id)
-    {
-        for (int i = 0; i < bufferList.Count; i++)
+        public virtual void Update(float dt)
         {
-            if ((bufferList[i] as Buffer).id == id)
+            if (fsm != null)
             {
-                bufferList[i].OnStop();
-                this.bufferList.RemoveAt(i);
+                this.fsm.Update(dt);
+            }
 
-                return true;
+            for (int i = 0; i < this.bufferList.Count; i++)
+            {
+                this.bufferList[i].Update(Time.deltaTime);
             }
         }
-        return false;
-    }
 
-    public IBuffer GetBuffer(BufferID id)
-    {
-        for (int i = 0; i < bufferList.Count; i++)
+        public virtual void Destroy()
         {
-            if ((bufferList[i] as Buffer).id == id)
+            this.fsm.CurState.Destroy();
+
+            if (obj != null)
             {
-                return bufferList[i];
+                GameObject.Destroy(obj);
             }
         }
-        return null;
-    }
-
-    public virtual void Update(float dt)
-    {
-        if (fsm != null)
-        {
-            this.fsm.Update(dt);
-        }
-
-        for (int i = 0; i < this.bufferList.Count; i++)
-        {
-            this.bufferList[i].Update(Time.deltaTime);
-        }
-    }
-
-    public virtual void Destroy()
-    {
-        this.fsm.CurState.Destroy();
     }
 }

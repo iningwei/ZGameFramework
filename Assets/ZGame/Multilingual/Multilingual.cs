@@ -16,16 +16,20 @@ namespace ZGame
                 return "";
             }
 
-            string r = "";
-            try
+            string r = targetStr;
+            if (paras != null)
             {
-                r = string.Format(targetStr, paras);
-            }
-            catch (System.Exception ex)
-            {
+                try
+                {
+                    r = string.Format(targetStr, paras);
+                }
+                catch (System.Exception ex)
+                {
 
-                Debug.LogError(targetStr + " format failed");
+                    Debug.LogError(targetStr + " format failed");
+                }
             }
+
 
             return r;
         }

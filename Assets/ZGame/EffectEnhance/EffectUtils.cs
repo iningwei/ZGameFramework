@@ -131,7 +131,7 @@ public class EffectUtils : Singleton<EffectUtils>
         GameObject effect = ABManager.Instance.LoadEffect(effectName, false);
         effect.transform.parent = cameraObj.transform;
         effect.transform.localPosition = new Vector3(0, 0, 3000);
-        effect.transform.localScale = Vector3.one * (1f / WindowManager.Instance.Canvas.lossyScale.x);
+        effect.transform.localScale = Vector3.one * (1f / WindowManager.Instance.CanvasTran.lossyScale.x);
         effect.name = effectName;
 
 

@@ -3,30 +3,32 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
-public class ResHelper : Singleton<ResHelper>
+namespace ZGame.Ress
 {
-    public GameObject LoadModel(string path)
+    public class ResHelper : Singleton<ResHelper>
     {
-        GameObject p = Resources.Load(path) as GameObject;
-        var g = GameObject.Instantiate(p);
-        return g;
-    }
-
-    public void LoadModelAsync(string path, Action<GameObject> onLoaded)
-    {
-        ResourceRequest rr = Resources.LoadAsync(path);
-        rr.completed += (ao) =>
+        public GameObject LoadModel(string path)
         {
-            if (ao.isDone)
+            GameObject p = Resources.Load(path) as GameObject;
+            var g = GameObject.Instantiate(p);
+            return g;
+        }
+
+        public void LoadModelAsync(string path, Action<GameObject> onLoaded)
+        {
+            ResourceRequest rr = Resources.LoadAsync(path);
+            rr.completed += (ao) =>
             {
-                GameObject p = (rr.asset) as GameObject;
-                GameObject g = GameObject.Instantiate(p);
-                if (onLoaded != null)
+                if (ao.isDone)
                 {
-                    onLoaded(g);
+                    GameObject p = (rr.asset) as GameObject;
+                    GameObject g = GameObject.Instantiate(p);
+                    if (onLoaded != null)
+                    {
+                        onLoaded(g);
+                    }
                 }
-            }
-        };
+            };
+        }
     }
 }

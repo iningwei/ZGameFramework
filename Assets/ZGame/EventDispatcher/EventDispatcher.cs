@@ -84,7 +84,7 @@ namespace ZGame.Event
             if (!mEventHandlers.ContainsKey(evtId) && !mEventOnceHandlers.ContainsKey(evtId)
                 && !mEventLuaHandlers.Contains(evtId) && !mEventLuaOnceHandlers.Contains(evtId))
             {
-                Debug.LogWarning("evtId:" + evtId + " not regist");
+                //Debug.LogWarning("evtId:" + evtId + " not regist");
                 return false;
             }
             return true;

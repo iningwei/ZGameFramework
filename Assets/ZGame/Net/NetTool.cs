@@ -8,6 +8,23 @@ namespace ZGame.Net
 {
     public class NetTool
     {
+        public static bool IsGoogleReachable = false;
+        public static void CheckGoogleReachable(Action reachable, Action unreachable)
+        {
+            string targetUrl = "https://google.com";
+            CoroutineManager.Singleton.AddCoroutine(CheckInternetConnection(targetUrl, () =>
+            {
+                IsGoogleReachable = true;
+                reachable?.Invoke();
+            }, () =>
+            {
+                IsGoogleReachable = false;
+                unreachable?.Invoke();
+            }));
+        }
+
+
+
         public static void CheckNetConnectivity(bool overWall, Action successCallback, Action failCallback)
         {
             //////这种方式获得的不准
@@ -32,7 +49,8 @@ namespace ZGame.Net
             {
                 request.timeout = 5;
                 yield return request.SendWebRequest();
-                result = !request.isNetworkError && !request.isHttpError && request.responseCode == 200;
+                //result = !request.isNetworkError && !request.isHttpError && request.responseCode == 200;
+                result = (request.result != UnityWebRequest.Result.ConnectionError) && (request.result != UnityWebRequest.Result.ProtocolError) && request.responseCode == 200;
                 if (result == false)
                 {
                     Debug.LogError("---------------------->request.error:" + request.error + "，request.responseCode：" + request.responseCode);

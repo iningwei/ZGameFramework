@@ -1,8 +1,10 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 namespace ZGame.Ress
 {
+    [Serializable]
     public class OtherPrefabRes : PrefabRes
     {
         public OtherPrefabRes(string name, GameObject obj) : base(name, obj)

@@ -1,7 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using ZGame.Ress.AB.Holder;
+using ZGame.Ress.Info;
+using ZGame;
 
 namespace ZGame.RessEditor
 {
@@ -9,10 +13,10 @@ namespace ZGame.RessEditor
     {
         public override bool Build(Object obj)
         {
-            
+
             if (obj.name.ContainChinese())
             {
-                Debug.LogError("resource name should not contail chinese charactor:" + obj.name);
+                Debug.LogError("resource name should not contain chinese charactor:" + obj.name);
                 return false;
             }
 
@@ -36,19 +40,30 @@ namespace ZGame.RessEditor
                 return false;
             }
 
+            //填充 RootCompInfoHolder
+            BuildCommand.FillRootCompInfoHolder(tmpPrefab);
+            //填充 DynamicCompInfoHolder
+            BuildCommand.FillDynamicCompInfoHolder(tmpPrefab);
 
-            var texMap = GetMatTexMap(path, tmpPrefab);
-      
-            
-            //处理真实目标,以及设置依赖关系
+            //保存Holder信息
             EditorUtility.SetDirty(tmpPrefab);
             AssetDatabase.SaveAssets();
+
+
+            List<AssetBundleBuild> finalTexMap = BuildCommand.GetGameObjectAssetBundleBuildMap(tmpPrefab);
+
+            Dictionary<string, bool> texDic = new Dictionary<string, bool>();
+
+            //处理真实目标,以及设置依赖关系         
+
             AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
-            AssetBundleBuild[] buildMap = new AssetBundleBuild[2 + texMap.Count];
+            AssetBundleBuild[] buildMap = new AssetBundleBuild[2 + finalTexMap.Count];
             buildMap[0] = BuildCommand.GetCommonMap();
-            for (int i = 0; i < texMap.Count; i++)
+            for (int i = 0; i < finalTexMap.Count; i++)
             {
-                buildMap[i + 1] = texMap[i];
+
+                texDic[finalTexMap[i].assetBundleName] = true;
+                buildMap[i + 1] = finalTexMap[i];
             }
             buildMap[buildMap.Length - 1].assetBundleName = abPrefix + obj.name.ToLower() + IOTools.abSuffix;
             buildMap[buildMap.Length - 1].assetNames = new string[] { tmpPath };
@@ -60,5 +75,7 @@ namespace ZGame.RessEditor
             AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
             return true;
         }
+
+
     }
 }

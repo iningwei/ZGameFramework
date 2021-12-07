@@ -27,9 +27,16 @@ namespace ZGame.RessEditor
         }
 
 
+        //打AB时，不考虑的material列表
+        public static List<string> ignoredMats = new List<string>();
+
 
         public static void Init()
         {
+
+            ignoredMats.Add("LiberationSans SDF Material");
+
+
             //generator ab output path
             if (baseOutputPath == null)
             {
@@ -102,10 +109,10 @@ namespace ZGame.RessEditor
             //预制件要通过holder中的abType来确定
             if (resPath.EndsWith(".prefab"))
             {
-                var holder = (asset as GameObject).GetComponent<MatTextureHolder>();
+                var holder = (asset as GameObject).GetComponent<RootCompInfoHolder>();
                 if (holder == null)
                 {
-                    Debug.LogError("no MatTextureHolder attach to:" + resPath);
+                    Debug.LogError("no RootCompInfoHolder attach to:" + resPath);
                     return null;
                 }
                 else

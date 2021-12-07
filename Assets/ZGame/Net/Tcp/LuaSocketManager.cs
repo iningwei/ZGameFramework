@@ -24,6 +24,15 @@ namespace ZGame.Net.Tcp
             return clientSocket != null && state == SocketState.Success;
         }
 
+        public bool IsClientSocketConnected()
+        {
+            if (clientSocket != null)
+            {
+                return clientSocket.IsConnected();
+            }
+            return false;
+        }
+
         public void InitLua(Action<byte[]> msgDispatcher, Action onConnected, Action onDisConnect, Action onError)
         {
             this.luaMsgDispatcher = msgDispatcher;

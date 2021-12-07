@@ -46,7 +46,18 @@ namespace ZGame.HotUpdate
 
         public static string resBigVersion;
         public static string resSmallVersion;
-        public static int channelId;
+
+        /// <summary>
+        /// 游戏上线渠道
+        /// </summary>
+        public static int gameChannelId;
+
+        /// <summary>
+        /// 游戏支付渠道
+        /// </summary>
+        public static int paymentChannelId;
+
+        public static string uploadDebugFileUrl;
 
         public static FTPConfig ftpConfig;
         public static PostCMDConfig postCMDConfig;
@@ -76,7 +87,10 @@ namespace ZGame.HotUpdate
             appBundleVersion = (string)dic["appbundleversion"];
             resBigVersion = (string)dic["resbigversion"];
             resSmallVersion = (string)dic["ressmallversion"];
-            channelId = (int)(long)dic["channelid"];
+            gameChannelId = (int)(long)dic["gamechannelid"];
+            paymentChannelId = (int)(long)dic["paymentchannelid"];
+
+            uploadDebugFileUrl = (string)dic["uploaddebugfileurl"];
 
             ftpConfig = new FTPConfig();
             var ftpDic = dic["ftpurllist"] as Dictionary<string, object>;

@@ -131,13 +131,25 @@ namespace ZGame.cc
                 else
                 {
                     var img = this.GetHolder().GetComponent<UnityEngine.UI.Image>();
-                    this.allImages.Add(img, img.color.a);
+                    if (img!=null)
+                    {
+                        this.allImages.Add(img, img.color.a);
+                    }
+                    
 
                     var rawImg = this.GetHolder().GetComponent<UnityEngine.UI.RawImage>();
-                    this.allRawImages.Add(rawImg, rawImg.color.a);
+                    if (rawImg!=null)
+                    {
+                        this.allRawImages.Add(rawImg, rawImg.color.a);
+                    }
+                    
 
                     var text = this.GetHolder().GetComponent<UnityEngine.UI.Text>();
-                    this.allTexts.Add(text, text.color.a);
+                    if (text!=null)
+                    {
+                        this.allTexts.Add(text, text.color.a);
+                    }
+                    
                 }
 
 

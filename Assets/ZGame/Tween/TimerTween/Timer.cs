@@ -8,6 +8,7 @@ using UnityEngine.Rendering;
 
 namespace ZGame.TimerTween
 {
+    [Serializable]
     public class Timer
     {
 
@@ -39,9 +40,33 @@ namespace ZGame.TimerTween
 
         public bool UseRealTime { get; private set; }
         //unique id,you can get timer or cancel timer by it
-        public int ID { get; private set; }
+        [SerializeField, SetProperty("ID")]
+        private int id;
+        public int ID
+        {
+            get
+            {
+                return id;
+            }
+            private set
+            {
+                id = value;
+            }
+        }
         //string tag, it is used for you to rectify timer
-        public string Tag { get; private set; }
+        [SerializeField, SetProperty("Tag")]
+        private string tag;
+        public string Tag
+        {
+            get
+            {
+                return tag;
+            }
+            private set
+            {
+                tag = value;
+            }
+        }
 
         public bool IsPaused
         {
@@ -228,6 +253,14 @@ namespace ZGame.TimerTween
                 {
                     this.IsCompleted = true;
                 }
+            }
+        }
+
+        public void ForceExecuteCompletCallback()
+        {
+            if (this.onComplete != null)
+            {
+                this.onComplete();
             }
         }
 

@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEditor;
 using System.Reflection;
 using System;
-
+using ZGame;
 
 
 ///////// <summary>
@@ -88,7 +88,7 @@ public class GetObjHierarchy
     public static void Get()
     {
         GameObject obj = Selection.activeObject as GameObject;
-        string path = obj.GetPathInHierarchy();
+        string path = obj.GetHierarchy();
         ClipboardHelper.clipBoard = path;
         Debug.Log("path:" + path + ", has copied to you clipboard!");
 

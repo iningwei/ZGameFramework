@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using ZGame.Event;
 using ZGame.Ress.AB.Holder;
+using ZGame.UGUIExtention;
 
 namespace ZGame.Ress.AB
 {
@@ -38,9 +39,12 @@ namespace ZGame.Ress.AB
                 EventDispatcher.Instance.AddListener(EventID.OnRootObjDestroy, onRootObjDestroy);
                 EventDispatcher.Instance.AddListener(EventID.OnChildObjDestroy, onChildObjDestroy);
 
+                EventDispatcher.Instance.AddListener(EventID.OnGameObjectInstantiate, onGameObjectInstantiate);
                 isInit = true;
             }
         }
+
+
 
         /// <summary>
         /// Key为AB类型，Value为该类型下所有的资源（Value中的Key为资源名，Value中的Value为具体资源信息）
@@ -92,6 +96,18 @@ namespace ZGame.Ress.AB
         }
 
 
+        public Res GetRes(ABType abType, string name)
+        {
+            Res res = null;
+            if (ResCacheDic.ContainsKey(abType))
+            {
+                if (ResCacheDic[abType].ContainsKey(name))
+                {
+                    res = ResCacheDic[abType][name];
+                }
+            }
+            return res;
+        }
 
 
 
@@ -99,19 +115,31 @@ namespace ZGame.Ress.AB
 
 
 
+        private void onGameObjectInstantiate(string evtId, object[] paras)
+        {
+            GameObject obj = paras[0] as GameObject;
+
+            this.fillReferenceOfDynamicCompInfoHolder(obj);
+            this.addDestroyNotice(obj);
+        }
 
         private void onChildObjDestroy(string evtId, object[] paras)
         {
             GameObject obj = paras[0] as GameObject;
-          
+            removeSpriteReference(obj.transform);
+            removeTextureReference(obj.transform);
+        }
+
+        void removeSpriteReference(Transform trans)
+        {
             //TODO:这里循环检索，有点耗，需要改进
             SpriteRes sr;
             for (int i = ABManagerMono.Instance.spriteResList.Count - 1; i >= 0; i--)
             {
                 sr = ABManagerMono.Instance.spriteResList[i];
-                if (sr.CheckRefTrs(obj.transform))
+                if (sr.CheckRefTrs(trans))
                 {
-                    sr.RemoveRefTrs(obj.transform);
+                    sr.RemoveRefTrs(trans);
                 }
 
                 if (sr.refTrsCount == 0)
@@ -119,14 +147,17 @@ namespace ZGame.Ress.AB
                     ABManagerMono.Instance.spriteResList.Remove(sr);
                 }
             }
-
+        }
+        void removeTextureReference(Transform trans)
+        {
+            //TODO:这里循环检索，有点耗，需要改进
             TextureRes tr;
             for (int j = ABManagerMono.Instance.texResList.Count - 1; j >= 0; j--)
             {
                 tr = ABManagerMono.Instance.texResList[j];
-                if (tr.CheckRefTrs(obj.transform))
+                if (tr.CheckRefTrs(trans))
                 {
-                    tr.RemoveRefTrs(obj.transform);
+                    tr.RemoveRefTrs(trans);
                 }
 
                 if (tr.refTrsCount == 0)
@@ -139,7 +170,7 @@ namespace ZGame.Ress.AB
         void onRootObjDestroy(string evtId, object[] paras)
         {
             GameObject obj = paras[0] as GameObject;
-            MatTextureHolder holder = obj.GetComponent<MatTextureHolder>();
+            RootCompInfoHolder holder = obj.GetComponent<RootCompInfoHolder>();
             if (holder != null)
             {
                 ABType abType = holder.abType;
@@ -161,6 +192,17 @@ namespace ZGame.Ress.AB
                         if (ABManagerMono.Instance.effectResList[i].resObj == obj)
                         {
                             ABManagerMono.Instance.effectResList.Remove(ABManagerMono.Instance.effectResList[i]);
+                            return;
+                        }
+                    }
+                }
+                else if (abType == ABType.OtherPrefab)
+                {
+                    for (int i = 0; i < ABManagerMono.Instance.opResList.Count; i++)
+                    {
+                        if (ABManagerMono.Instance.opResList[i].resObj == obj)
+                        {
+                            ABManagerMono.Instance.opResList.Remove(ABManagerMono.Instance.opResList[i]);
                             return;
                         }
                     }
@@ -188,29 +230,16 @@ namespace ZGame.Ress.AB
                 WindowRes wRes = res as WindowRes;
                 ResCacheDic[ABType.Window][wRes.resName] = wRes;
 
-
-                //----->可视化显示
-                //var older = windowResList.Find(a => a.resName == wRes.resName);
-                //if (older != null)
-                //{
-                //    older = wRes;
-                //}
-                //else
-                //{
-                //    windowResList.Add(wRes);
-                //}
-                //TODO:用上述方法，不知道是什么原因导致的inspector面板上ResObj没有显示出来
-
+                //----->可视化显示              
                 var older = ABManagerMono.Instance.windowResList.Find(a => a.resName == wRes.resName);
                 if (older != null)
                 {
                     ABManagerMono.Instance.windowResList.Remove(older);
                 }
-
                 ABManagerMono.Instance.windowResList.Add(wRes);
 
                 GameObject obj = wRes.resObj as GameObject;
-                fillMatTexHolder(obj);
+                fillReferenceOfRootCompInfoHolder(obj);
                 this.addDestroyNotice(obj);
             }
             else if (res is EffectRes)
@@ -229,7 +258,7 @@ namespace ZGame.Ress.AB
 
 
                 GameObject obj = effRes.resObj as GameObject;
-                fillMatTexHolder(obj);
+                fillReferenceOfRootCompInfoHolder(obj);
                 this.addDestroyNotice(obj);
             }
             else if (res is OtherPrefabRes)
@@ -248,7 +277,7 @@ namespace ZGame.Ress.AB
 
 
                 GameObject obj = opRes.resObj as GameObject;
-                fillMatTexHolder(obj);
+                fillReferenceOfRootCompInfoHolder(obj);
                 this.addDestroyNotice(obj);
             }
             else if (res is SpriteRes)
@@ -296,7 +325,7 @@ namespace ZGame.Ress.AB
             }
             else
             {
-                Debug.Log("!!!!!!!从AB缓存获得window:" + name);
+                DebugExt.Log("From AB cache get window:" + name);
                 window = cache.GetRes<GameObject>(name);
             }
             return window;
@@ -333,7 +362,7 @@ namespace ZGame.Ress.AB
             return effect;
         }
 
-        public GameObject LoadOtherPrefab(string name)
+        public GameObject LoadOtherPrefab(string name, bool reUse = false)
         {
             GameObject op = null;
 
@@ -344,143 +373,355 @@ namespace ZGame.Ress.AB
             }
             else
             {
-                op = cache.GetRes<GameObject>(name);
+                if (reUse)
+                {
+                    op = cache.GetRes<GameObject>(name);
+                }
+                else
+                {
+                    op = ABPrefab.Load(name, ABType.OtherPrefab);
+                }
+
             }
             return op;
         }
-        void fillMatTexHolder(GameObject target)
+
+
+        void resetEditorShader(Transform tran, Material mat, string shaderName)
         {
-            MatTextureHolder matTexHolder = target.GetComponent<MatTextureHolder>();
-            if (matTexHolder.finishedSet)
+            if (mat != null)
             {
-                //Debug.Log(target + " 已经设置了材质，不可重复设置");
+                var shader = Shader.Find(shaderName);
+                if (shader != null)
+                {
+                    mat.shader = shader;
+
+                    //bug hack处理
+                    //如果是standard shader且使用了Transparent的渲染模式，那么在编辑器模式下RenderQueue有问题，需要重置其RenderQueue
+                    //若编辑器下不存在该bug，则无需设置
+                    if (shaderName == "My/Standard" || shaderName == "My/Standard (Specular setup)")
+                    {
+                        if (mat.IsKeywordEnabled("_ALPHAPREMULTIPLY_ON"))
+                        {
+                            mat.renderQueue = 3000;
+                        }
+                    }
+                }
+                else
+                {
+                    Debug.LogError("can not find shader:" + shaderName);
+                }
+            }
+
+        }
+
+        void fillReferenceOfDynamicCompInfoHolder(GameObject target)
+        {
+            DynamicCompInfoHolder holder = target.GetComponent<DynamicCompInfoHolder>();
+            if (holder == null)
+            {
+                Debug.LogError("no dynamicCompInfoHolder attached:" + target.GetHierarchy());
                 return;
             }
 
-
-            if (matTexHolder != null && matTexHolder.allTransformInfos != null && matTexHolder.allTransformInfos.Count > 0)
+            //----------------->BuildIn Image
+            if (holder.buildInCompImageInfos != null && holder.buildInCompImageInfos.Count > 0)
             {
-                foreach (var item in matTexHolder.allTransformInfos)
+                foreach (var item in holder.buildInCompImageInfos)
                 {
-                    Transform childTarget = item.target;
-
-                    var matInfos = item.matInfos;
-                    if (matInfos != null && matInfos.Count > 0)
+                    Transform childTarget = item.tran;
+                    if (item.mat != null && item.refSprites != null && item.refSprites.Count > 0)
                     {
-                        foreach (var matInfo in matInfos)
+                        ImgRes imgRes = getCachedAbRes(ABType.Sprite, item.refSprites[0].atlasName) as ImgRes;
+                        if (imgRes != null)
                         {
-                            switch (matInfo.matType)
+                            imgRes.AddRefTrs(childTarget);
+                        }
+                        else
+                        {
+                            Debug.LogError("error, please check");
+                        }
+                    }
+                }
+            }
+
+            //-------------->BuildIn SpriteRenderer
+            if (holder.buildInCompSpriteRendererInfos != null && holder.buildInCompSpriteRendererInfos.Count > 0)
+            {
+                foreach (var item in holder.buildInCompSpriteRendererInfos)
+                {
+                    Transform childTarget = item.tran;
+                    if (item.mat != null && item.refSprites != null && item.refSprites.Count > 0)
+                    {
+                        ImgRes imgRes = getCachedAbRes(ABType.Sprite, item.refSprites[0].atlasName) as ImgRes;
+                        if (imgRes != null)
+                        {
+                            imgRes.AddRefTrs(childTarget);
+                        }
+                        else
+                        {
+                            Debug.LogError("error, please check");
+                        }
+                    }
+                }
+            }
+
+
+
+            //-------------->BuildIn Renderer
+            if (holder.buildInCompRendererInfos != null && holder.buildInCompRendererInfos.Count > 0)
+            {
+                foreach (var item in holder.buildInCompRendererInfos)
+                {
+                    Transform childTarget = item.tran;
+                    for (int k = 0; k < item.refTextures.Count; k++)
+                    {
+                        ImgRes imgRes = getCachedAbRes(ABType.Texture, item.refTextures[k].texName) as ImgRes;
+                        if (imgRes != null)
+                        {
+                            imgRes.AddRefTrs(childTarget);
+                        }
+                        else
+                        {
+                            Debug.LogError("error, please check");
+                        }
+                    }
+                }
+            }
+
+            //-------------->Ext ImageSequence
+            if (holder.extCompImageSequenceInfos != null && holder.extCompImageSequenceInfos.Count > 0)
+            {
+                foreach (var item in holder.extCompImageSequenceInfos)
+                {
+                    Transform childTarget = item.tran;
+                    if (item.refSprites != null && item.refSprites.Count > 0)
+                    {
+                        for (int i = 0; i < item.refSprites.Count; i++)
+                        {
+                            ImgRes imgRes = getCachedAbRes(ABType.Sprite, item.refSprites[i].atlasName) as ImgRes;
+                            if (imgRes != null)
                             {
-                                case MatTextureHolder.MatInfo.MatType.Image:
-                                    if (matInfo.textureInfos == null || matInfo.textureInfos.Count > 1)
-                                    {
-                                        Debug.LogError("Image 类型的texInfo有错！");
-                                    }
-                                    if (matInfo.textureInfos.Count == 0)
-                                    {
-
-                                    }
-                                    else
-                                    {
-                                        //////childTarget.GetComponent<Image>().sprite = LoadSprite(matInfo.texInfos[0].atlasName, matInfo.texInfos[0].texName);
-                                        LoadSprite<Image>(matInfo.textureInfos[0].atlasName,
-                                            matInfo.textureInfos[0].texName,
-                                               childTarget.GetComponent<Image>());
-                                    }
-                                    break;
-                                case MatTextureHolder.MatInfo.MatType.SpriteRenderer:
-                                    if (matInfo.textureInfos == null || matInfo.textureInfos.Count > 1)
-                                    {
-                                        Debug.LogError("SpriteRenderer 类型的texInfo有错！");
-                                    }
-                                    //////childTarget.GetComponent<SpriteRenderer>().sprite = LoadSprite(matInfo.texInfos[0].atlasName, matInfo.texInfos[0].texName);
-                                    LoadSprite<SpriteRenderer>(matInfo.textureInfos[0].atlasName,
-                                                matInfo.textureInfos[0].texName,
-                                                childTarget.GetComponent<SpriteRenderer>()
-                                                                       );
-                                    break;
-                                case MatTextureHolder.MatInfo.MatType.NormalRenderer:
-                                    MatTextureHolder.TextureInfo texInfo = null;
-                                    for (int k = 0; k < matInfo.textureInfos.Count; k++)
-                                    {
-                                        texInfo = matInfo.textureInfos[k];
-                                        if (texInfo.isSprite)
-                                        {
-                                            Debug.LogError("texInfo有错，项目中规定NormalRenderer不可使用Sprite，objPath:" + childTarget.Hierarchy());
-                                        }
-                                        Texture tex = null;
-                                        LoadTexture(texInfo.texName, childTarget, out tex);
-                                        matInfo.mat.SetTexture(matInfo.textureInfos[k].shaderProperty, tex);
-                                    }
-
-                                    break;
-                                default:
-                                    break;
+                                imgRes.AddRefTrs(childTarget);
                             }
+                            else
+                            {
+                                Debug.LogError("error, please check");
+                            }
+                        }
+                    }
 
+                }
+            }
+            //-------------->Ext SpriteSequence
+            if (holder.extCompSpriteSequenceInfos != null && holder.extCompSpriteSequenceInfos.Count > 0)
+            {
+                foreach (var item in holder.extCompSpriteSequenceInfos)
+                {
+                    Transform childTarget = item.tran;
+                    if (item.refSprites != null && item.refSprites.Count > 0)
+                    {
+                        for (int i = 0; i < item.refSprites.Count; i++)
+                        {
+                            ImgRes imgRes = getCachedAbRes(ABType.Sprite, item.refSprites[i].atlasName) as ImgRes;
+                            if (imgRes != null)
+                            {
+                                imgRes.AddRefTrs(childTarget);
+                            }
+                            else
+                            {
+                                Debug.LogError("error, please check");
+                            }
+                        }
+                    }
+                }
+            }
+            //-------------->Ext SwapSprite
+            if (holder.extCompSwapSpriteInfos != null && holder.extCompSwapSpriteInfos.Count > 0)
+            {
 
+                foreach (var item in holder.extCompSwapSpriteInfos)
+                {
+                    Transform childTarget = item.tran;
+                    if (item.refSprites != null && item.refSprites.Count > 0)
+                    {
+                        for (int i = 0; i < item.refSprites.Count; i++)
+                        {
+                            ImgRes imgRes = getCachedAbRes(ABType.Sprite, item.refSprites[i].atlasName) as ImgRes;
+                            if (imgRes != null)
+                            {
+                                imgRes.AddRefTrs(childTarget);
+                            }
+                            else
+                            {
+                                Debug.LogError("error, please check");
+                            }
+                        }
+                    }
+                }
+            }
+            //--------------->Ext BoxScenePetSetting
+            if (holder.extCompBoxingScenePetSettingInfos != null && holder.extCompBoxingScenePetSettingInfos.Count > 0)
+            {
+                foreach (var item in holder.extCompBoxingScenePetSettingInfos)
+                {
+                    Transform childTarget = item.tran;
+                    if (item.refTextures != null && item.refTextures.Count > 0)
+                    {
+                        for (int i = 0; i < item.refTextures.Count; i++)
+                        {
+                            ImgRes imgRes = getCachedAbRes(ABType.Texture, item.refTextures[i].texName) as ImgRes;
+                            if (imgRes != null)
+                            {
+                                imgRes.AddRefTrs(childTarget);
+                            }
+                            else
+                            {
+                                Debug.LogError("error, please check");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        void fillReferenceOfRootCompInfoHolder(GameObject target)
+        {
+            RootCompInfoHolder holder = target.GetComponent<RootCompInfoHolder>();
+            if (holder == null || holder.finishedSet)
+            {
+                return;
+            }
+
+            //----------------->BuildIn Image
+            if (holder.buildInCompImageInfos != null && holder.buildInCompImageInfos.Count > 0)
+            {
+                foreach (var item in holder.buildInCompImageInfos)
+                {
+                    Transform childTarget = item.tran;
+                    if (item.mat != null && item.refSprites != null && item.refSprites.Count > 0)
+                    {
+                        FillSprite<Image>(item.refSprites[0].atlasName, item.refSprites[0].spriteName, childTarget.GetComponent<Image>());
 
 #if UNITY_EDITOR
-                            //editor下，若使用android或者ios的bundle，需要使用本地的shader，否则红色
-                            if (matInfo.mat != null)
-                            {
-                                var shader = Shader.Find(matInfo.shaderName);
-                                if (shader != null)
-                                {
-                                    matInfo.mat.shader = shader;
-                                }
-                                else
-                                {
-                                    Debug.LogError("can not find shader:" + matInfo.shaderName);
-                                }
-                            }
+                        resetEditorShader(childTarget, item.mat, item.shaderName);
 #endif
-                        }
-                    }
-
-
-                    if (childTarget.gameObject.activeInHierarchy)//TODO:偶尔会出现有物体不渲染，暂时没有搞明白导致的原因，通过该方式hack
-                    {
-                        childTarget.gameObject.SetActive(false);
-                        childTarget.gameObject.SetActive(true);
                     }
                 }
             }
-
-
-
-
-            //处理spriteSequence
-            if (matTexHolder != null && matTexHolder.allSpriteSequenceInfos != null && matTexHolder.allSpriteSequenceInfos.Count > 0)
+            //-------------->BuildIn SpriteRenderer
+            if (holder.buildInCompSpriteRendererInfos != null && holder.buildInCompSpriteRendererInfos.Count > 0)
             {
-                for (int j = 0; j < matTexHolder.allSpriteSequenceInfos.Count; j++)
+                foreach (var item in holder.buildInCompSpriteRendererInfos)
                 {
-                    var ssi = matTexHolder.allSpriteSequenceInfos[j];
-                    var childTarget = ssi.target;
-
-                    if (ssi.texInfos != null && ssi.texInfos.Count > 0)
+                    Transform childTarget = item.tran;
+                    if (item.mat != null && item.refSprites != null && item.refSprites.Count > 0)
                     {
-                        var ss = childTarget.GetComponent<SpriteSequence>();
-                        for (int k = 0; k < ssi.texInfos.Count; k++)
+                        FillSprite<SpriteRenderer>(item.refSprites[0].atlasName,
+                                               item.refSprites[0].spriteName,
+                                               childTarget.GetComponent<SpriteRenderer>());
+#if UNITY_EDITOR
+                        resetEditorShader(childTarget, item.mat, item.shaderName);
+#endif
+                    }
+                }
+            }
+            //-------------->BuildIn Text
+            if (holder.buildInCompTextInfos != null && holder.buildInCompTextInfos.Count > 0)
+            {
+                foreach (var item in holder.buildInCompTextInfos)
+                {
+                    Transform childTarget = item.tran;
+                    if (item.mat != null)
+                    {
+#if UNITY_EDITOR
+                        resetEditorShader(childTarget, item.mat, item.shaderName);
+#endif
+                    }
+                }
+            }
+            //-------------->BuildIn Renderer
+            if (holder.buildInCompRendererInfos != null && holder.buildInCompRendererInfos.Count > 0)
+            {
+                foreach (var item in holder.buildInCompRendererInfos)
+                {
+                    Transform childTarget = item.tran;
+
+                    for (int k = 0; k < item.refTextures.Count; k++)
+                    {
+                        Texture tex = null;
+                        LoadTexture(item.refTextures[k].texName, childTarget, out tex);
+                        //对于TextMeshPro字体这里item.mat会为null，故这里加以判断，避免报错
+                        //字体不用为其mat再赋texture依旧显示正确
+                        if (item.mat != null)
                         {
-                            var ti = ssi.texInfos[k];
-                            LoadSpriteToSeq(ss, ti.atlasName, ti.texName, k);
+                            item.mat.SetTexture(item.refTextures[k].shaderProp, tex);
+                        }
+
+                    }
+
+#if UNITY_EDITOR
+                    resetEditorShader(childTarget, item.mat, item.shaderName);
+#endif
+
+
+                }
+            }
+
+            //-------------->Ext ImageSequence
+            if (holder.extCompImageSequenceInfos != null && holder.extCompImageSequenceInfos.Count > 0)
+            {
+                foreach (var item in holder.extCompImageSequenceInfos)
+                {
+                    Transform childTarget = item.tran;
+                    if (item.refSprites != null && item.refSprites.Count > 0)
+                    {
+                        ImageSequence imageSequence = childTarget.GetComponent<ImageSequence>();
+                        for (int i = 0; i < item.refSprites.Count; i++)
+                        {
+                            LoadSpriteToImageSeq(imageSequence, item.refSprites[i].atlasName, item.refSprites[i].spriteName, i);
                         }
                     }
 
-
-                    if (childTarget.gameObject.activeInHierarchy)//TODO:偶尔会出现有物体不渲染，暂时没有搞明白导致的原因，通过该方式hack
+                }
+            }
+            //-------------->Ext SpriteSequence
+            if (holder.extCompSpriteSequenceInfos != null && holder.extCompSpriteSequenceInfos.Count > 0)
+            {
+                foreach (var item in holder.extCompSpriteSequenceInfos)
+                {
+                    Transform childTarget = item.tran;
+                    if (item.refSprites != null && item.refSprites.Count > 0)
                     {
-                        childTarget.gameObject.SetActive(false);
-                        childTarget.gameObject.SetActive(true);
+                        SpriteSequence spriteSequence = childTarget.GetComponent<SpriteSequence>();
+                        for (int i = 0; i < item.refSprites.Count; i++)
+                        {
+                            LoadSpriteToSpriteSeq(spriteSequence, item.refSprites[i].atlasName, item.refSprites[i].spriteName, i);
+                        }
+                    }
+                }
+            }
+            //-------------->Ext SwapSprite
+            if (holder.extCompSwapSpriteInfos != null && holder.extCompSwapSpriteInfos.Count > 0)
+            {
+
+                foreach (var item in holder.extCompSwapSpriteInfos)
+                {
+                    Transform childTarget = item.tran;
+                    if (item.refSprites != null && item.refSprites.Count > 0)
+                    {
+                        SwapSprite swapSprite = childTarget.GetComponent<SwapSprite>();
+                        for (int i = 0; i < item.refSprites.Count; i++)
+                        {
+                            LoadSpriteToSwapSprite(swapSprite, item.refSprites[i].atlasName, item.refSprites[i].spriteName, i);
+                        }
                     }
                 }
             }
 
 
 
-
-            matTexHolder.finishedSet = true;
+            holder.finishedSet = true;
         }
 
 
@@ -528,20 +769,9 @@ namespace ZGame.Ress.AB
             }
         }
 
-        public void LoadSprite<T>(string texProperty, string atlasName, string spriteName, T targetComponent)
-        {
-            Sprite sprite = loadSprite(atlasName, spriteName);
-            ImgRes imgRes = getCachedAbRes(ABType.Sprite, atlasName) as ImgRes;
-            Transform trs = null;
 
 
-            if (trs != null)
-            {
-                imgRes.AddRefTrs(trs);
-            }
-        }
-
-        public void LoadSprite<T>(string atlasName, string spriteName, T targetComponent)
+        public void FillSprite<T>(string atlasName, string spriteName, T targetComponent)
         {
             Sprite sprite = loadSprite(atlasName, spriteName);
 
@@ -571,7 +801,7 @@ namespace ZGame.Ress.AB
 
         }
 
-        public void LoadSpriteToSeq(SpriteSequence ss, string atlasName, string spriteName, int index)
+        public void LoadSpriteToSpriteSeq(SpriteSequence ss, string atlasName, string spriteName, int index)
         {
             Sprite sprite = loadSprite(atlasName, spriteName);
             ss.sprites[index] = sprite;
@@ -580,7 +810,25 @@ namespace ZGame.Ress.AB
             imgRes.AddRefTrs(ss.transform);
         }
 
-#if XLua
+        public void LoadSpriteToImageSeq(ImageSequence ss, string atlasName, string spriteName, int index)
+        {
+            Sprite sprite = loadSprite(atlasName, spriteName);
+            ss.sprites[index] = sprite;
+
+            ImgRes imgRes = getCachedAbRes(ABType.Sprite, atlasName) as ImgRes;
+            imgRes.AddRefTrs(ss.transform);
+        }
+
+        public void LoadSpriteToSwapSprite(SwapSprite ss, string atlasName, string spriteName, int index)
+        {
+            Sprite sprite = loadSprite(atlasName, spriteName);
+            ss.sprites[index] = sprite;
+
+            ImgRes imgRes = getCachedAbRes(ABType.Sprite, atlasName) as ImgRes;
+            imgRes.AddRefTrs(ss.transform);
+        }
+
+
         public void LoadSpriteToSpriteRenderer(string atlasName, string spriteName, SpriteRenderer targetSR)
         {
             Sprite sprite = loadSprite(atlasName, spriteName);
@@ -599,10 +847,10 @@ namespace ZGame.Ress.AB
             ImgRes imgRes = getCachedAbRes(ABType.Sprite, atlasName) as ImgRes;
             Transform trs = targetImg.transform;
             targetImg.sprite = sprite;
-            targetImg.SetNativeSize();
+
             imgRes.AddRefTrs(trs);
         }
-#endif
+
 
 
 
@@ -641,17 +889,19 @@ namespace ZGame.Ress.AB
 
 
 
+
+
         //TODO:暂时还没有对材质球、shader等其它资源进行引用计数处理，这里使用Unity自带的方法进行内存的清除！！！
-        float memeryClearDuration = 20f;
-        private void Update()
+        float memeryClearDuration = 60f;
+        public override void Update()
         {
-            this.memeryClearDuration -= Time.deltaTime;
-            if (this.memeryClearDuration < 0)
-            {
-                this.memeryClearDuration = 20;
-                Resources.UnloadUnusedAssets();
-                GC.Collect();
-            }
+            //////this.memeryClearDuration -= Time.deltaTime;
+            //////if (this.memeryClearDuration < 0)
+            //////{
+            //////    this.memeryClearDuration = 60;
+            //////    Resources.UnloadUnusedAssets();
+            //////    GC.Collect();
+            //////}
         }
 
         private void OnDestroy()
@@ -659,6 +909,7 @@ namespace ZGame.Ress.AB
             EventDispatcher.Instance.RemoveListener(EventID.OnABResLoaded, onABResLoaded);
             EventDispatcher.Instance.RemoveListener(EventID.OnRootObjDestroy, onRootObjDestroy);
             EventDispatcher.Instance.RemoveListener(EventID.OnChildObjDestroy, onChildObjDestroy);
+            EventDispatcher.Instance.RemoveListener(EventID.OnGameObjectInstantiate, onGameObjectInstantiate);
         }
     }
 }

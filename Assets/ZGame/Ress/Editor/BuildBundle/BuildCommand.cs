@@ -5,27 +5,14 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 using ZGame.Res;
+using ZGame.Ress.AB.Holder;
+using ZGame.Ress.Info;
 
 namespace ZGame.RessEditor
 {
     public class BuildCommand
     {
-        //[MenuItem("工具/测试")]
-        //public static void Test()
-        //{
-        //    GameObject selectObj = Selection.activeGameObject;
-        //    var mat = selectObj.GetComponent<Image>().material;
 
-        //    if (mat != null)
-        //    {
-        //        Debug.Log("aaaa:" + selectObj.GetComponent<Image>().sprite.name);
-        //        Debug.Log("zz:" + mat.name);
-        //        Debug.Log("xx:" + mat.shader.name);
-        //    }
-
-
-        //    Debug.LogError(selectObj.name);
-        //}
 
         [MenuItem("Assets/对选择项打AB包")]
         public static void Build()
@@ -90,23 +77,38 @@ namespace ZGame.RessEditor
                 }
 
                 string path = AssetDatabase.GetAssetPath(shaders[i]);
-                if (path == null || !path.Contains("Assets"))
+                if (path == null)
                 {
-                    Debug.LogError("该shader不在工程内..." + path == null ? shaders[i].name : path);
+                    Debug.LogError("该shader不在工程内,shader name:" + shaders[i].name);
                     return false;
+                }
+                if (!path.Contains("Assets"))
+                {
+                    Debug.LogWarning("warnning,该shader不在Assets目录下，path:" + path);
                 }
 
                 assetPaths.Add(path);
 
             }
 
+            //添加shader 变体资源
+            string shaderVariantsPath = "Assets/ArtResources/ShaderList/ShaderVariants.shadervariants";
+            if (File.Exists(Application.dataPath + shaderVariantsPath.Replace("Assets", "")))
+            {
+                assetPaths.Add(shaderVariantsPath);
+            }
 
             //添加字体资源
             //TODO:字体暂时不通过类似Shader的方式进行添加，统一在这里把需要的字体打进bundle
             //特别要注意，如果新用到了字体，需要在这里添加,因为暂时没有提供类似shader的 字体检测工具           
             List<string> fontPathList = new List<string>();
-            fontPathList.Add("Assets/ArtResources/Font/Poppins-Medium.ttf");
-            fontPathList.Add("Assets/ArtResources/Font/impact.ttf");
+            //////fontPathList.Add("Assets/ArtResources/Font/Poppins-Medium.ttf");
+            //////fontPathList.Add("Assets/ArtResources/Font/impact.ttf");
+            ///
+
+            fontPathList.Add("Assets/ArtResources/Font/fzltthjt.ttf");
+            fontPathList.Add("Assets/ArtResources/Font/arial.ttf");
+            
             for (int i = 0; i < fontPathList.Count; i++)
             {
                 if (!File.Exists(Application.dataPath + fontPathList[i].Replace("Assets", "")))
@@ -155,9 +157,10 @@ namespace ZGame.RessEditor
                         if (mat != null)
                         {
 
-                            if (mat.name == "Default-ParticleSystem")
+                            //ParticlesUnlit是urp粒子系统的默认材质球
+                            if (mat.name == "Default-ParticleSystem" || mat.name == "ParticlesUnlit")
                             {
-                                Debug.LogError("使用了默认材质球， mat.name:" + mat.name + ", objPath:" + render.transform.Hierarchy());
+                                Debug.LogError("使用了默认材质球， mat.name:" + mat.name + ", objPath:" + render.transform.GetHierarchy());
                                 return false;
                             }
                             //TODO:
@@ -199,6 +202,7 @@ namespace ZGame.RessEditor
             }
             return true;
         }
+
 
 
 
@@ -310,6 +314,95 @@ namespace ZGame.RessEditor
             return true;
         }
 
+        public static void FillRootCompInfoHolder(GameObject obj)
+        {
+            CompInfoHolder holder = obj.GetComponent<CompInfoHolder>();
+            if (holder == null)
+            {
+                Debug.LogError("error, " + obj.GetHierarchy() + ", have no CompInfoHolder Component");
+                return;
+            }
+            fillCompInfoHolder(obj, holder);
+        }
+
+        public static void FillDynamicCompInfoHolder(GameObject obj)
+        {
+            List<GameObject> childs = obj.GetChilds(false, true);
+            for (int i = 0; i < childs.Count; i++)
+            {
+                GameObject child = childs[i];
+                var dynamicInfoHolder = child.GetComponent<DynamicCompInfoHolder>();
+                if (dynamicInfoHolder != null)
+                {
+                    fillCompInfoHolder(child, dynamicInfoHolder);
+                }
+            }
+        }
+
+        static void fillCompInfoHolder(GameObject obj, CompInfoHolder infoHolder)
+        {
+            infoHolder.buildInCompImageInfos = GenericExt.PraseList<BuildInCompImageInfo>(new BuildInCompImageCollection().GetCompInfo(obj));
+
+            infoHolder.buildInCompSpriteRendererInfos = GenericExt.PraseList<BuildInCompSpriteRendererInfo>(new BuildInCompSpriteRendererCollection().GetCompInfo(obj));
+            infoHolder.buildInCompTextInfos = GenericExt.PraseList<BuildInCompTextInfo>(new BuildInCompTextCollection().GetCompInfo(obj));
+            infoHolder.buildInCompRendererInfos = GenericExt.PraseList<BuildInCompRendererInfo>(new BuildInCompRendererCollection().GetCompInfo(obj));
+
+            infoHolder.extCompImageSequenceInfos = GenericExt.PraseList<ExtCompImageSequenceInfo>(new ExtCompImageSequenceCollection().GetCompInfo(obj));
+            infoHolder.extCompSpriteSequenceInfos = GenericExt.PraseList<ExtCompSpriteSequenceInfo>(new ExtCompSpriteSequenceCollection().GetCompInfo(obj));
+            infoHolder.extCompSwapSpriteInfos = GenericExt.PraseList<ExtCompSwapSpriteInfo>(new ExtCompSwapSpriteCollection().GetCompInfo(obj));
+            
+        }
+
+        public static List<AssetBundleBuild> GetGameObjectAssetBundleBuildMap(GameObject obj)
+        {
+            List<AssetBundleBuild> texMap = new List<AssetBundleBuild>();
+
+            BuildInCompImageCollection buildInCompImageCollection = new BuildInCompImageCollection();
+            texMap.AddRange(buildInCompImageCollection.GetResMap(obj));
+
+            BuildInCompSpriteRendererCollection buildInCompSpriteRendererCollection = new BuildInCompSpriteRendererCollection();
+            texMap.AddRange(buildInCompSpriteRendererCollection.GetResMap(obj));
+
+            BuildInCompRendererCollection buildInCompRendererCollection = new BuildInCompRendererCollection();
+            texMap.AddRange(buildInCompRendererCollection.GetResMap(obj));
+
+            BuildInCompTextCollection buildInCompTextCollection = new BuildInCompTextCollection();
+            texMap.AddRange(buildInCompTextCollection.GetResMap(obj));
+
+            ExtCompImageSequenceCollection extCompImageSequenceCollection = new ExtCompImageSequenceCollection();
+            texMap.AddRange(extCompImageSequenceCollection.GetResMap(obj));
+
+            ExtCompSpriteSequenceCollection extCompSpriteSequenceCollection = new ExtCompSpriteSequenceCollection();
+            texMap.AddRange(extCompSpriteSequenceCollection.GetResMap(obj));
+
+            ExtCompSwapSpriteCollection extCompSwapSpriteCollection = new ExtCompSwapSpriteCollection();
+            texMap.AddRange(extCompSwapSpriteCollection.GetResMap(obj));
+
+            
+
+            //去除texMap中的重复项
+            List<AssetBundleBuild> finalTexMap = new List<AssetBundleBuild>();
+            for (int i = 0; i < texMap.Count; i++)
+            {
+                bool flag = false;
+                for (int j = 0; j < finalTexMap.Count; j++)
+                {
+                    if (finalTexMap[j].assetBundleName == texMap[i].assetBundleName)
+                    {
+                        flag = true;
+                        break;
+                    }
+                }
+                if (!flag)
+                {
+                    finalTexMap.Add(texMap[i]);
+                }
+            }
+
+
+            return finalTexMap;
+        }
+
 
         static bool isValidTextOfUGUI(Text text)
         {
@@ -346,7 +439,7 @@ namespace ZGame.RessEditor
                     img.sprite.name == "DropdownArrow" ||
                     img.sprite.name == "Checkmark")
                 {
-                    Debug.LogError("使用了默认贴图," + img.name + ", 贴图名：" + img.sprite.name);
+                    Debug.LogError("使用了默认贴图," + img.name + ", 贴图名：" + img.sprite.name + "， path:" + img.transform.GetHierarchy());
                     return false;
                 }
             }
@@ -362,14 +455,14 @@ namespace ZGame.RessEditor
 
             if (mat.name == "Default UI Material")//使用了UGUI的默认材质球
             {
-                Debug.LogError("used ugui's default mat: " + target.name);
+                Debug.LogError("used ugui's default mat: " + target.GetHierarchy());
                 return false;
             }
             else
             {
                 if (mat.shader == null)
                 {
-                    Debug.LogError("mat have no shader: " + target.name);
+                    Debug.LogError("mat have no shader: " + target.GetHierarchy());
                     return false;
                 }
                 //if (mat.shader.name == "UI/Default")//使用了UGUI的默认shader

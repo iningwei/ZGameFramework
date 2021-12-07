@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using ZGame.Ress.AB;
 
 namespace ZGame.Ress
 {
@@ -47,6 +48,18 @@ namespace ZGame.Ress
             }
 
             return result;
+        }
+
+
+        public override void Destroy()
+        {
+            base.Destroy();
+
+
+            ABManager.Instance.RemoveRes(ABType.Sprite, resName);
+
+
+
         }
     }
 }

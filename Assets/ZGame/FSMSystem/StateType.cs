@@ -6,27 +6,17 @@ public enum StateType
 {
     None,
     //States for player
-    PlayerInit,
-    PlayerMove,
-   PlayerBuild,
-    PlayerStop,
+    PlayerIdle,
+    PlayerAttack,
+    PlayerThunder,
+    PlayerDirectionalAttack,
+    PlayerDirectionalFireAttack,
+    PlayerHurt,
+    PlayerSkeleton,
+    PlayerDefend,
+    PlayerHealthPortion,
+    PlayerSpinPortion,
+    PlayerVictory,
+    PlayerDeath,
 
-    //State for garbage
-    GarbageHidden,
-    GarbageCandidate,
-    GarbageTarget,
-    GarbageMoveByCleaner,
-    GarbageMove,
-    GarbageDrop,
-
-    //State for cleaner
-    CleanerInit,
-    CleanerFly,
-    CleanerMoveForthToTarget,
-    CleanerMoveBackWithTarget,
-    CleanerMoveFollowTarget,
-    CleanerPlayDropAnim,
-    CleanerDropTarget,
-    CleanerMoveBackToCar,
-    CleanerPatrolFollowCar,
 }

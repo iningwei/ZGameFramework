@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using ZGame.Ress.AB;
 
 namespace ZGame.Ress
 {
@@ -31,10 +32,21 @@ namespace ZGame.Ress
 
             if (result == null)
             {
-                Debug.LogError("error, get res fail,texture is null");
+                Debug.LogError("error, get res fail,texture is null， textureName:" + name);
             }
 
             return result;
+        }
+
+
+        public override void Destroy()
+        {
+            base.Destroy();
+
+
+            ABManager.Instance.RemoveRes(ABType.Texture, resName);
+
+
         }
     }
 

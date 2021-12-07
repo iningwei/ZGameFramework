@@ -12,7 +12,7 @@ public class AutoTextureSetting : AssetPostprocessor
         //importer.alphaIsTransparency = true;
         importer.mipmapEnabled = false;
 
-        importer.sRGBTexture = false;//经测试开启了sRGB会影响Texture的mipmapCount参数的值。。。unity bug???
+        //////importer.sRGBTexture = false;//经测试开启了sRGB会影响Texture的 mipmapCount 参数的值。。。unity bug???
         importer.isReadable = false;
         importer.npotScale = TextureImporterNPOTScale.None;
 
@@ -24,13 +24,14 @@ public class AutoTextureSetting : AssetPostprocessor
         //////    importer.SetPlatformTextureSettings(androidSettings);
 
 
-        TextureImporterPlatformSettings iosSettings = new TextureImporterPlatformSettings();
-        //iosSettings.maxTextureSize = 2048;
-        iosSettings.format = TextureImporterFormat.ASTC_6x6;
-        iosSettings.name = "iPhone";
-        iosSettings.overridden = true;
+        //ASTC 在ios上有通道问题
+        //////TextureImporterPlatformSettings iosSettings = new TextureImporterPlatformSettings();
+        ////////iosSettings.maxTextureSize = 2048;
+        //////iosSettings.format = TextureImporterFormat.ASTC_6x6;
+        //////iosSettings.name = "iPhone";
+        //////iosSettings.overridden = true;
 
-        importer.SetPlatformTextureSettings(iosSettings);
+        //////importer.SetPlatformTextureSettings(iosSettings);
     }
 
     void OnPreprocessAnimation()

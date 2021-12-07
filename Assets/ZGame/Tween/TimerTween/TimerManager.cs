@@ -9,9 +9,9 @@ namespace ZGame.TimerTween
 {
     class TimerManager : SingletonMonoBehaviour<TimerManager>
     {
-        private List<Timer> timers = new List<Timer>();
+        public List<Timer> timers = new List<Timer>();
 
-        private List<Timer> timersToAdd = new List<Timer>();
+        public List<Timer> timersToAdd = new List<Timer>();
 
 
         public void RegisterTimer(Timer timer)
@@ -19,12 +19,15 @@ namespace ZGame.TimerTween
             TimerGlobal.Counter++;
             if (GetTimer(TimerGlobal.Counter) != null)
             {
-                Debug.LogError("can not register timer, for duplicated id:" + TimerGlobal.Counter);
-                return;
-            }
+                //duplicated id, then continue call RegisterTimer can auto add id
+                this.RegisterTimer(timer);
 
-            timer.SetId(TimerGlobal.Counter);
-            this.timersToAdd.Add(timer);
+            }
+            else
+            {
+                timer.SetId(TimerGlobal.Counter);
+                this.timersToAdd.Add(timer);
+            }
         }
 
         public void CancelAllTimers()
@@ -104,12 +107,29 @@ namespace ZGame.TimerTween
                 this.timers.AddRange(this.timersToAdd);
                 this.timersToAdd.Clear();
             }
-            foreach (Timer timer in timers)
-            {
-                timer.Update();
-            }
 
-            this.timers.RemoveAll(t => t.IsDone);
+            if (timers.Count > 0)
+            {
+                //Debug.Log("timers count:" + timers.Count);
+
+                foreach (Timer timer in timers)
+                {
+                    try
+                    {
+                        timer.Update();
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogError("update timer ex:" + ex.ToString()+", we remove it! please check, tag:"+timer.Tag);
+                        timer.Cancel();
+                    }
+                }
+
+
+
+                this.timers.RemoveAll(t => t.IsDone);
+
+            }
 
         }
     }

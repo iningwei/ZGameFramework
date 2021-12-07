@@ -69,7 +69,7 @@ namespace ZGame.cc
         }
 
 
-        //Recycle Tween if it is not null while destroy!!!
+        //Remove Tween if it is not null while destroy!!!
         private void OnDestroy()
         {
             if (this.tween != null)

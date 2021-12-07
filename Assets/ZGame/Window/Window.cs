@@ -13,6 +13,21 @@ namespace ZGame.Window
         public bool neverClose = false;
 
         public Transform ui_AniBg;
+
+
+
+        Action callbackOnWindowHide;
+        Action callbackOnWindowDestroy;
+        public void RegisterCallbackOnWindowHide(Action callback)
+        {
+            callbackOnWindowHide += callback;
+        }
+
+        public void RegisterCallbackOnWindowDestroy(Action callback)
+        {
+            callbackOnWindowDestroy += callback;
+        }
+
         public Window(GameObject obj, string windowName)
         {
             this.rootObj = obj;
@@ -77,11 +92,21 @@ namespace ZGame.Window
 
         public virtual void Hide()
         {
+            if (callbackOnWindowHide != null)
+            {
+                callbackOnWindowHide.Invoke();
+            }
             this.rootObj.SetActive(false);
         }
         public virtual void Destroy()
         {
             RemoveUIEventListener();
+            if (callbackOnWindowDestroy != null)
+            {
+                callbackOnWindowDestroy.Invoke();
+            }
+            callbackOnWindowHide = null;
+            callbackOnWindowDestroy = null;
 
             GameObject.Destroy(this.rootObj);
         }

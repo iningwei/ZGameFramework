@@ -6,6 +6,7 @@ namespace ZGame.FSM
 {
     public class FSMSystem
     {
+
         List<FSMState> states = null;
 
         public FSMState CurState
@@ -21,6 +22,7 @@ namespace ZGame.FSM
         }
         public FSMSystem()
         {
+
             states = new List<FSMState>();
         }
 
@@ -88,8 +90,7 @@ namespace ZGame.FSM
 
             StateType stateType = this.CurState.GetOutputState(trans);
             if (stateType == StateType.None)
-            {
-                Debug.LogError("error,state:" + stateType + " does not have a target state for transition " + trans);
+            {                
                 return;
             }
 

@@ -17,7 +17,7 @@ namespace ZGame.TimerTween
             }
             set
             {
-                if (value > 1000000)
+                if (value > 100000)
                 {
                     value = 1;
                 }

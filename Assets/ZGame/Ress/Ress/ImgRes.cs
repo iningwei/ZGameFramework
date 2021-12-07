@@ -52,7 +52,7 @@ namespace ZGame.Ress
 
                 if (this.refTrs.Count == 0)
                 {
-                    destroyRes();
+                    this.Destroy();
                 }
             }
         }
@@ -63,25 +63,6 @@ namespace ZGame.Ress
             return f;
         }
 
-        void destroyRes()
-        {
-            if (this is SpriteRes)
-            {
-                ABManager.Instance.RemoveRes(ABType.Sprite, resName);
-            }
-            else if (this is TextureRes)
-            {
-                ABManager.Instance.RemoveRes(ABType.Texture, resName);
-            }
-            else
-            {
-                Debug.LogError(resName + " refTrs==0, 但是暂时还不支持对该类型资源的删除 ");
-                return;
-            }
 
-            //Debug.LogError(resName + " refTrs==0, destroyRes ");
-            GameObject.DestroyImmediate(resObj, true);
-
-        }
     }
 }

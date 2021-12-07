@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using ZGame.Ress.AB;
 
 namespace ZGame.Ress
 {
@@ -36,6 +37,12 @@ namespace ZGame.Ress
                 Debug.LogError("error, get res fail, audio clip is null");
             }
             return result;
+        }
+
+        public override void Destroy()
+        {
+            base.Destroy();
+            ABManager.Instance.RemoveRes(ABType.Audio, resName);
         }
     }
 }

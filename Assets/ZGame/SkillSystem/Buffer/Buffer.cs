@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using ZGame.FSM;
 using ZGame.SkillSystem.Buffer;
 
 namespace ZGame.SkillSystem.Buffer

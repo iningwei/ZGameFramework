@@ -23,5 +23,13 @@ namespace ZGame.Ress
         {
             return default;
         }
+
+        public virtual void Destroy()
+        {
+            if (resObj != null)
+            {
+                GameObject.DestroyImmediate(resObj, true);
+            }
+        }
     }
 }

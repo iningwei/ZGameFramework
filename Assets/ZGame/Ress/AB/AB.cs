@@ -24,7 +24,7 @@ namespace ZGame.Ress.AB
 
             AssetBundle ab = null;
             string path = "";
-            if (IOTools.IsResInPDir(name))
+            if (IOTools.IsResInPersistantDir(name))
             {
                 path = IOTools.GetResPersistantPath(name);
             }

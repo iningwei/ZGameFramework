@@ -115,12 +115,21 @@ public class IOTools
     }
 
 
+    public static byte[] ReadFile(string path)
+    {
+       var data= File.ReadAllBytes(path);
+        return data;
+    }
+
+    public static string ReadStringFromUpdateDir(string fileName)
+    {
+        return GetFileString(resPersistantPath + fileName);
+    }
 
 
 
 
-
-    public static bool IsResInPDir(string resName)
+    public static bool IsResInPersistantDir(string resName)
     {
         string uppath = resPersistantPath + "/" + resName;
         if (File.Exists(uppath))
@@ -140,9 +149,9 @@ public class IOTools
             File.WriteAllBytes(resPersistantPath + name, data);
     }
 
-    public static void WriteStringToUpdateDir(string name, string str)
+    public static void WriteStringToUpdateDir(string fileName, string str)
     {
-        File.WriteAllText(resPersistantPath + name, str);
+        File.WriteAllText(resPersistantPath + fileName, str);
     }
 
     public static void DeleteFileFromUpdateDir(string name)
@@ -241,6 +250,30 @@ public class IOTools
         }
 
     }
+
+
+    /// <summary>
+    /// 读取文本文件的内容
+    /// </summary>
+    /// <param name="filePath"></param>
+    public static string GetFileString(string filePath)
+    {
+        if (File.Exists(filePath))
+        {
+            var b = File.ReadAllBytes(filePath);
+            using (TextReader tr = new StreamReader(new MemoryStream(b)))
+            {
+                return tr.ReadToEnd();
+            }
+        }
+        else
+        {
+            Debug.LogWarning("warning, GetFileString failed,no file with filePath:" + filePath);
+            return "";
+        }
+    }
+
+
 
     public static void WriteString(string path, string content)
     {

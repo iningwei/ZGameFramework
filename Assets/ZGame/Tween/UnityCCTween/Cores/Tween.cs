@@ -58,6 +58,7 @@ namespace ZGame.cc
         protected float lastPausedTime;
 
 
+        
 
         protected bool ignoreTimeScale = false;
 

@@ -29,13 +29,13 @@ public class SpaceCharactorCheckTool : Editor
             {
                 if (childs[j].name.StartsWith(" ") || childs[j].name.EndsWith(" "))
                 {
-                    Debug.LogError($"prefab:{filePath}中， 节点：" + childs[j].gameObject.GetUpperPath(obj, true) + ",  首/尾 包含空格符");
+                    Debug.LogError($"prefab:{filePath}中， 节点：" + childs[j].GetHierarchy() + ",  首/尾 包含空格符");
                 }
                 else
                 {
                     if (childs[j].name.Trim().Contains(" "))
                     {
-                        Debug.LogWarning($"prefab:{filePath}中， 节点：" + childs[j].gameObject.GetUpperPath(obj, true) + ", 内部包含空格符");
+                        Debug.LogWarning($"prefab:{filePath}中， 节点：" + childs[j].GetHierarchy() + ", 内部包含空格符");
                     }
                 }
 

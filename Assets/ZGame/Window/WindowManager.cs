@@ -5,6 +5,7 @@ using System.IO;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using ZGame.Ress;
 using ZGame.Ress.AB;
 
 namespace ZGame.Window
@@ -48,7 +49,7 @@ namespace ZGame.Window
 
     public class WindowManager : SingletonMonoBehaviour<WindowManager>
     {
-        public Transform Canvas = null;
+        public Transform CanvasTran = null;
         //Layer Transforms
         Dictionary<string, Transform> layerDic = null;
         public Dictionary<string, Transform> LayerDic
@@ -100,15 +101,15 @@ namespace ZGame.Window
 
         void initLayerDic()
         {
-            if (Canvas == null)
+            if (CanvasTran == null)
             {
-                Canvas = GameObject.Find("Canvas").transform;
+                CanvasTran = GameObject.Find("Canvas").transform;
             }
 
             for (int i = 0; i < WindowLayer.LayerList.Count; i++)
             {
                 var layerName = WindowLayer.LayerList[i];
-                LayerDic[layerName] = Canvas.Find(layerName);
+                LayerDic[layerName] = CanvasTran.Find(layerName);
             }
         }
 
@@ -120,6 +121,23 @@ namespace ZGame.Window
                 {
                     item.Value.Update();
                 }
+            }
+        }
+
+        public void RegisterCallbackOnWindowHide(string windowName, Action callback)
+        {
+            var window = GetWindow(windowName);
+            if (window != null)
+            {
+                window.RegisterCallbackOnWindowHide(callback);
+            }
+        }
+        public void RegisterCallbackOnWindowDestroy(string windowName, Action callback)
+        {
+            var window = GetWindow(windowName);
+            if (window != null)
+            {
+                window.RegisterCallbackOnWindowDestroy(callback);
             }
         }
 
@@ -144,7 +162,7 @@ namespace ZGame.Window
             WindowInfos.TryGetValue(name, out WindowInfo info);
             if (info == null)
             {
-                Debug.Log("RegisterLuaWindowType:" + name);
+                //Debug.Log("RegisterLuaWindowType:" + name);
                 info = new WindowInfo(name, resName, true);
                 WindowInfos[name] = info;
             }
@@ -152,7 +170,7 @@ namespace ZGame.Window
             {
                 //一种情况是C#侧已经注册了该窗体
                 //一种情况是LUA侧已经注册了该窗体
-                Debug.Log("Force RegisterLuaWindowType:" + name);
+                //Debug.Log("Force RegisterLuaWindowType:" + name);
                 info = new WindowInfo(name, resName, true);
                 WindowInfos[name] = info;
             }
@@ -368,6 +386,13 @@ namespace ZGame.Window
         /// <returns></returns>
         public Window ShowWindow(string name, string layerName, bool neverClose, bool isCache, Action onWindowShowed, params object[] datas)
         {
+            if (layerName == null || layerName == "")
+            {
+                Debug.LogError("error, layerName is null");
+            }
+
+       
+
             WindowResSource source = WindowResSource.Unknown;
             Window window = genTargetWindow(name, ref source);
 
@@ -518,7 +543,6 @@ namespace ZGame.Window
                     {
                         destroyWindow(window);
                     }
-
                 }
                 else
                 {
@@ -548,7 +572,81 @@ namespace ZGame.Window
         }
 
 
+        public Camera GetCanvasCamera()
+        {
+            return CanvasTran.GetComponent<Canvas>().worldCamera;
+        }
+        /// <summary>
+        /// 世界坐标转换到UGUI坐标
+        /// </summary>
+        /// <param name="worldCam"></param>
+        /// <param name="worldPos"></param>
+        /// <returns></returns>
+        public Vector3 WorldToUGUIPos(Camera worldCam, Vector3 worldPos)
+        {
+            Vector2 resultPos = Vector2.zero;
+            Vector3 screenPos = worldCam.WorldToScreenPoint(worldPos);
+
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(CanvasTran.GetComponent<RectTransform>(),
+                screenPos,
+                CanvasTran.GetComponent<Canvas>().worldCamera,
+                out resultPos);
+
+            return new Vector3(resultPos.x, resultPos.y, 0);
+        }
+
+        //法2 待测试
+        //public static Vector3 WorldToUI(Camera camera, Vector3 pos)
+        //{
+        //    CanvasScaler scaler = GameObject.Find("UIRoot").GetComponent<CanvasScaler>();
+
+        //    float resolutionX = scaler.referenceResolution.x;
+        //    float resolutionY = scaler.referenceResolution.y;
+
+        //    Vector3 viewportPos = camera.WorldToViewportPoint(pos);
+
+        //    Vector3 uiPos = new Vector3(viewportPos.x * resolutionX - resolutionX * 0.5f,
+        //        viewportPos.y * resolutionY - resolutionY * 0.5f, 0);
+
+        //    return uiPos;
+        //}
+        //
 
 
+        /// <summary>
+        /// 获得UI相对其根节点Canvas的坐标
+        /// </summary>
+        /// <param name="uiTran"></param>
+        /// <returns></returns>
+        public Vector3 GetUIPosRelativeRoot(Transform uiTran)
+        {
+            Vector2 resultPos = Vector2.zero;
+            Camera uiCam = CanvasTran.GetComponent<Canvas>().worldCamera;
+            Vector3 screenPos = RectTransformUtility.WorldToScreenPoint(uiCam, uiTran.position);
+
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                CanvasTran.GetComponent<RectTransform>(),
+                screenPos,
+                uiCam,
+                out resultPos);
+            return new Vector3(resultPos.x, resultPos.y, 0);
+        }
+
+        public bool IsPointerInRect(RectTransform targetUI)
+        {
+
+            Camera uiCam = CanvasTran.GetComponent<Canvas>().worldCamera;
+
+            Vector2 screenPos = Vector2.zero;
+#if UNITY_EDITOR
+            screenPos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+#elif UNITY_ANDROID || UNITY_IOS
+            screenPos = new Vector2(Input.touchCount > 0 ? Input.GetTouch(0).position.x : 0, Input.touchCount > 0 ? Input.GetTouch(0).position.y : 0);
+#endif
+
+            bool isIn = RectTransformUtility.RectangleContainsScreenPoint(targetUI, screenPos, uiCam);
+            Debug.LogError("is in:" + isIn);
+            return isIn;
+        }
     }
 }

@@ -145,7 +145,7 @@ public class LuaResLoader : Singleton<LuaResLoader>
         }
         else
         {
-            Debug.LogError("can not file file:" + fileName);
+            Debug.LogError("can not find file:" + fileName);
             return null;
         }
 
@@ -167,7 +167,7 @@ public class ScriptManager : Singleton<ScriptManager>
 #if XLua
     LuaEnv myLuaEnv = null;
 #endif
-
+    public bool isInited = false;
     public void Init()
     {
 #if XLua
@@ -197,6 +197,8 @@ public class ScriptManager : Singleton<ScriptManager>
 #endif
 
             DoFile("Main");
+
+            isInited = true;
         });
 #endif
     }
@@ -308,6 +310,17 @@ public class ScriptManager : Singleton<ScriptManager>
             return func.Call(scriptName)[0] as LuaTable;
         }
         return null;
+    }
+
+    public bool CallExistDraggingHubFunc()
+    {
+        var func = GetFunction("ExistDraggingHub");
+        if (func != null)
+        {
+            var t = (Boolean)func.Call()[0];
+            return t;
+        }
+        return false;
     }
 
     public LuaTable CallLuaNewActionFunc(string scriptName)

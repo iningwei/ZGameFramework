@@ -8,48 +8,63 @@ public class SearchRefrence : EditorWindow
     /// <summary>
     /// 查找资源被哪些prefab引用
     /// 原理--------->prefab中直接引用到的资源，可以通过查找prefab txt是否包含资源的guid
-    /// prefab通过mat引用到的资源，同样查找mat txt中是否有目标guid，然后再在prefab txt中找mat的guid。最终获得目标prefab
+    /// -------------->若prefab是通过mat间接引用到的资源：查找mat txt中是否有目标guid，然后再在prefab txt中找mat的guid。最终获得目标prefab
     /// </summary>
     [MenuItem("Assets/SearchAssetRefrenceByPrefab")]
     static void DoSearchRefrence()
     {
         SearchRefrence window = (SearchRefrence)EditorWindow.GetWindow(typeof(SearchRefrence), false, "Searching", true);
         window.Show();
+        Object[] assets = Selection.GetFiltered(typeof(UnityEngine.Object), SelectionMode.DeepAssets);
+        if (assets.Length > 0)
+        {
+            searchObject = assets[0];
+            doSearch();
+        }
     }
 
     private static Object searchObject;
-    private List<Object> result = new List<Object>();
+    private static List<Object> result = new List<Object>();
     private void OnGUI()
     {
         EditorGUILayout.BeginHorizontal();
         searchObject = EditorGUILayout.ObjectField(searchObject, typeof(Object), true, GUILayout.Width(200));
         if (GUILayout.Button("Search", GUILayout.Width(100)))
         {
-            result.Clear();
-
-            if (searchObject == null)
-                return;
-
-            string assetPath = AssetDatabase.GetAssetPath(searchObject);
-            var matRefs = SearchMatRef(assetPath);
-            if (matRefs.Count == 0)
-            {
-                SearchPrefabRef(assetPath);
-            }
-            else
-            {
-                for (int j = 0; j < matRefs.Count; j++)
-                {
-                    SearchPrefabRef(AssetDatabase.GetAssetPath(matRefs[j]));
-                }
-            }
-
-
-            EditorUtility.ClearProgressBar();
+            doSearch();
         }
         EditorGUILayout.EndHorizontal();
 
         //显示结果
+        showResult();
+    }
+
+    static void doSearch()
+    {
+        result.Clear();
+
+        if (searchObject == null)
+            return;
+
+        string assetPath = AssetDatabase.GetAssetPath(searchObject);
+        var matRefs = searchMatRef(assetPath);
+        if (matRefs.Count == 0)
+        {
+            searchPrefabRef(assetPath);
+        }
+        else
+        {
+            for (int j = 0; j < matRefs.Count; j++)
+            {
+                searchPrefabRef(AssetDatabase.GetAssetPath(matRefs[j]));
+            }
+        }
+
+
+        EditorUtility.ClearProgressBar();
+    }
+    void showResult()
+    {
         EditorGUILayout.BeginVertical();
         for (int i = 0; i < result.Count; i++)
         {
@@ -57,8 +72,7 @@ public class SearchRefrence : EditorWindow
         }
         EditorGUILayout.EndHorizontal();
     }
-
-    List<Material> SearchMatRef(string assetPath)
+    static List<Material> searchMatRef(string assetPath)
     {
         string assetGuid = AssetDatabase.AssetPathToGUID(assetPath);
         //只检查material
@@ -83,7 +97,7 @@ public class SearchRefrence : EditorWindow
         return result;
     }
 
-    void SearchPrefabRef(string assetPath)
+    static void searchPrefabRef(string assetPath)
     {
         string assetGuid = AssetDatabase.AssetPathToGUID(assetPath);
         //只检查prefab

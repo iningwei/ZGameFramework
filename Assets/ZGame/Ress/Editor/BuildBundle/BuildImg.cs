@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using ZGame;
+
 namespace ZGame.RessEditor
 {
     public class BuildImg : BuildBase
@@ -10,7 +12,7 @@ namespace ZGame.RessEditor
         {
             if (obj.name.ContainChinese())
             {
-                Debug.LogError("resource name should not contail chinese charactor:" + obj.name);
+                Debug.LogError("resource name should not contain chinese charactor:" + obj.name);
                 return false;
             }
 

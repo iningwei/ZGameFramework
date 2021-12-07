@@ -6,26 +6,17 @@ public enum TransitionType
 {
     None,
     //Transitions for player
-    PlayerToMove,
-    PlayerToBuild,
-    PlayerToStop,
-
-    //Transitions for garbage
-    GarbageToCandidate,
-    GarbageToHidden,
-    GarbageToTarget,
-    GarbageToMoveByCleaner,
-    GarbageToMove,
-    GarbageToDrop,
-
-    //Transitions for cleaner
-    CleanerToInit,
-    CleanerToFly,
-    CleanerToMoveForthToTarget,
-    CleanerToMoveBackWithTarget,
-    CleanerToMoveFollowTarget,
-    CleanerToPlayDropAnim,
-    CleanerToDropTarget,
-    CleanerToMoveBackToCar,
-    CleanerToPatrolFollowCar,
+    PlayerToIdle,
+    PlayerToAttack,
+    PlayerToThunder,
+    PlayerToDirectionalAttack,
+    PlayerToDirectionalFireAttack,
+    
+    PlayerToHurt,
+    PlayerToSkeleton,
+    PlayerToDefend,
+    PlayerToHealthPortion,
+    PlayerToSpinPortion,
+    PlayerToVictory,
+    PlayerToDeath,
 }

@@ -39,7 +39,10 @@ namespace ZGame.Net.Tcp
             }
         }
 
-
+        public bool IsConnected()
+        {
+            return this.socketState == SocketState.Success;
+        }
 
         CircularBuffer recvBuffer;
         byte[] recvBytes;
@@ -118,7 +121,7 @@ namespace ZGame.Net.Tcp
                     ip = newIp;
                 }
 
-                socket = new Socket(af, SocketType.Stream, ProtocolType.Tcp);
+                socket = new Socket(af, SocketType.Stream, ProtocolType.Tcp);                 
 
                 IAsyncResult asyncResult = socket.BeginConnect(ip, port, connectCallback, socket);
 
@@ -154,6 +157,7 @@ namespace ZGame.Net.Tcp
                     State = SocketState.Success;
                     asyncReceive();
 
+                    //开新线程处理消息数据
                     var pickupMsgThread = new Thread(loopPickupMessage);
                     pickupMsgThread.IsBackground = true;
                     pickupMsgThread.Start();
@@ -271,12 +275,19 @@ namespace ZGame.Net.Tcp
 
         void receiveCallback(IAsyncResult r)
         {
+            //android手机wifi环境下，在大厅内不做任何操作，只有心跳的上行、下行。
+            //过一段时间后（时间不固定），这里会通过try catch捕获到异常，报错如下：
+            //System.Net.Sockets.SocketException (0x80004005): Network subsystem is down
+            //目前还没有找到造成这个异常的具体缘由
+            ////目前通过通用的socket error后进行重连来解决
             try
             {
                 if (State != SocketState.Success)
                 {
                     return;
                 }
+                
+
 
                 int len = socket.EndReceive(r);
                 if (len <= 0)
@@ -290,6 +301,10 @@ namespace ZGame.Net.Tcp
             catch (Exception ex)
             {
                 Debug.LogError("receive callback error:" + ex.ToString());
+
+                //------------->新加
+                State = SocketState.Error;
+                return;
             }
 
 
@@ -340,7 +355,7 @@ namespace ZGame.Net.Tcp
             }
             catch (Exception ex)
             {
-
+                Debug.LogError("clientSocket shutdown, ex:" + ex.ToString());
                 State = SocketState.Error;
             }
 
@@ -351,6 +366,7 @@ namespace ZGame.Net.Tcp
             catch (Exception ex)
             {
 
+                Debug.LogError("clientSocket close, ex:" + ex.ToString());
                 State = SocketState.Error;
             }
         }

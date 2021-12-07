@@ -5,15 +5,14 @@ using UnityEngine;
 public class SpriteSequence : MonoBehaviour
 {
     public Sprite[] sprites;
-    [SerializeField]
-    float originDuration;
-    [SerializeField]
-    int index = 0;
+    public float duration;
+
+    public int index = 0;
 
     public SpriteRenderer render;
 
     int count = 0;
-    float duration = 0;
+    float durationValue = 0;
     void Awake()
     {
         if (sprites != null && sprites.Length > 0)
@@ -21,18 +20,18 @@ public class SpriteSequence : MonoBehaviour
             count = sprites.Length;
         }
 
-        duration = originDuration;
+        durationValue = duration;
     }
 
 
     void Update()
     {
-        if (originDuration <= 0 || count == 0)
+        if (duration <= 0 || count == 0)
         {
             return;
         }
-        duration -= Time.deltaTime;
-        if (duration < 0)
+        durationValue -= Time.deltaTime;
+        if (durationValue < 0)
         {
             render.sprite = sprites[index];
             if (index + 1 == count)
@@ -44,7 +43,7 @@ public class SpriteSequence : MonoBehaviour
                 index++;
             }
 
-            duration = originDuration;
+            durationValue = duration;
         }
     }
 }

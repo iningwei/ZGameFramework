@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using ZGame;
 
 public class MeshRendererCheckTool : Editor
 {
@@ -29,7 +30,7 @@ public class MeshRendererCheckTool : Editor
                 var mr = childs[j].GetComponent<MeshRenderer>();
                 if (mr != null && mr.sharedMaterials.Length > 1)
                 {
-                    Debug.LogError($"prefab:{filePath}中， 节点：" + mr.gameObject.GetUpperPath(obj, true) + ", 包含多个材质球");
+                    Debug.LogError($"prefab:{filePath}中， 节点：" + mr.gameObject.GetHierarchy() + ", 包含多个材质球");
                 }
             }
 

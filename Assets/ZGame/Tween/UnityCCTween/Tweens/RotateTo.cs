@@ -89,12 +89,15 @@ namespace ZGame.cc
         }
 
 
+
         public override void Run()
         {
             this.isDone = false;
             if (this.repeatedTimes == 0)
             {
+
                 this.startAngle = this.relativeSpace == Space.Self ? this.holder.transform.localEulerAngles : this.holder.transform.eulerAngles;
+
 
 
                 if (this.ignoreClosest == false)

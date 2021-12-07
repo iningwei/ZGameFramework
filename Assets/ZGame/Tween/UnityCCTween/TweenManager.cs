@@ -164,7 +164,7 @@ namespace ZGame.cc
 
             if (!dicOfObjTweens.ContainsKey(target))
             {
-                Debug.LogWarning("error, dicOfTweens not contain target");
+                Debug.LogWarning("error, dicOfTweens not contain target, hierarchy:"+target.GetHierarchy());
                 return false;
             }
             var tweenComps = dicOfObjTweens[target];

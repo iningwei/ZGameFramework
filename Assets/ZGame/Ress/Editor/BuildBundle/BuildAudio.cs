@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using ZGame.Ress.AB;
+using ZGame;
 
 namespace ZGame.RessEditor
 {

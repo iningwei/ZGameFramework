@@ -18,7 +18,6 @@ namespace ZGame.Ress.AB
 
         public void Notice()
         {
-
             if (noticed)
             {
                 return;
@@ -39,9 +38,6 @@ namespace ZGame.Ress.AB
                     EventDispatcher.Instance.DispatchEvent(EventID.OnChildObjDestroy, childs[i].gameObject);
                 }
             }
-
-
-
         }
     }
 }

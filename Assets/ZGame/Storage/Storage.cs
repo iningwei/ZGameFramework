@@ -28,13 +28,15 @@ namespace ZGame
         /***********记录用户的登录渠道。-1为未确定，对应第一次登陆；0为游客**************/
         public static int GetAuthChannel()
         {
-            return PlayerPrefs.GetInt("AuthChannel", -1);
+            var channel = PlayerPrefs.GetInt("CurAuthChannel", -1);
+            Debug.Log("!!! get AuthChannel:" + channel);
+            return channel;
         }
 
         public static void SetAuthChannel(int id)
         {
-            Debug.Log("setAuthChannel:" + id);
-            PlayerPrefs.SetInt("AuthChannel", id);
+            Debug.Log("!!! set AuthChannel:" + id);
+            PlayerPrefs.SetInt("CurAuthChannel", id);
             PlayerPrefs.Save();
         }
 
@@ -81,6 +83,16 @@ namespace ZGame
         {
             PlayerPrefs.SetString("Language", code);
             PlayerPrefs.Save();
+        }
+
+        public static void SetFCMToken(string token)
+        {
+            PlayerPrefs.SetString("FCMToken", token);
+            PlayerPrefs.Save();
+        }
+        public static string GetFCMToken()
+        {
+            return PlayerPrefs.GetString("FCMToken", "");
         }
     }
 }

@@ -4,6 +4,7 @@ using UnityEngine;
 using System;
 using ZGame.Net.Tcp;
 using ZGame.HotUpdate;
+using SGame.Slot;
 
 namespace ZGame
 {
@@ -40,6 +41,7 @@ namespace ZGame
         public bool IsFirstGame = false;
         public void Init()
         {
+            SDK.SDKTools.Init();
             string v = PlayerPrefs.GetString("FirstGame", "0");
             if (v == "0")
             {
@@ -54,9 +56,32 @@ namespace ZGame
 
 
             Screen.sleepTimeout = SleepTimeout.NeverSleep;//不息屏
+            //Application.runInBackground = false;
             Application.runInBackground = true;//这个只对pc有效， ios、安卓无效
-            Application.targetFrameRate = 30;//限帧
+            //Application.targetFrameRate = 60;//限帧
+            var resolution = Screen.currentResolution;
+            var refreshRate = resolution.refreshRate;
+            Debug.LogError("this device's refreshRate is:" + refreshRate);
 
+            //Screen.SetResolution(720, 1440, true);
+
+            //TODO:后续做机型适配，这里先代码取消fog
+            //RenderSettings.fog = false;
+
+            //////bool argb32Support = SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.ARGB32);
+            //////Debug.LogError("platform support RenderTextureFormat ARGB32：" + argb32Support);
+
+            //app版本
+            //TODO：资源版本等
+            string curAppVersion = Storage.GetAppVersion();
+            string cfgAppVersion = Config.appVersion;
+            if (cfgAppVersion!=curAppVersion)
+            {
+                Storage.SetAppVersion(cfgAppVersion);
+            }
+
+            bool hdrSupport = SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.DefaultHDR);
+            Debug.LogError("platform support hdr:" + hdrSupport);
 #if DEV
         packType = PackType.DEV;
 #elif PUB
@@ -71,8 +96,10 @@ namespace ZGame
 
 
 #if UNITY_EDITOR && !HOTUPDATE
+            Debug.LogError("UseOriginLuaScript ， true");
             UseOriginLuaScript = true;
 #else
+Debug.LogError("UseOriginLuaScript ， false");
             UseOriginLuaScript = false;
 #endif
 
@@ -134,10 +161,12 @@ namespace ZGame
         }
         private void OnApplicationFocus(bool focus)
         {
+            //Debug.LogError("on App focus:" + focus);
             appFocus(focus);
         }
         private void OnApplicationPause(bool pause)
         {
+            //Debug.LogError("on App pause:" + pause);
             appPause(pause);
         }
     }

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
+using ZGame;
 
 public class LuaWindowAutoLinkUITool : Editor
 {
@@ -31,7 +32,7 @@ public class LuaWindowAutoLinkUITool : Editor
             }
 
             string path = AssetDatabase.GetAssetPath(assets[i]);
-            Debug.LogError($"{path}是预制件");
+            Debug.Log($"-----> {path}是预制件");
             handlePrefabAsset(assets[i], path);
         }
 
@@ -73,7 +74,7 @@ public class LuaWindowAutoLinkUITool : Editor
         //Debug.LogError("path:" + path);
         string packageName = IOTools.GetFileFolderName(path);
 
-        string desFolderPath = Application.dataPath + "/../../client/LuaScript/Windows/AutoExport/" + packageName;
+        string desFolderPath = Application.dataPath + "/../../project/LuaScript/Windows/AutoExport/" + packageName;
         string desFilePath = desFolderPath + "/" + packageName + "_" + assetName + "ByName" + ".lua";
         if (!Directory.Exists(desFolderPath))
         {
@@ -167,11 +168,7 @@ public class LuaWindowAutoLinkUITool : Editor
 
     private static void genLuaItem(StringBuilder descSB, StringBuilder contentSB, Transform trans, string path)
     {
-        //Image x;
-        //x.color=Color
-        //////x.GetComponent<RectTransform>().anchoredPosition =
-        //Slider x;
-
+        Debug.Log("handle:" + trans.GetHierarchy());
         if (trans.name.EndsWith("Tran"))
         {
             descSB.AppendFormat("\t\t---@field public {0} UnityEngine.Transform\r\n", trans.name);
@@ -202,8 +199,17 @@ public class LuaWindowAutoLinkUITool : Editor
         }
         else if (trans.name.EndsWith("Img"))
         {
-            descSB.AppendFormat("\t\t---@field public {0} UnityEngine.UI.Image\r\n", trans.name);
-            contentSB.AppendFormat("\t\tuis.{0}=ui:Find(\"{1}\"):GetComponent(typeof(CS.UnityEngine.UI.Image))\r\n", trans.name, path);
+            if (trans.name.EndsWith("RawImg"))
+            {
+                descSB.AppendFormat("\t\t---@field public {0} UnityEngine.UI.RawImage\r\n", trans.name);
+                contentSB.AppendFormat("\t\tuis.{0}=ui:Find(\"{1}\"):GetComponent(typeof(CS.UnityEngine.UI.RawImage))\r\n", trans.name, path);
+            }
+            else
+            {
+
+                descSB.AppendFormat("\t\t---@field public {0} UnityEngine.UI.Image\r\n", trans.name);
+                contentSB.AppendFormat("\t\tuis.{0}=ui:Find(\"{1}\"):GetComponent(typeof(CS.UnityEngine.UI.Image))\r\n", trans.name, path);
+            }
         }
         else if (trans.name.EndsWith("Slider"))
         {
