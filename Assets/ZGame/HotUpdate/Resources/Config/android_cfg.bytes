@@ -1,0 +1,62 @@
+{
+	"ProductName": "Meta",
+	"AppVersion": "1.0.1",
+	"AppBundleVersion": "1",
+	"ResVersion": "0",
+	"PackTimeStamp": "2211071403",
+	"GameChannelId": 100,
+	"PaymentChannelId": 2,
+	"IsABResNameCrypto": true,
+	"ABResNameCryptoKey": "hijack88",
+	"ABResByteOffset": 3,
+	"GameDesignRatio": "1663,768",
+	"ScreenOrientation": "Landscape",
+	"GameInputType": 1,
+	"ServerData": [
+		{
+			"ServerType": 1,
+			"ServerName": "DaiDev",
+			"IsLogEventToSDK": false,
+			"UploadDebugFileURL": "http://54.215.104.194:8001/file",
+			"PostCmdURL": "http://192.168.1.9:58010/ucmd"
+		},
+		{
+			"ServerType": 10,
+			"ServerName": "Test",
+			"IsLogEventToSDK": true,
+			"UploadDebugFileURL": "http://54.215.104.194:8001/file",
+			"PostCmdURL": "https://sgametest.trillionjoy.com/ucmd"
+		},
+		{
+			"ServerType": 7,
+			"ServerName": "Pub",
+			"IsLogEventToSDK": true,
+			"UploadDebugFileURL": "http://54.215.104.194:8001/file",
+			"PostCmdURL": "https://sgame.trillionjoy.com/ucmd"
+		}
+	],
+	"PackData": [
+		{
+			"PackType": "PUB",
+			"FtpTxtFileURL": "https://sgame.trillionjoy.com/sgame/clires/pub",
+			"FtpZipFileURL": "https://sgamecdn.trillionjoy.com/sgame/clires/pub"
+		},
+		{
+			"PackType": "DEV",
+			"FtpTxtFileURL": "https://sgame.trillionjoy.com/sgame/clires/dev",
+			"FtpZipFileURL": "https://sgamecdn.trillionjoy.com/sgame/clires/dev"
+		},
+		{
+			"PackType": "TEST",
+			"FtpTxtFileURL": "https://sgame.trillionjoy.com/sgame/clires/test",
+			"FtpZipFileURL": "https://sgamecdn.trillionjoy.com/sgame/clires/test"
+		}
+	],
+	"PackType": "PUB",
+	"IsRealPurchase": true,
+	"IsShowProtoMsgLog": true,
+	"IsShowDebugBtn": false,
+	"IsEnableLogTrace": false,
+	"IsEnableLogRealtimeWriteToLocal": false,
+	"IsShowReporter": false
+}
