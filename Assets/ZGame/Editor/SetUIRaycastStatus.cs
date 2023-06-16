@@ -33,6 +33,12 @@ public class SetUIRaycastStatus : Editor
             {
                 rawImage.raycastTarget = !rawImage.raycastTarget;
             }
+            //RoundRawImage
+            var rri = rectTran.GetComponent<RoundedRawImage>();
+            if (rri)
+            {
+                rri.raycastTarget = !rri.raycastTarget;
+            }
         }
         Debug.Log("finish SetUIRaycast opposite");
         EditorUtility.SetDirty(obj);
@@ -67,6 +73,12 @@ public class SetUIRaycastStatus : Editor
             {
                 rawImage.raycastTarget = true;
             }
+            //RoundRawImage
+            var rri = rectTran.GetComponent<RoundedRawImage>();
+            if (rri)
+            {
+                rri.raycastTarget = true;
+            }
         }
         Debug.Log("finish SetUIRaycast open");
         EditorUtility.SetDirty(obj);
@@ -98,6 +110,12 @@ public class SetUIRaycastStatus : Editor
             if (rawImage)
             {
                 rawImage.raycastTarget = false;
+            }
+            //RoundRawImage
+            var rri = rectTran.GetComponent<RoundedRawImage>();
+            if (rri)
+            {
+                rri.raycastTarget = false;
             }
         }
         Debug.Log("finish SetUIRaycast close");

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -31,9 +31,9 @@ public class LuaBridgeWindow : Window
 
     }
 
-    public override void AddUIEventListener()
+    public override void AddEventListener()
     {
-        base.AddUIEventListener();
+        base.AddEventListener();
         this.onAddUIEventListenerFunc?.Invoke();
     }
 
@@ -91,9 +91,9 @@ public class LuaBridgeWindow : Window
 #endif
     }
 
-    public override void RemoveUIEventListener()
+    public override void RemoveEventListener()
     {
-        base.RemoveUIEventListener();
+        base.RemoveEventListener();
         this.onRemoveUIEventListenerFunc?.Invoke();
     }
 

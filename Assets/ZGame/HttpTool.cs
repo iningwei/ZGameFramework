@@ -256,7 +256,72 @@ public class HttpTool
         request.Send();
     }
 
-
+    public static void Post(string url, long id, byte[] data = null, Action<long, byte[]> onCmp = null, Action<long, string> onError = null, int timeout = 6, bool isEncrypt = false)
+    {
+        int maxConnectCount = 3;
+        int connectCount = 0;
+        HTTPRequest request = new HTTPRequest(new Uri(url), HTTPMethods.Post, false, true,
+            (HTTPRequest originalRequest, HTTPResponse response) =>
+            {
+                switch (originalRequest.State)
+                {
+                    case HTTPRequestStates.Initial:
+                        break;
+                    case HTTPRequestStates.Queued:
+                        break;
+                    case HTTPRequestStates.Processing:
+                        break;
+                    case HTTPRequestStates.Finished:
+                        int statusCode = response.StatusCode;
+                        if (statusCode != 200)
+                        {
+                            onError(id, "http request failed, statusCode=" + statusCode + ", url:" + url);
+                        }
+                        else
+                        {
+                            //onCmp(id, response.DataAsText);
+                            onCmp(id, response.Data);
+                        }
+                        break;
+                    case HTTPRequestStates.Error:
+                        onError(id, originalRequest.Exception.Message);
+                        break;
+                    case HTTPRequestStates.Aborted://对应网络断开 
+                        onError(id, "net unconnect！");
+                        break;
+                    case HTTPRequestStates.ConnectionTimedOut:
+                        connectCount++;
+                        if (connectCount <= maxConnectCount)
+                        {
+                            Debug.Log("connect timeout，continue connect！cur connect times：" + connectCount);
+                            originalRequest.Send();
+                        }
+                        else
+                        {
+                            onError(id, "connect timeout！");
+                        }
+                        break;
+                    case HTTPRequestStates.TimedOut://超时
+                        onError(id, "timeout！");
+                        //Debug.Log(url + " 超时，继续连");
+                        //originalRequest.Send();
+                        break;
+                    default:
+                        break;
+                }
+            });
+        request.ConnectTimeout = TimeSpan.FromSeconds(3);
+        request.Timeout = TimeSpan.FromSeconds(timeout);
+        request.RawData = data;
+        
+        //加密的话，增加header
+        if (isEncrypt)
+        {
+            request.AddHeader("dopwt", "1617049598");
+        }
+        
+        request.Send();
+    }
 
     /// <summary>
     /// HTTP协议加密方式

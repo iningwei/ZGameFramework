@@ -11,8 +11,6 @@ using ZGame;
 public class CopyFile : MonoBehaviour
 {
 
-
-
     [MenuItem("工具/拷贝美术工程需要内容到客户端工程")]
     public static void CopyArtProj2ClientProj()
     {
@@ -39,7 +37,6 @@ public class CopyFile : MonoBehaviour
                 Directory.CreateDirectory(targetPath);
                 UnityEngine.Debug.Log("create targetpath:" + targetPath);
             }
-
 
             string[] files = Directory.GetFiles(sourcePath);
             int totalCount = 0;

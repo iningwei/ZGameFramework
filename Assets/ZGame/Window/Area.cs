@@ -15,37 +15,28 @@ namespace ZGame.Window
         public Window parentWindow;
         public Area(GameObject obj, Window window, params object[] paras)
         {
+            this.id = IdAssginer.GetID(IdAssginer.IdType.Area);
             this.rootObj = obj;
             this.parentWindow = window;
             AutoLinkUI(this);
             Init(paras);
-            AddUIEventListener();
+            AddEventListener();
+
+            window.AddArea(this);
         }
         public virtual void Init(params object[] paras)
         {
 
         }
 
-        public virtual void AddUIEventListener()
-        {
 
-        }
-
-
-        public virtual void RemoveUIEventListener()
-        {
-
-        }
 
 
         public virtual void Show()
         {
             this.rootObj.SetActive(true);
         }
-        public virtual void Update()
-        {
 
-        }
         public virtual void Hide()
         {
             this.rootObj.SetActive(false);
@@ -53,7 +44,7 @@ namespace ZGame.Window
 
         public virtual void Destroy()
         {
-            RemoveUIEventListener();
+            RemoveEventListener();
             GameObject.Destroy(this.rootObj);
         }
 

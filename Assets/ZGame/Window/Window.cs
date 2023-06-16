@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 using ZGame.cc;
@@ -21,6 +22,27 @@ namespace ZGame.Window
         Action callbackOnWindowDestroy;
 
         Window upperWindow;//该窗体的上一层窗体，多用于该窗体关闭后，再打开上一层窗体的需求
+        int showedCount = 0;
+        Dictionary<long, Area> areaMap = new Dictionary<long, Area>();
+
+        public void AddArea(Area area)
+        {
+            if (areaMap.ContainsKey(area.id) == false)
+            {
+                areaMap.Add(area.id, area);
+                area.Show();
+            }
+        }
+        public void RemoveArea(Area area)
+        {
+            if (areaMap.ContainsKey(area.id))
+            {
+                areaMap.Remove(area.id);
+                area.Destroy();
+            }
+        }
+
+
         public void SetUpperWindow(Window window)
         {
             this.upperWindow = window;
@@ -44,22 +66,18 @@ namespace ZGame.Window
 
         public Window(GameObject obj, string windowName)
         {
+            this.id = IdAssginer.GetID(IdAssginer.IdType.Window);
+
             this.rootObj = obj;
             this.name = windowName;
 
             AutoLinkUI(this);
 
             Init(windowName, obj);
-            AddUIEventListener();
+            AddEventListener();
         }
 
-        public virtual void AddUIEventListener()
-        {
-        }
 
-        public virtual void RemoveUIEventListener()
-        {
-        }
 
         public virtual void Init(string windowName, GameObject obj)
         {
@@ -73,6 +91,7 @@ namespace ZGame.Window
         /// <param name="datas"> </param>
         public virtual void Show(string layerName, params object[] datas)
         {
+
             this.windowLayer = layerName;
             var rt = this.rootObj.GetComponent<RectTransform>();
             //rt.offsetMin = Vector2.zero;
@@ -89,18 +108,36 @@ namespace ZGame.Window
             this.rootObj.SetActive(true);
 
 
-
             if (this.rootObj.GetComponent<WindowUniversalSafeAreaAdaptive>() == null)
             {
                 this.rootObj.AddComponent<WindowUniversalSafeAreaAdaptive>();
             }
 
-
-            if (ui_AniBg != null)
+            if (showedCount == 0)
             {
-                DoShowAniamtion();
+                if (ui_AniBg != null)
+                {
+                    DoShowAniamtion();
+                }
+                foreach (var area in areaMap)
+                {
+                    area.Value.Show();
+                }
             }
+            else
+            {
+                var animator = this.rootObj.GetComponent<Animator>();
+                if (animator != null)
+                {
+                    Debug.LogError("set animator unable");
+                    animator.enabled = false;
+                }
+            }
+
+
+            showedCount++;
         }
+
 
         //linkwindow缩放为0后重新显示
         public virtual void ReShowForLink()
@@ -123,9 +160,12 @@ namespace ZGame.Window
 
         }
 
-        public virtual void Update()
+        public virtual new void Update()
         {
-
+            foreach (var area in areaMap)
+            {
+                area.Value.Update();
+            }
         }
 
         public virtual void Hide()
@@ -138,7 +178,7 @@ namespace ZGame.Window
         }
         public virtual void Destroy(bool destroyImmediate)
         {
-            RemoveUIEventListener();
+            RemoveEventListener();
             if (callbackOnWindowDestroy != null)
             {
                 callbackOnWindowDestroy.Invoke();
@@ -155,6 +195,10 @@ namespace ZGame.Window
                 GameObjectHelper.Destroy(this.rootObj, 0);
             }
 
+            foreach (var area in areaMap)
+            {
+                area.Value.Destroy();
+            }
 
         }
 
@@ -162,8 +206,6 @@ namespace ZGame.Window
         {
             if (ui_AniBg != null)
             {
-                //////ui_AniBg.localScale = new Vector3(0.95f, 0.95f, 1f);
-
                 ui_AniBg.gameObject.RunTween(new ScaleTo(1f, Vector3.one).From(new Vector3(0.95f, 0.95f, 1f)).Easing(Ease.OutElastic).IgnoreTimeScale(true));
             }
         }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.U2D;
 
@@ -10,7 +11,7 @@ public class ResourcesManager : Singleton<ResourcesManager>
     //后续处理依赖等
     //后续 GameObjectHelper的处理
     public GameObject LoadObj(string path)
-    {
+    { 
         GameObject p = Resources.Load(path) as GameObject;
         var g = GameObject.Instantiate(p);
         return g;

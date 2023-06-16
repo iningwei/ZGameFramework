@@ -96,7 +96,12 @@ namespace ZGame
 #if XLua
             ScriptManager.Instance.Init();
 #else
+            WindowManager.Instance.ShowWindow(WindowNames.NetMaskWindow, WindowLayer.NetMask, false, true, false, true, null);
+            WindowManager.Instance.ShowWindow(WindowNames.TipWindow, WindowLayer.Msg, false, true, false, true, null);
+
+
             WindowManager.Instance.ShowWindow(Config.firstOpenWindowName, WindowLayer.Hud, false, false, false, true, null);
+
 #endif
 #endif
             //屏幕适配相关 

@@ -60,6 +60,6 @@
   "IsShowDebugBtn": false,
   "IsEnableLogTrace": false,
   "IsEnableLogRealtimeWriteToLocal": false,
-  "IsEnableLogUpdate2Server": false,
+  "IsEnableLogUpdate2Server": true,
   "IsShowReporter": false
 }

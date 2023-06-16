@@ -685,6 +685,17 @@ namespace ZGame.Window
                     Debug.LogError("unsupported resLoadType:" + Config.resLoadType);
                 }
             }
+            else
+            {
+                if (openedWindows.ContainsKey(window.name))
+                {
+                    return;
+                }
+                if (cachedWindows.ContainsKey(window.name))
+                {
+                    this.ReShowHiddenWindow(window.name, layerName, false);
+                }
+            }
         }
 
 
@@ -817,18 +828,24 @@ namespace ZGame.Window
                 //set parent layer
                 GameObject windowObj = window.rootObj;
                 windowObj.transform.SetParent(LayerDic[layerName]);
-                if (isForbidAnimatorReplay)
+
+                var animators = windowObj.GetComponentsInChildren<Animator>();
+                if (animators != null)
                 {
-                    var animators = windowObj.GetComponentsInChildren<Animator>();
-                    if (animators != null)
+                    var count = animators.Length;
+                    for (int i = 0; i < count; i++)
                     {
-                        var count = animators.Length;
-                        for (int i = 0; i < count; i++)
+                        if (isForbidAnimatorReplay == false)
                         {
                             animators[i].enabled = false;
                         }
+                        else
+                        {
+                            animators[i].enabled = true;
+                        }
                     }
                 }
+
                 windowObj.SetActive(true);
 
                 updateCachedWindows(window, false);

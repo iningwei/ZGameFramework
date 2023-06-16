@@ -1,4 +1,4 @@
-﻿
+
 using System;
 using System.Collections.Generic;
 
@@ -21,8 +21,11 @@ public class IdAssginer
         Audio = 5,
         WWW = 6,
         CoolDown = 7,
-        Times=8,
-        Res=9,
+        Times = 8,
+        Res = 9,
+
+        Window = 10,
+        Area = 11,
     }
 
     /// <summary>
@@ -44,5 +47,5 @@ public class IdAssginer
 
     }
 
-    private static long mSeq = 0; 
+    private static long mSeq = 0;
 }

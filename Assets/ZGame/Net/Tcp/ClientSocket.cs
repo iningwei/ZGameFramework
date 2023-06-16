@@ -299,15 +299,15 @@ namespace ZGame.Net.Tcp
 
             //------------>startop            
             short len = recvBuffer.ReadInt16();
-            curMainCmdId = recvBuffer.ReadInt16(); 
+            curMainCmdId = recvBuffer.ReadInt16();
             len = useNetworkOrder ? IPAddress.NetworkToHostOrder(len) : len;
 
             curMainCmdId = useNetworkOrder ? IPAddress.NetworkToHostOrder(curMainCmdId) : curMainCmdId;
-             
+
             if (len > 2)
             {
                 curBodySize = (short)(len - 2);
-                isHandHeader = false; 
+                isHandHeader = false;
             }
             return true;
         }

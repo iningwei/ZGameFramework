@@ -8,39 +8,66 @@ public class SetObjRenderVisible : Editor
     [MenuItem("GameObject/SetObjAndChildsRenderStatus/Opossite")]
     static void SetObjRenderStatusOpossite()
     {
-        GameObject obj = Selection.activeObject as GameObject;
-        var renders = obj.GetComponentsInChildren<Renderer>(true);
-        for (int i = 0; i < renders.Length; i++)
+        var objs = Selection.objects;
+        for (int k = 0; k < objs.Length; k++)
         {
-            renders[i].enabled = !renders[i].enabled;
+            if (objs[k] is GameObject == false)
+            {
+                continue;
+            }
+            GameObject obj = objs[k] as GameObject;
+            var renders = obj.GetComponentsInChildren<Renderer>(true);
+            for (int i = 0; i < renders.Length; i++)
+            {
+                renders[i].enabled = !renders[i].enabled;
+            }
+            EditorUtility.SetDirty(obj);
         }
+
         Debug.Log("finish SetObjAndChildsRenderStatus opossite");
-        EditorUtility.SetDirty(obj);
     }
 
     [MenuItem("GameObject/SetObjAndChildsRenderStatus/Visible")]
     static void SetObjRenderStatusVisible()
     {
-        GameObject obj = Selection.activeObject as GameObject;
-        var renders = obj.GetComponentsInChildren<Renderer>(true);
-        for (int i = 0; i < renders.Length; i++)
+        var objs = Selection.objects;
+        for (int k = 0; k < objs.Length; k++)
         {
-            renders[i].enabled = true;
+            if (objs[k] is GameObject == false)
+            {
+                continue;
+            }
+            GameObject obj = objs[k] as GameObject;
+            var renders = obj.GetComponentsInChildren<Renderer>(true);
+            for (int i = 0; i < renders.Length; i++)
+            {
+                renders[i].enabled = true;
+            }
+
+            EditorUtility.SetDirty(obj);
         }
         Debug.Log("finish SetObjAndChildsRenderStatus visible");
-        EditorUtility.SetDirty(obj);
     }
 
     [MenuItem("GameObject/SetObjAndChildsRenderStatus/Unvisible")]
     static void SetObjRenderStatusUnvisible()
     {
-        GameObject obj = Selection.activeObject as GameObject;
-        var renders = obj.GetComponentsInChildren<Renderer>(true);
-        for (int i = 0; i < renders.Length; i++)
+        var objs = Selection.objects;
+        for (int k = 0; k < objs.Length; k++)
         {
-            renders[i].enabled = false;
+            if (objs[k] is GameObject == false)
+            {
+                continue;
+            }
+            GameObject obj = objs[k] as GameObject;
+            var renders = obj.GetComponentsInChildren<Renderer>(true);
+            for (int i = 0; i < renders.Length; i++)
+            {
+                renders[i].enabled = false;
+            }
+
+            EditorUtility.SetDirty(obj);
         }
         Debug.Log("finish SetObjAndChildsRenderStatus unvisible");
-        EditorUtility.SetDirty(obj);
     }
 }

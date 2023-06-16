@@ -9,6 +9,7 @@ namespace ZGame.Window
 {
     public class UIRoot
     {
+        public long id;
         public GameObject rootObj;
 
         public void AutoLinkUI(UIRoot uiRoot)
@@ -43,6 +44,22 @@ namespace ZGame.Window
                 }
 
             }
+        }
+
+
+        public virtual void Update()
+        {
+
+        }
+        public virtual void AddEventListener()
+        {
+
+        }
+
+
+        public virtual void RemoveEventListener()
+        {
+
         }
     }
 }

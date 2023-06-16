@@ -11,15 +11,21 @@ namespace ZGame
         static int maxCount = 200;
 
         static Queue<string> queues = new Queue<string>();
-        static string fileName = "StarTopDebug";
+        static string productName;
+        static string deviceName;
         static bool isInit = false;
         static string pPath = Application.persistentDataPath;
+        static string debugFilePath;
         static void Init()
         {
-            string path = pPath + "/" + fileName + ".txt";
-            if (File.Exists(path))
+            productName = Application.productName;
+            deviceName = SystemInfo.deviceName;
+            debugFilePath = pPath + "/" + productName + "_" + deviceName + ".txt";
+
+
+            if (File.Exists(debugFilePath))
             {
-                string[] lines = File.ReadAllLines(path);
+                string[] lines = File.ReadAllLines(debugFilePath);
                 for (int i = 0; i < lines.Length; i++)
                 {
                     queues.Enqueue(lines[i]);
@@ -53,11 +59,11 @@ namespace ZGame
             {
                 contents += item + "\r\n";
             }
-            string path = pPath + "/" + fileName + ".txt";
-            IOTools.WriteString(path, contents);
-            byte[] data = IOTools.ReadFile(path);
+
+            IOTools.WriteString(debugFilePath, contents);
+            byte[] data = IOTools.ReadFile(debugFilePath);
             //和后端协议的表单字段为 file
-            HttpTool.UploadFile(url, "file", data, fileName + "_" + fileNameExt + "_" + TimeTool.GetyyyyMMddHHmmssfff(DateTime.Now) + ".txt", (str) =>
+            HttpTool.UploadFile(url, "file", data, productName + "_" + deviceName + "_" + fileNameExt + "_" + TimeTool.GetyyyyMMddHHmmssfff(DateTime.Now) + ".txt", (str) =>
               {
                   Log(str);
                   onSuccess?.Invoke();
@@ -67,6 +73,32 @@ namespace ZGame
                   onFail?.Invoke();
               });
         }
+
+        public static void UploadPCLogFileToServer(string url, Action onSuccess, Action onFail)
+        {
+            string path = Application.persistentDataPath + "/Player.log";
+            if (File.Exists(path))
+            {
+                var datas = File.ReadAllBytes(path);
+                string desFileName = productName + "_" + deviceName + "_" + TimeTool.GetyyyyMMddHHmmssfff(DateTime.Now) + "_Player" + ".txt";
+                Debug.Log("desFileName:" + desFileName);
+
+                HttpTool.UploadFile(url, "file", datas, desFileName, (str) =>
+                {
+                    Log(str);
+                    onSuccess?.Invoke();
+                }, (str) =>
+                {
+                    LogE(str);
+                    onFail?.Invoke();
+                });
+            }
+            else
+            {
+                Debug.LogError("not exist file:" + path);
+            }
+        }
+
 
         static void TraceDebug(string content)
         {
@@ -90,7 +122,7 @@ namespace ZGame
                     {
                         contents += item + "\r\n";
                     }
-                    string path = pPath + "/" + fileName + ".txt";
+                    string path = pPath + "/" + productName + ".txt";
                     IOTools.WriteString(path, contents);
                 }
             }

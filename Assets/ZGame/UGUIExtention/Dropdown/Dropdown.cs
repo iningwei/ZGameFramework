@@ -169,7 +169,7 @@ namespace ZGame.UGUIExtention
 
         private void Update()
         {
-            //ËÉ¿ªµÄµØ·½²»ÔÚScrollViewÇøÓòÄÚ£¬Ôò¹Ø±Õ
+            //æ¾å¼€çš„åœ°æ–¹ä¸åœ¨ScrollViewåŒºåŸŸå†…ï¼Œåˆ™å…³é—­
             if (rootCanvas != null && Input.GetMouseButtonUp(0) && this.scrollView.activeSelf)
             {
                 if (UGUIUtility.IsPointerInRect(rootCanvas, this.dropdownRect))
