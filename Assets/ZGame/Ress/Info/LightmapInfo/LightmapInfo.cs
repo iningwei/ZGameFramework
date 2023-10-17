@@ -13,9 +13,8 @@ public class LightmapRenderInfo : CompInfo
     public Vector4 lightmapScaleOffset;
 
 
-    public LightmapRenderInfo(Transform tran, int orginLightmapIndex, Vector4 lightmapScaleOffset)
-    {
-        this.tran = tran;
+    public LightmapRenderInfo(Transform tran, int orginLightmapIndex, Vector4 lightmapScaleOffset):base(tran)
+    {        
         this.originLightmapIndex = orginLightmapIndex;
         this.curLightmapIndex = orginLightmapIndex;
         this.lightmapScaleOffset = lightmapScaleOffset;

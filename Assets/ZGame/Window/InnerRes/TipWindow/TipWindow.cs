@@ -12,6 +12,7 @@ public enum TipLevel
     Error = 3,
 }
 
+[IgnoreWindowNameGather]
 public class TipWindow : Window
 {
     public Transform ui_TipTran;

@@ -6,7 +6,8 @@ using TMPro;
 
 public class ShowFPS : MonoBehaviour
 {
-    public TextMeshProUGUI text;               // 文本组件
+    public TextMeshProUGUI tmpText;               // 文本组件
+    public Text text;
     public float sampleTime = 0.5f; // 采样时间
     private int frame;              // 经过帧数
     private float time = 0;         // 运行时间
@@ -20,7 +21,14 @@ public class ShowFPS : MonoBehaviour
         if (time >= sampleTime)
         {
             float fps = frame / time;
-            text.text = fps.ToString("F2");
+            if (tmpText != null)
+            {
+                tmpText.text = fps.ToString("F2");
+            }
+            else
+            {
+                text.text = fps.ToString("F2");
+            }
             frame = 0;
             time = 0;
         }

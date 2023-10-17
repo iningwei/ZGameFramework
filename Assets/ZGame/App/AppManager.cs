@@ -36,7 +36,7 @@ namespace ZGame
         //当且仅当在Editor和开启OriginLuaFile宏的情况下才使用
         public bool UseOriginLuaScript = false;
 
-        public void Init()
+        public void Init(Transform launcherRootNode)
         {
             SDK.SDKTools.Init();
 
@@ -61,14 +61,13 @@ namespace ZGame
             //    if (Screen.width > 1280)
             //        Screen.SetResolution(1280, (int)(1280 / rotio), true);
             //}
-
-            //TODO:后续做机型适配 
+             
             //RenderSettings.fog = false;
 
             bool hdrSupport = SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.DefaultHDR);
             DebugExt.Log("platform support hdr:" + hdrSupport);
 
-            var reporterObj = GameObject.Find("Launcher").FindChild("Reporter").gameObject;
+            var reporterObj = launcherRootNode.Find("Reporter").gameObject;
             if (Config.isShowReporter)
             {
                 reporterObj.gameObject.SetActive(true);
@@ -86,12 +85,10 @@ namespace ZGame
             UseOriginLuaScript = false;
 #endif
 
-
+            WindowManager.Instance.Init(launcherRootNode);
 #if HOTUPDATE
-            WindowManager.Instance.ShowWindow("HotUpdateWindow", WindowLayer.Basic, false, false, false, null, null);
-
-            ServerListDownload.Instance.Download();
-
+            WindowManager.Instance.ShowWindow("HotUpdateWindow", WindowLayer.Basic, false, false, false,true, null, null); 
+            ServerListDownload.Instance.Download(); 
 #else
 #if XLua
             ScriptManager.Instance.Init();
@@ -99,26 +96,28 @@ namespace ZGame
             WindowManager.Instance.ShowWindow(WindowNames.NetMaskWindow, WindowLayer.NetMask, false, true, false, true, null);
             WindowManager.Instance.ShowWindow(WindowNames.TipWindow, WindowLayer.Msg, false, true, false, true, null);
 
-
+            Debug.Log("show firstOpenWindowName:" + Config.firstOpenWindowName);
             WindowManager.Instance.ShowWindow(Config.firstOpenWindowName, WindowLayer.Hud, false, false, false, true, null);
 
 #endif
 #endif
+
+            //PC上先注释。
             //屏幕适配相关 
-            if (Config.screenOrientation == (int)ScreenOrientation.Portrait)
-            {
-                WindowManager.Instance.UIVerticalFitPad();
-                WindowManager.Instance.UIVerticalFitSafeArea();
-            }
-            else if (Config.screenOrientation == (int)ScreenOrientation.Landscape)
-            {
-                Debug.Log("TODO:");
-                //WindowManager.Instance.UIHorizentalFitSafeArea();
-            }
-            else
-            {
-                Debug.LogError("unsupported screenOrientation:" + Config.screenOrientation);
-            }
+            //////if (Config.screenOrientation == (int)ScreenOrientation.Portrait)
+            //////{
+            //////    WindowManager.Instance.UIVerticalFitPad();
+            //////    WindowManager.Instance.UIVerticalFitSafeArea();
+            //////}
+            //////else if (Config.screenOrientation == (int)ScreenOrientation.Landscape)
+            //////{
+            //////    Debug.Log("TODO:");
+            //////    //WindowManager.Instance.UIHorizentalFitSafeArea();
+            //////}
+            //////else
+            //////{
+            //////    Debug.LogError("unsupported screenOrientation:" + Config.screenOrientation);
+            //////}
         }
 
         //GC.Collect();can only remove managered memory, do nothing with native memory such as mats、shaders、textures...

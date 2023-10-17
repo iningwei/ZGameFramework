@@ -19,7 +19,7 @@ namespace ZGame.Net.Tcp
         Connecting,
         Success,
         Error,
-        DisConnect
+        Close
     }
 
 
@@ -30,9 +30,10 @@ namespace ZGame.Net.Tcp
     //---------------------------------->
 
     //starTop项目消息结构
-    //|header:2|msgNo:2|proto|
-    //header消息长度2字节：msgNo消息号2字节：proto消息体
-    //hearder 中的长度 = msgNo + proto的总长度
+    //|header:4|msgNo:2|proto|
+    //header消息长度4字节：msgNo消息号2字节：proto消息体
+    //hearder中记录的长度 = msgNo的2字节长度 + proto消息体的字节长度
+    //消息号定义不能太大，uint范围
 
     public class ClientSocket
     {
@@ -198,7 +199,7 @@ namespace ZGame.Net.Tcp
 
 
         Int16 curMainCmdId = 0;
-        Int16 curBodySize = 0;
+        Int32 curBodySize = 0;
 
 
         void loopPickupMessage()
@@ -233,7 +234,7 @@ namespace ZGame.Net.Tcp
                         return;
                     }
 
-                    if (!readRet && (State == SocketState.Error || State == SocketState.DisConnect))
+                    if (!readRet && (State == SocketState.Error || State == SocketState.Close))
                     {
                         recvBuffer.Clear();
                         return;
@@ -298,7 +299,8 @@ namespace ZGame.Net.Tcp
 
 
             //------------>startop            
-            short len = recvBuffer.ReadInt16();
+
+            int len = recvBuffer.ReadInt32();
             curMainCmdId = recvBuffer.ReadInt16();
             len = useNetworkOrder ? IPAddress.NetworkToHostOrder(len) : len;
 
@@ -306,7 +308,7 @@ namespace ZGame.Net.Tcp
 
             if (len > 2)
             {
-                curBodySize = (short)(len - 2);
+                curBodySize = (len - 2);
                 isHandHeader = false;
             }
             return true;
@@ -366,22 +368,22 @@ namespace ZGame.Net.Tcp
                     return;
                 }
 
-                Int16 totalLen = (Int16)(data.Length + 2);
+                Int32 totalLen = (data.Length + 2);
                 //Debug.LogError("  send, totalLen:" + totalLen + ",mainId:" + mainId);
 
-                byte[] sendBytes = new byte[totalLen + 2];
-                Int16 totalLenOrdered = useNetworkOrder ? IPAddress.HostToNetworkOrder((Int16)totalLen) : totalLen;
+                byte[] sendBytes = new byte[totalLen + 4];
+                Int32 totalLenOrdered = useNetworkOrder ? IPAddress.HostToNetworkOrder(totalLen) : totalLen;
                 //Debug.LogError("ordered totalLen:" + totalLenOrdered);
 
                 //Write length
-                Array.Copy(BitConverter.GetBytes(totalLenOrdered), 0, sendBytes, 0, 2);
+                Array.Copy(BitConverter.GetBytes(totalLenOrdered), 0, sendBytes, 0, 4);
                 //Write msgId
                 Int16 msgIdOrdered = useNetworkOrder ? IPAddress.HostToNetworkOrder((Int16)mainId) : (Int16)mainId;
-                Array.Copy(BitConverter.GetBytes(msgIdOrdered), 0, sendBytes, 2, 2);
+                Array.Copy(BitConverter.GetBytes(msgIdOrdered), 0, sendBytes, 4, 2);
                 //Write data
                 if (data != null)
                 {
-                    Array.Copy(data, 0, sendBytes, 4, data.Length);
+                    Array.Copy(data, 0, sendBytes, 6, data.Length);
                 }
                 socket.Send(sendBytes, sendBytes.Length, SocketFlags.None);
             }
@@ -394,7 +396,7 @@ namespace ZGame.Net.Tcp
 
         public void Close()
         {
-            State = SocketState.DisConnect;
+            State = SocketState.Close;
             if (socket != null && socket.Connected)
             {
                 try

@@ -1,6 +1,8 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEditor.VersionControl;
 using UnityEngine;
@@ -158,39 +160,66 @@ public class TextureCheckTool
     }
 
     [MenuItem("工具/检测/CheckSameRes")]
-    public static void CheckSameNameTexture()
+    public static void CheckSameRes()
     {
-        string texturePath = Path.Combine(Application.dataPath, "ArtResources");
-        Dictionary<string, bool> imgs = new Dictionary<string, bool>();
-        DirectoryInfo textureDir = new DirectoryInfo(texturePath);
+        string path = Application.dataPath;
 
-        //|*.png
-        //获取全部图片文件
-        List<FileInfo> files = new List<FileInfo>();
-        files.AddRange(textureDir.GetFiles("*.png", SearchOption.AllDirectories));
-        files.AddRange(textureDir.GetFiles("*.jpg", SearchOption.AllDirectories));
-        files.AddRange(textureDir.GetFiles("*.prefab", SearchOption.AllDirectories));
-        files.AddRange(textureDir.GetFiles("*.mat", SearchOption.AllDirectories));
 
-        foreach (var item in files)
-        {
-            string filename = item.Name.Replace(item.Extension, "");
+        Debug.LogError("--------->图片");//*.png|*.jpg|*.bmp|*.jpeg|*.tga 
+        logSameFileMsg(Directory.GetFiles(path, "*.*", SearchOption.AllDirectories).Where(s => s.EndsWith(".png") || s.EndsWith(".jpg") || s.EndsWith(".bmp") || s.EndsWith(".jpeg") || s.EndsWith(".tga")).ToArray());
+        Debug.LogError("--------->预制件");
+        logSameFileMsg(Directory.GetFiles(path, "*.prefab", SearchOption.AllDirectories));
+        Debug.LogError("--------->材质球");
+        logSameFileMsg(Directory.GetFiles(path, "*.mat", SearchOption.AllDirectories));
 
-            if (imgs.ContainsKey(filename))
-            {
-                if (!imgs[filename])
-                {
-                    imgs[item.Name] = true;
-                    Debug.LogError("重复文件：" + item.Name);
-                }
-            }
-            else
-            {
-                imgs[filename] = false;
-            }
-        }
+        Debug.LogError("--------->fbx/FBX");
+        logSameFileMsg(Directory.GetFiles(path, "*.*", SearchOption.AllDirectories).Where(s => s.EndsWith(".fbx") || s.EndsWith(".FBX")).ToArray());
+        Debug.LogError("--------->mesh");
+        logSameFileMsg(Directory.GetFiles(path, "*.mesh", SearchOption.AllDirectories));
 
         Debug.LogError("检查完毕");
     }
 
+    static void logSameFileMsg(string[] filePaths)
+    {
+        Dictionary<string, List<string>> resultDic = new Dictionary<string, List<string>>();
+        foreach (var path in filePaths)
+        {
+            if (path.Contains("temp_for_prefab") || path.Contains("TMP_OUTPUT") || path.Contains("Editor") || path.Contains("LogViewer") || path.Contains("AniInstancing") || path.Contains("SoftMask") || path.Contains("Samples~") || path.Contains("ExampleScenes"))
+                continue;
+
+            string filename = Path.GetFileNameWithoutExtension(path);
+            if (resultDic.ContainsKey(filename))
+            {
+                if (resultDic[filename].Count > 0)
+                {
+                    resultDic[filename].Add(path);
+                }
+            }
+            else
+            {
+                resultDic[filename] = new List<string>();
+                resultDic[filename].Add(path);
+            }
+
+
+        }
+
+
+        //打印
+        foreach (var item in resultDic)
+        {
+
+            List<string> list = item.Value;
+            if (list.Count >= 2)
+            {
+                Debug.Log("--->");
+                for (int i = 0; i < list.Count; i++)
+                {
+                    Debug.Log(list[i]);
+                }
+            }
+
+        }
+    }
 }

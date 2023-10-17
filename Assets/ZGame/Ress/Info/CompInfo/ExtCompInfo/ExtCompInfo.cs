@@ -6,6 +6,9 @@ namespace ZGame.Ress.Info
     [System.Serializable]
     public class ExtCompInfo:CompInfo
     {
+        public ExtCompInfo(Transform tran):base(tran)
+        {
 
+        }
     }
 }

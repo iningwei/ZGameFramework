@@ -27,7 +27,7 @@ namespace ZGame.RessEditor
             buildMap[0].assetBundleName = abPrefix + obj.name.ToLower() + IOTools.abSuffix;
             buildMap[0].assetNames = new string[] { path };
             BuildPipeline.BuildAssetBundles(BuildConfig.outputPath, buildMap, BuildConfig.options, EditorUserBuildSettings.activeBuildTarget);
-            DebugExt.Log("-------->build bundle:" + obj.name + ", finished");
+            Debug.Log("-------->build byte bundle:" + obj.name + ", finished");
             AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
             return true;
         }

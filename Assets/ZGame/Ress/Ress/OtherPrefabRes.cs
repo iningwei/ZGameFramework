@@ -24,7 +24,7 @@ namespace ZGame.Ress
             base.Destroy();
             Debug.LogError("remove otherprefab res:" + resName);
 
-            ABManager.Instance.RemoveRes(ABType.OtherPrefab, this);
+            ABManager.Instance.RemoveCachedRes(ABType.OtherPrefab, this);
         }
     }
 }

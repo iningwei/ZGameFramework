@@ -46,110 +46,114 @@ namespace ZGame.Ress.AB
 
 
             return fileName;
+        }
 
+        public static void Load(string name, ABType abType, Action<UnityEngine.Object[]> callback, bool isSync, bool keepAB = false)
+        { 
+            ABOperator.Instance.Add(new ABRes(name, abType, callback, isSync, keepAB));
         }
 
 
+        #region not used
+        ///////// <summary>
+        /////////name不带后缀，不带前缀
+        ///////// </summary>
+        ///////// <param name="name"></param>
+        ///////// <returns></returns>
+        //////public static void Load(string name, ABType abType, Action<UnityEngine.Object[]> callback, bool keepAB = false)
+        //////{
+        //////    ABOperator.Instance.Add(new ABRes(name, abType, callback, true, keepAB));
 
-        /// <summary>
-        ///name不带后缀，不带前缀
-        /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
-        public static void Load(string name, ABType abType, Action<UnityEngine.Object[]> callback, bool keepAB = false)
-        {
-            ABOperator.Instance.Add(new ABRes(name, abType, callback, false, keepAB));
+        //////    return;
+        //////    //////AssetBundle ab = null;
+        //////    //////UnityEngine.Object[] objs = null;
+        //////    ////////---->
+        //////    ////////here handle a special case:
+        //////    ////////Load a ab sync then load it async at the same time.
+        //////    ////////Normally it cost an error:The AssetBundle 'xxx' can't be loaded because another AssetBundle with the same files is already loaded.
+        //////    ////////To solve this problem,we can get async's req,direct call req.assetBundle it will stop async and we can get ab.
+        //////    ////////then we use this ab to invoke async's callback,and sync's callback
+        //////    ////////More details can see here:https://answer.uwa4d.com/question/5af3db530e95a527a7a81d31, especially replied by leeman.            
+        //////    //////if (asyncLoadingDic.ContainsKey(name))
+        //////    //////{
+        //////    //////    var asyncMsg = asyncLoadingDic[name];
 
-            return;
-            //////AssetBundle ab = null;
-            //////UnityEngine.Object[] objs = null;
-            ////////---->
-            ////////here handle a special case:
-            ////////Load a ab sync then load it async at the same time.
-            ////////Normally it cost an error:The AssetBundle 'xxx' can't be loaded because another AssetBundle with the same files is already loaded.
-            ////////To solve this problem,we can get async's req,direct call req.assetBundle it will stop async and we can get ab.
-            ////////then we use this ab to invoke async's callback,and sync's callback
-            ////////More details can see here:https://answer.uwa4d.com/question/5af3db530e95a527a7a81d31, especially replied by leeman.            
-            //////if (asyncLoadingDic.ContainsKey(name))
-            //////{
-            //////    var asyncMsg = asyncLoadingDic[name];
+        //////    //////    CoroutineManager.Instance.RemoveCoroutine(asyncMsg.asyncId);
 
-            //////    CoroutineManager.Instance.RemoveCoroutine(asyncMsg.asyncId);
+        //////    //////    Debug.LogError("stop async loading");
+        //////    //////    ab = asyncMsg.req.assetBundle;
 
-            //////    Debug.LogError("stop async loading");
-            //////    ab = asyncMsg.req.assetBundle;
-
-            //////    objs = ab.LoadAllAssets();
-            //////    asyncMsg.callbacks?.Invoke(objs);
-            //////    asyncLoadingDic.Remove(name);
-            //////}
-            ////////<----
-
-
-            //////if (ab == null)
-            //////{
-            //////    string nameNew = ABTypeUtil.GetPreFix(abType) + name;
-            //////    string path = IOTools.GetABPath(nameNew);
-            //////    //Debug.LogError("path111:" + path + ", name:" + getABRealNameFromABPath(path));
-            //////    try
-            //////    {
-            //////        ab = AssetBundle.LoadFromFile(path, 0, (ulong)Config.abResByteOffset);
-
-            //////    }
-            //////    catch (System.Exception ex)
-            //////    {
-
-            //////        DebugExt.LogE("error while loadAb:abName:" + name + ", path:" + path + ", errorMsg:" + ex.ToString());
-            //////    }
-
-            //////    if (abType == ABType.Scene)
-            //////    {
-            //////        callback?.Invoke(new UnityEngine.Object[] { ab });
-            //////        return;
-            //////    }
+        //////    //////    objs = ab.LoadAllAssets();
+        //////    //////    asyncMsg.callbacks?.Invoke(objs);
+        //////    //////    asyncLoadingDic.Remove(name);
+        //////    //////}
+        //////    ////////<----
 
 
-            //////    objs = ab.LoadAllAssets();
-            //////}
+        //////    //////if (ab == null)
+        //////    //////{
+        //////    //////    string nameNew = ABTypeUtil.GetPreFix(abType) + name;
+        //////    //////    string path = IOTools.GetABPath(nameNew);
+        //////    //////    //Debug.LogError("path111:" + path + ", name:" + getABRealNameFromABPath(path));
+        //////    //////    try
+        //////    //////    {
+        //////    //////        ab = AssetBundle.LoadFromFile(path, 0, (ulong)Config.abResByteOffset);
 
-            //////if (keepAB == false)
-            //////{
-            //////    ab.Unload(false);
-            //////}
+        //////    //////    }
+        //////    //////    catch (System.Exception ex)
+        //////    //////    {
 
-            //////callback?.Invoke(objs);
+        //////    //////        DebugExt.LogE("error while loadAb:abName:" + name + ", path:" + path + ", errorMsg:" + ex.ToString());
+        //////    //////    }
 
-        }
+        //////    //////    if (abType == ABType.Scene)
+        //////    //////    {
+        //////    //////        callback?.Invoke(new UnityEngine.Object[] { ab });
+        //////    //////        return;
+        //////    //////    }
 
-        public static void LoadAsync(string name, ABType abType, Action<UnityEngine.Object[]> callback)
-        {
 
-            ABOperator.Instance.Add(new ABRes(name, abType, callback, true, false));
+        //////    //////    objs = ab.LoadAllAssets();
+        //////    //////}
 
+        //////    //////if (keepAB == false)
+        //////    //////{
+        //////    //////    ab.Unload(false);
+        //////    //////}
 
-            return;
-            //////if (asyncLoadingDic.ContainsKey(name))
-            //////{
-            //////    if (callback != null)
-            //////    {
-            //////        asyncLoadingDic[name].callbacks += callback;
+        //////    //////callback?.Invoke(objs);
 
-            //////    }
-            //////}
-            //////else
-            //////{
-            //////    AsyncLoadingMsg asyncMsg = new AsyncLoadingMsg();
-            //////    asyncLoadingDic[name] = asyncMsg;
-            //////    if (callback != null)
-            //////    {
-            //////        asyncLoadingDic[name].callbacks = callback;
-            //////    }
-            //////    //Debug.LogError("start async load:" + name + ", time:" + Time.frameCount);
-            //////    var id = CoroutineManager.Instance.AddCoroutine(LoadABEnumerator(name, abType, asyncMsg));
-            //////    asyncMsg.asyncId = id;
-            //////}
+        //////}
 
-        }
+        //////public static void LoadAsync(string name, ABType abType, Action<UnityEngine.Object[]> callback)
+        //////{
+
+        //////    ABOperator.Instance.Add(new ABRes(name, abType, callback, false, false)); 
+        //////    return;
+        //////    //////if (asyncLoadingDic.ContainsKey(name))
+        //////    //////{
+        //////    //////    if (callback != null)
+        //////    //////    {
+        //////    //////        asyncLoadingDic[name].callbacks += callback;
+
+        //////    //////    }
+        //////    //////}
+        //////    //////else
+        //////    //////{
+        //////    //////    AsyncLoadingMsg asyncMsg = new AsyncLoadingMsg();
+        //////    //////    asyncLoadingDic[name] = asyncMsg;
+        //////    //////    if (callback != null)
+        //////    //////    {
+        //////    //////        asyncLoadingDic[name].callbacks = callback;
+        //////    //////    }
+        //////    //////    //Debug.LogError("start async load:" + name + ", time:" + Time.frameCount);
+        //////    //////    var id = CoroutineManager.Instance.AddCoroutine(LoadABEnumerator(name, abType, asyncMsg));
+        //////    //////    asyncMsg.asyncId = id;
+        //////    //////}
+
+        //////} 
+        #endregion
+
         /// <summary>
         /// name不带后缀，需要带前缀
         /// </summary>
@@ -200,10 +204,6 @@ namespace ZGame.Ress.AB
 
             yield return null;
         }
-
-
-
-
 
     }
 }

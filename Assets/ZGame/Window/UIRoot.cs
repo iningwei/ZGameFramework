@@ -51,6 +51,14 @@ namespace ZGame.Window
         {
 
         }
+        public virtual void FixedUpdate()
+        {
+
+        }
+        public virtual void LateUpdate()
+        {
+
+        }
         public virtual void AddEventListener()
         {
 

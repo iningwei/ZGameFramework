@@ -87,9 +87,9 @@ namespace ZGame.Net.Tcp
                     onConnected?.Invoke();
                 }
 
-                if (clientSocket.State == SocketState.DisConnect)
+                if (clientSocket.State == SocketState.Close)
                 {
-                    state = SocketState.DisConnect;
+                    state = SocketState.Close;
                     clientSocket.Close();
                     clientSocket = null;
                     onDisConnect?.Invoke();
@@ -105,9 +105,9 @@ namespace ZGame.Net.Tcp
             }
             else if (state == SocketState.Success)
             {
-                if (clientSocket.State == SocketState.DisConnect)
+                if (clientSocket.State == SocketState.Close)
                 {
-                    state = SocketState.DisConnect;
+                    state = SocketState.Close;
                     clientSocket.Close();
                     clientSocket = null;
                     onDisConnect?.Invoke();

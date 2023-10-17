@@ -51,7 +51,7 @@ public class ABLargeScene
         //设置Directional Light的强度//TODO:后面删除
         for (int i = 0; i < count; i++)
         {
-            if (rootObjs[i].name== "Directional Light")
+            if (rootObjs[i].name == "Directional Light")
             {
                 rootObjs[i].GetComponent<Light>().intensity = 1f;
                 break;
@@ -70,7 +70,7 @@ public class ABLargeScene
                 else
                 {
                     Debug.LogError("Root node have no component RootCompInfoHolder");
-                } 
+                }
             }
         }
         if (targetRootNode != null)
@@ -89,8 +89,8 @@ public class ABLargeScene
             Debug.LogError("scene:" + name + ", have no Root node or no Root node with component RootCompInfoHolder");
         }
 
-        MapLoader.Instance.Init(name, 60);
-        MapLoader.Instance.PreLoad(initPos, initChunksLoadedCallback);
+        //MapLoader.Instance.Init(name, 60);
+        //MapLoader.Instance.PreLoad(initPos, initChunksLoadedCallback);
     };
 
     static bool isSceneExist(string name)
@@ -142,11 +142,11 @@ public class ABLargeScene
 
                 CoroutineManager.Instance.DelayOneFrameCall(delayCall);
 
-            });
+            }, true);
         }
         else
         {
-            AB.LoadAsync(name, ABType.Scene, (objs) =>
+            AB.Load(name, ABType.Scene, (objs) =>
             {
                 AssetBundle ab = objs[0] as AssetBundle;
 
@@ -161,7 +161,7 @@ public class ABLargeScene
                     Debug.Log("scene loaded ,unload it's ab");
                     ab.Unload(false);
                 }, initChunksLoadedCallback));
-            });
+            }, false);
         }
     }
 

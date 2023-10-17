@@ -7,9 +7,8 @@ namespace ZGame.Ress.Info
     public class ExtCompImageSequenceInfo : ExtCompInfo
     {
         public List<SpriteInfo> refSprites;
-        public ExtCompImageSequenceInfo(Transform tran, List<SpriteInfo> refSprites)
+        public ExtCompImageSequenceInfo(Transform tran, List<SpriteInfo> refSprites) : base(tran)
         {
-            this.tran = tran;
             this.refSprites = refSprites;
         }
     }

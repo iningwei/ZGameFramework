@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 using ZGame.Event;
 
@@ -12,7 +12,7 @@ namespace ZGame.Ress.AB
         /// <param name="name"></param>
         /// <returns></returns>
         public static void Load(string name, ABType abType, Action<UnityEngine.Object> callback, bool sync)
-        {
+        { 
             Action<UnityEngine.Object[]> loadFinishHandle = (objs) =>
         {
             //as for prefab, objs[0] is still a prefab,so you should instantiate it to GameObject
@@ -34,7 +34,7 @@ namespace ZGame.Ress.AB
 
             }
             //TODO:other type
-             
+
             EventDispatcher.Instance.DispatchEvent(EventID.OnABResLoaded, res, sync);
 
             if (callback != null)
@@ -43,32 +43,15 @@ namespace ZGame.Ress.AB
             }
         };
 
-
-
-
             if (abType != ABType.Effect && abType != ABType.Window && abType != ABType.OtherPrefab)
             {
                 DebugExt.LogE("ABPrefab do not support Load " + abType.ToString());
             }
 
-
-            if (sync)
+            AB.Load(name, abType, (objs) =>
             {
-                AB.Load(name, abType, (objs) =>
-                {
-                    loadFinishHandle(objs);
-                });
-            }
-            else
-            {
-                AB.LoadAsync(name, abType, (objs) =>
-                {
-                    loadFinishHandle(objs);
-                });
-            }
-
+                loadFinishHandle(objs);
+            }, sync);
         }
-
-
     }
 }

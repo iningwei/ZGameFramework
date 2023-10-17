@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using ZGame.Ress.AB;
@@ -10,7 +10,7 @@ namespace ZGame.Ress
     /// </summary>
     public class ImgRes : Res
     {
-        public ImgRes(string resName, UnityEngine.Object resObj) : base(resName, resObj)
+        public ImgRes(string name, UnityEngine.Object resObj) : base(name, resObj)
         {
 
         }

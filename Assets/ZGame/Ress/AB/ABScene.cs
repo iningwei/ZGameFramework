@@ -146,17 +146,17 @@ public class ABScene
                 {
                     loadFinishHandle(name, loadSceneMode, lightmapAttachedCallback, sync);
                     callback?.Invoke(null);
-                    Debug.Log("unload scene ab");
+                    Debug.Log("unload scene ab:" + name);
                     ab.Unload(false);
                 };
 
                 CoroutineManager.Instance.DelayOneFrameCall(delayCall);
 
-            });
+            }, true);
         }
         else
         {
-            AB.LoadAsync(name, ABType.Scene, (objs) =>
+            AB.Load(name, ABType.Scene, (objs) =>
             {
                 AssetBundle ab = objs[0] as AssetBundle;
 
@@ -171,7 +171,7 @@ public class ABScene
                     Debug.Log("scene loaded ,unload it's ab");
                     ab.Unload(false);
                 }, lightmapAttachedCallback));
-            });
+            }, false);
         }
     }
 
@@ -291,7 +291,7 @@ public class ABScene
             //assign lightmap
             //LightmapSettings.lightmapsMode = LightmapsMode.NonDirectional;
             LightmapSettings.lightmaps = destination;
-            
+
             Debug.Log("set lightmaps, count:" + destination.Length + ", time:" + UnityEngine.Time.time);
             //reassign renderInfo
             for (int k = 0; k < sceneLightmapMsgList.Count; k++)

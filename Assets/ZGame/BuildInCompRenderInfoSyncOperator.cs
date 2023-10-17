@@ -1,8 +1,10 @@
+using FSG.MeshAnimator.ShaderAnimated;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using ZGame;
+using ZGame.Ress;
 using ZGame.Ress.AB;
 using ZGame.Ress.Info;
 
@@ -65,19 +67,64 @@ public class BuildInCompRenderInfoSyncOperator : SingletonMonoBehaviour<BuildInC
 
     void handleRenderInfo(BuildInCompRendererInfo info)
     {
-        Transform childTarget = info.tran;
-        for (int k = 0; k < info.refTextures.Count; k++)
+        if (info.meshName != "")
         {
-            if (info.mat != null && info.refTextures != null && info.refTextures.Count > 0)
+            Mesh mesh = null;
+            ABManager.Instance.LoadMesh(info.meshName, (m) =>
             {
+                mesh = m;
+                if (info.concreteCompRenderer is MeshRenderer)
+                {
+                    info.tran.GetComponent<MeshFilter>().sharedMesh = mesh;
 
-                ABManager.Instance.LoadTextureToMat(childTarget, info.refTextures[k].texName, info.refTextures[k].shaderProp, info.mat, false, null);
-            }
+                    ShaderMeshAnimator sma = info.tran.GetComponent<ShaderMeshAnimator>();
+                    if (sma != null)
+                    {
+                        sma.baseMesh = mesh;
+                    }
+                }
+                else if (info.concreteCompRenderer is SkinnedMeshRenderer)
+                {
+                    (info.concreteCompRenderer as SkinnedMeshRenderer).sharedMesh = mesh;
+                }
+                else if (info.concreteCompRenderer is ParticleSystemRenderer)
+                {
+                    (info.concreteCompRenderer as ParticleSystemRenderer).mesh = mesh;
+                }
+                //add mesh ref
+                MeshRes meshRes = ABManager.Instance.GetCachedRes(ABType.Mesh, info.meshName) as MeshRes;
+                meshRes.AddRefTrs(info.tran);
+
+            }, false);
         }
 
-#if UNITY_EDITOR
-        ABManager.Instance.ResetEditorShader(childTarget, info.mat, info.shaderName);
-#endif
+        if (info.matIndex != -1)
+        {
+            Material renderMat = null;
+            ABManager.Instance.LoadMatWithCheck(info.matName, (mat) =>
+          {
+              renderMat = mat;
+              info.concreteCompRenderer.sharedMaterials[info.matIndex] = mat;
+          }, info.tran);
+
+            if (renderMat != null)
+            {
+                Transform childTarget = info.tran;
+                //add mat ref 
+                MatRes matRes = ABManager.Instance.GetCachedRes(ABType.Material, info.matName) as MatRes;
+                matRes.AddRefTrs(childTarget);
+
+                if (info.refTextures != null && info.refTextures.Count > 0)
+                {
+                    for (int k = 0; k < info.refTextures.Count; k++)
+                    {
+                        ABManager.Instance.LoadTextureToMat(childTarget, info.refTextures[k].texName, info.refTextures[k].shaderProp, renderMat, false, null);
+                    }
+                }
+                ABManager.Instance.ResetEditorShader(childTarget, renderMat, info.shaderName);
+
+            }
+        }
     }
 }
 

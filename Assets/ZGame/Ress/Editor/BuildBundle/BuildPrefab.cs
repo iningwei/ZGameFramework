@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -30,7 +30,7 @@ namespace ZGame.RessEditor
             }
             string path = AssetDatabase.GetAssetPath(obj);
 
-            //创建临时预制体，用来操作
+            //创建临时预制体，用来操作以及用来打最终的目标AB
             string tmpPath = "Assets/temp_for_prefab/" + obj.name + ".prefab";
             AssetDatabase.DeleteAsset(tmpPath);
             AssetDatabase.CopyAsset(path, tmpPath);
@@ -54,33 +54,32 @@ namespace ZGame.RessEditor
             AssetDatabase.SaveAssets();
 
 
-            List<AssetBundleBuild> finalTexMap = BuildCommand.GetGameObjectAssetBundleBuildMap(tmpPrefab);
+            List<AssetBundleBuild> collectedBuildList = new List<AssetBundleBuild>(BuildCommand.GetGameObjectAssetBundleBuildMap(tmpPrefab).Values);
 
-            Dictionary<string, bool> texDic = new Dictionary<string, bool>();
+
 
             //处理真实目标,以及设置依赖关系          
             AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
-            AssetBundleBuild[] buildMap = new AssetBundleBuild[2 + finalTexMap.Count];
-            buildMap[0] = BuildCommand.GetCommonMap();
-            for (int i = 0; i < finalTexMap.Count; i++)
+            AssetBundleBuild[] finalBuildMap = new AssetBundleBuild[2 + collectedBuildList.Count];
+            finalBuildMap[0] = BuildCommand.GetCommonMap();
+            for (int i = 0; i < collectedBuildList.Count; i++)
             {
-
-                texDic[finalTexMap[i].assetBundleName] = true;
-                //Debug.LogError("-------->" + finalTexMap[i].assetBundleName);
-                buildMap[i + 1] = finalTexMap[i];
-
+                finalBuildMap[i + 1] = collectedBuildList[i];
 
             }
-            buildMap[buildMap.Length - 1].assetBundleName = abPrefix + obj.name.ToLower() + IOTools.abSuffix;
-            buildMap[buildMap.Length - 1].assetNames = new string[] { tmpPath };
+            finalBuildMap[finalBuildMap.Length - 1].assetBundleName = abPrefix + obj.name.ToLower() + IOTools.abSuffix;
+            finalBuildMap[finalBuildMap.Length - 1].assetNames = new string[] { tmpPath };
 
 
-            BuildPipeline.BuildAssetBundles(BuildConfig.outputPath, buildMap, BuildConfig.options, EditorUserBuildSettings.activeBuildTarget);
+            //打印buildMap
+            this.LogBuildMap(finalBuildMap);
+
+            BuildPipeline.BuildAssetBundles(BuildConfig.outputPath, finalBuildMap, BuildConfig.options, EditorUserBuildSettings.activeBuildTarget);
 
             //删除临时资源
             //AssetDatabase.DeleteAsset(tmpPath);
 
-            DebugExt.Log("-------->build bundle:" + obj.name + ", finished");
+            Debug.Log("-------->build prefab bundle:" + obj.name + ", finished");
             AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
             return true;
         }

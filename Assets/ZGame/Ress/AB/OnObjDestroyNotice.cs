@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using ZGame.Event;
@@ -35,7 +35,6 @@ namespace ZGame.Ress.AB
                 if (child.gameObject == this.gameObject)
                 {
                     EventDispatcher.Instance.DispatchEvent(EventID.OnRootObjDestroy, child.gameObject);
-
                 }
 
                 EventDispatcher.Instance.DispatchEvent(EventID.OnChildObjDestroy, child.gameObject);

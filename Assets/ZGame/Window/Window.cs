@@ -16,8 +16,7 @@ namespace ZGame.Window
 
         public Transform ui_AniBg;
 
-
-        //Action<GameObject> callbackOnWindowCreated; 
+        Action callbackOnWindowClose;
         Action callbackOnWindowHide;
         Action callbackOnWindowDestroy;
 
@@ -30,7 +29,6 @@ namespace ZGame.Window
             if (areaMap.ContainsKey(area.id) == false)
             {
                 areaMap.Add(area.id, area);
-                area.Show();
             }
         }
         public void RemoveArea(Area area)
@@ -51,12 +49,14 @@ namespace ZGame.Window
         {
             return this.upperWindow;
         }
-
+        public void RegisterCallbackOnWindowClose(Action callback)
+        {
+            callbackOnWindowClose += callback;
+        }
         public void RegisterCallbackOnWindowHide(Action callback)
         {
             callbackOnWindowHide += callback;
         }
-
         //public void RegisterCallbackOnWindowCreate
 
         public void RegisterCallbackOnWindowDestroy(Action callback)
@@ -78,6 +78,10 @@ namespace ZGame.Window
         }
 
 
+        public void Close()
+        {
+            callbackOnWindowClose?.Invoke();
+        }
 
         public virtual void Init(string windowName, GameObject obj)
         {
@@ -121,7 +125,15 @@ namespace ZGame.Window
                 }
                 foreach (var area in areaMap)
                 {
-                    area.Value.Show();
+                    //显示area
+                    if (area.Value.initVisible)
+                    {
+                        area.Value.Show();
+                    }
+                    else
+                    {
+                        area.Value.Hide();
+                    }
                 }
             }
             else
@@ -164,7 +176,30 @@ namespace ZGame.Window
         {
             foreach (var area in areaMap)
             {
-                area.Value.Update();
+                if (area.Value.rootObj.activeInHierarchy)
+                {
+                    area.Value.Update();
+                }
+            }
+        }
+        public virtual new void LateUpdate()
+        {
+            foreach (var area in areaMap)
+            {
+                if (area.Value.rootObj.activeInHierarchy)
+                {
+                    area.Value.LateUpdate();
+                }
+            }
+        }
+        public virtual new void FixedUpdate()
+        {
+            foreach (var area in areaMap)
+            {
+                if (area.Value.rootObj.activeInHierarchy)
+                {
+                    area.Value.FixedUpdate();
+                }
             }
         }
 

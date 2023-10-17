@@ -4,6 +4,8 @@ using UnityEngine;
 using ZGame.TimerTween;
 using ZGame.Window;
 
+
+[IgnoreWindowNameGather]
 public class NetMaskWindow : Window
 {
     Timer rollTimer;

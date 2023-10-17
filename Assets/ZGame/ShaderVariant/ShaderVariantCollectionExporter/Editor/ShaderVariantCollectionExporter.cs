@@ -26,7 +26,8 @@ public static class ShaderVariantCollectionExporter
     {
         var dict = new Dictionary<string, bool>();
 
-        foreach (var assetBundleName in AssetDatabase.GetAllAssetBundleNames())
+        string[] allAssetBundleNames = AssetDatabase.GetAllAssetBundleNames();
+        foreach (var assetBundleName in allAssetBundleNames)
         {
             string[] assetPaths = AssetDatabase.GetAssetPathsFromAssetBundle(assetBundleName);
             foreach (var dependency in AssetDatabase.GetDependencies(assetPaths, true))

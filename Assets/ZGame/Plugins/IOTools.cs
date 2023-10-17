@@ -271,10 +271,7 @@ public class IOTools
     }
 
 
-    /// <summary>
-    /// 读取文本文件的内容
-    /// </summary>
-    /// <param name="filePath"></param>
+
     public static string GetFileString(string filePath)
     {
         if (File.Exists(filePath))
@@ -292,6 +289,18 @@ public class IOTools
         }
     }
 
+    public static string[] GetFileLines(string filePath)
+    {
+        if (File.Exists(filePath))
+        {
+            return File.ReadAllLines(filePath);
+        }
+        else
+        {
+            Debug.LogWarning("warning, GetFileLines failed,no file with filePath:" + filePath);
+            return null;
+        }
+    }
 
 
     public static void WriteString(string path, string content)
@@ -366,30 +375,33 @@ public class IOTools
 
         name = (Config.isABResNameCrypto ? DES.EncryptStrToHex(name, Config.abResNameCryptoKey) : name) + IOTools.abSuffix;
 
+        return GetFilePath(name);
+    }
 
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="realName">name with suffix</param>
+    /// <returns></returns>
+    public static string GetFilePath(string realName)
+    {
         string path = "";
-        //string pathType = "";
-        if (IOTools.IsResInPersistantDir(name))
+        if (IOTools.IsResInPersistantDir(realName))
         {
-            path = IOTools.GetResPersistantPath(name);
-            //pathType = "persistentDataPath";
+            path = IOTools.GetResPersistantPath(realName);
         }
 #if UNITY_EDITOR
-        else if (IOTools.IsResInEditorResExDir(name))
+        else if (IOTools.IsResInEditorResExDir(realName))
         {
-            path = IOTools.GetResEditorResExPath(name);
-            //pathType = "editorResEx";
+            path = IOTools.GetResEditorResExPath(realName);
         }
 #endif
         else
         {
-            path = IOTools.GetResStreamingPath(name);
-            //pathType = "streamingAssetsPath";
+            path = IOTools.GetResStreamingPath(realName);
         }
 
         return path;
     }
-
-
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -28,7 +28,7 @@ namespace ZGame.Ress.AB
                   texts[i] = objs[i] as TextAsset;
               }
               callback?.Invoke(texts);
-          });
+          }, true);
 
         }
     }

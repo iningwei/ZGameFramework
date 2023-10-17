@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -26,6 +26,23 @@ namespace ZGame.RessEditor
             }
         }
 
+
+
+        public static List<string> buildInImageSpriteNames = new List<string>()
+        {
+            "UISprite","Background","Knob","UIMask","InputFieldBackground","DropdownArrow","Checkmark"
+        };
+        public static List<string> buildInMaterialNames = new List<string>()
+        {
+            "Default UI Material",//Image、RawImage、Text组件默认材质球
+            "Sprites-Default",//SpriteRenderer组件默认材质球
+            "Default-ParticleSystem",//BuiltIn管线下ParticleSystemRenderer组件默认材质球 
+            "ParticlesUnlit",//URP管线下 ParticleSystemRenderer组件默认材质球
+             
+        };
+
+        public static string defaultTextFontName = "有爱魔兽圆体-B";
+        public static string defaultTextFontPath = "Assets/ArtResources/Font/有爱魔兽圆体-B.ttf";
 
         //打AB时，不处理的material列表
         public static List<string> ignoredMats = new List<string>();
@@ -133,19 +150,26 @@ namespace ZGame.RessEditor
             }
 
 
-            //二进制文件
+            //二进制文件 
             if (resPath.EndsWith(".bytes"))
             {
                 return new BuildByte().Build;
             }
-
-
+            // .asset文件，诸如NodeCanvas的行为树资源
+            if (resPath.EndsWith(".asset"))
+            {
+                return new BuildObject().Build;
+            }
             //场景
             if (resPath.EndsWith(".unity"))
             {
                 return new BuildScene().Build;
             }
-
+            //材质球
+            if (resPath.EndsWith(".mat"))
+            {
+                return new BuildMat().Build;
+            }
             //光照贴图
             if (resPath.EndsWith(".hdr"))
             {

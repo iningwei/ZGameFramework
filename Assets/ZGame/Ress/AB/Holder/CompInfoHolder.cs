@@ -11,6 +11,9 @@ namespace ZGame.Ress.AB.Holder
         [CompInfoRefCollection("BuildInCompImageCollection")]
         public List<BuildInCompImageInfo> buildInCompImageInfos;
 
+        [CompInfoRefCollection("BuildInCompRawImageCollection")]
+        public List<BuildInCompRawImageInfo> buildInCompRawImageInfos;
+
         [CompInfoRefCollection("BuildInCompSpriteRendererCollection")]
         public List<BuildInCompSpriteRendererInfo> buildInCompSpriteRendererInfos;
 
@@ -22,6 +25,9 @@ namespace ZGame.Ress.AB.Holder
 
         [CompInfoRefCollection("BuildInCompRendererCollection")]
         public List<BuildInCompRendererInfo> buildInCompRendererInfos;
+
+        [CompInfoRefCollection("BuildInCompMeshColliderCollection")]
+        public List<BuildInCompMeshColliderInfo> buildInCompMeshColliderInfos;
 
         [CompInfoRefCollection("ExtCompImageSequenceCollection")]
         public List<ExtCompImageSequenceInfo> extCompImageSequenceInfos;
@@ -37,8 +43,10 @@ namespace ZGame.Ress.AB.Holder
 
         [CompInfoRefCollection("ExtCompSwitch2ButtonCollection")]
         public List<ExtCompSwitch2ButtonInfo> extCompSwitch2ButtonInfos;
-
-       
+        [CompInfoRefCollection("ExtCompShaderMeshAnimationCollection")]
+        public List<ExtCompShaderMeshAnimationInfo> extCompShaderMeshAnimationInfos;
+        //////[CompInfoRefCollection("ExtCompActorTexSwitcherCollection")]
+        //////public List<ExtCompActorTexSwitcherInfo> extCompActorTexSwitcherInfos;
 
 
         public LightmapInfo lightmapInfo;

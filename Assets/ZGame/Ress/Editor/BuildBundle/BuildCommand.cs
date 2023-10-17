@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -157,7 +157,6 @@ namespace ZGame.RessEditor
             }
 
             DeleteAfterBuildAB();
-
             Debug.Log("finished bundle build!");
         }
 
@@ -369,11 +368,15 @@ namespace ZGame.RessEditor
         [MenuItem("工具/打包/打ab包/删除无用文件")]
         public static void DeleteAfterBuildAB()
         {
-            // 完成后要删除一些无用的文件（meta文件）
+            // 完成后要删除一些无用的文件（manifest、meta等文件）
             var files = Directory.GetFileSystemEntries(BuildConfig.outputPath);
             foreach (var v in files)
             {
                 if (!v.EndsWith(IOTools.abSuffix))
+                {
+                    File.Delete(v);
+                }
+                else if (Path.GetFileNameWithoutExtension(v).StartsWith("fbx_"))//删除临时生成的fbx对应的AB
                 {
                     File.Delete(v);
                 }
@@ -442,15 +445,16 @@ namespace ZGame.RessEditor
 
 
             //fontPathList.Add("Assets/ArtResources/Font/fzltthjt.ttf");
-            fontPathList.Add("Assets/ArtResources/Font/arial.ttf");
-            fontPathList.Add("Assets/ArtResources/Font/PangMenZhengDao2.0.ttf");
-            fontPathList.Add("Assets/ArtResources/Font/SourceHanSansSC-Medium.otf");
-
+            //fontPathList.Add("Assets/ArtResources/Font/arial.ttf");
+            //fontPathList.Add("Assets/ArtResources/Font/PangMenZhengDao2.0.ttf");
+            //fontPathList.Add("Assets/ArtResources/Font/SourceHanSansSC-Medium.otf");
+            //fontPathList.Add("Assets/ArtResources/Font/DroidSansFallback.ttf");
+            fontPathList.Add(BuildConfig.defaultTextFontPath);
 
             //Textmesh pro sdf 文件
-            fontPathList.Add("Assets/ArtResources/Font/arial SDF.asset");
-            fontPathList.Add("Assets/ArtResources/Font/PangMenZhengDao2.0 SDF.asset");
-            fontPathList.Add("Assets/ArtResources/Font/SourceHanSansSC-Medium SDF.asset");
+            //fontPathList.Add("Assets/ArtResources/Font/arial SDF.asset");
+            //fontPathList.Add("Assets/ArtResources/Font/PangMenZhengDao2.0 SDF.asset");
+            //fontPathList.Add("Assets/ArtResources/Font/SourceHanSansSC-Medium SDF.asset");
 
 
             for (int i = 0; i < fontPathList.Count; i++)
@@ -500,14 +504,12 @@ namespace ZGame.RessEditor
                         var mat = mats[j];
                         if (mat != null)
                         {
-
-                            //ParticlesUnlit是urp粒子系统的默认材质球
-                            if (mat.name == "Default-ParticleSystem" || mat.name == "ParticlesUnlit")
+                            if (BuildConfig.buildInMaterialNames.Contains(mat.name))
                             {
                                 Debug.LogError("使用了默认材质球， mat.name:" + mat.name + ", objPath:" + render.transform.GetHierarchy());
                                 return false;
                             }
-                            //TODO:
+
                             if (isShaderInList(mat.shader.name, getHierarchyPath(target.transform)) == false)
                             {
                                 return false;
@@ -540,8 +542,6 @@ namespace ZGame.RessEditor
                 {
                     return false;
                 }
-
-
 
             }
             return true;
@@ -602,10 +602,10 @@ namespace ZGame.RessEditor
             //////}
             ///
 
-            if (shaderName == "Spine/Skeleton")//TODO:暂时spine骨骼还没有做shader、图片等拆分
-            {
-                return true;
-            }
+            //if (shaderName == "Spine/Skeleton")//TODO:暂时spine骨骼还没有做shader、图片等拆分
+            //{
+            //    return true;
+            //}
             Debug.LogError("使用的shader没有加入shaderList中，shader:" + shaderName + ",      objPath:" + objHirarchy);
             return false;
         }
@@ -626,16 +626,25 @@ namespace ZGame.RessEditor
             Image img = target.GetComponent<Image>();
             if (img != null)//图片
             {
-
                 if (!isValidImageOfUGUI(img))
                 {
                     return false;
                 }
-
-
                 if (!isValidMatOrShaderOfUGUI(target, img.material))
                 {
+                    return false;
+                }
+            }
 
+            RawImage rawImage = target.GetComponent<RawImage>();
+            if (rawImage)
+            {
+                if (!isValidRawImageOfUGUI(rawImage))
+                {
+                    return false;
+                }
+                if (!isValidMatOrShaderOfUGUI(target, rawImage.material))
+                {
                     return false;
                 }
             }
@@ -720,7 +729,6 @@ namespace ZGame.RessEditor
             {
                 Type ft = fi.FieldType;
 
-
                 if (ft.IsPublic && ft.IsGenericType)
                 {
                     Type[] genericAs = ft.GetGenericArguments();//get fields's generic params
@@ -730,7 +738,6 @@ namespace ZGame.RessEditor
                         string collectionClassName = ((CompInfoRefCollectionAttribute)atts[0]).refCollectionClassName;
 
                         Type collectionT = Type.GetType(collectionClassName);
-
                         object target = Activator.CreateInstance(collectionT);
                         MethodInfo mi = collectionT.GetMethod("GetCompInfo");
                         var compInfoResult = mi.Invoke(target, new object[] { obj });
@@ -754,9 +761,9 @@ namespace ZGame.RessEditor
             }
         }
 
-        public static List<AssetBundleBuild> GetGameObjectAssetBundleBuildMap(GameObject obj)
+        public static Dictionary<string, AssetBundleBuild> GetGameObjectAssetBundleBuildMap(GameObject obj)
         {
-            List<AssetBundleBuild> texMap = new List<AssetBundleBuild>();
+            Dictionary<string, AssetBundleBuild> texMap = new Dictionary<string, AssetBundleBuild>();
 
             /*
             //////BuildInCompImageCollection buildInCompImageCollection = new BuildInCompImageCollection();
@@ -807,38 +814,26 @@ namespace ZGame.RessEditor
                         var result = getResMap.Invoke(target, new object[] { obj });
                         if (result != null)
                         {
-                            texMap.AddRange(result as List<AssetBundleBuild>);
+                            var tmpMap = result as Dictionary<string, AssetBundleBuild>;
+
+                            //去重
+                            foreach (var tmpItem in tmpMap)
+                            {
+                                if (texMap.ContainsKey(tmpItem.Key) == false)
+                                {
+                                    texMap.Add(tmpItem.Key, tmpItem.Value);
+                                }
+                            }
                         }
                     }
                 }
 
             }
 
-            //获得Lightmap中的图
+            //获得Lightmap中的 tex
             LightmapInfoCollection lightmapInfoCollection = new LightmapInfoCollection();
             texMap.AddRange(lightmapInfoCollection.GetResMap(obj));
-
-            //去除texMap中的重复项
-            List<AssetBundleBuild> finalTexMap = new List<AssetBundleBuild>();
-            for (int i = 0; i < texMap.Count; i++)
-            {
-                bool flag = false;
-                for (int j = 0; j < finalTexMap.Count; j++)
-                {
-                    if (finalTexMap[j].assetBundleName == texMap[i].assetBundleName)
-                    {
-                        flag = true;
-                        break;
-                    }
-                }
-                if (!flag)
-                {
-                    finalTexMap.Add(texMap[i]);
-                }
-            }
-
-
-            return finalTexMap;
+            return texMap;
         }
 
 
@@ -864,26 +859,40 @@ namespace ZGame.RessEditor
         {
             if (img.sprite == null)
             {
-                //允许Image不使用贴图
+                Debug.LogWarning("warning, image have no sprite attached:" + img.transform.GetHierarchy());
+                //only warning
             }
             else
             {
-                //TODO:后续需要限定，sprite名字不允许使用这几个，避免误判断
-                //TODO：后续名字改成配置形式，also:ArtFastTool.cs
-                if (img.sprite.name == "UISprite" ||
-                    img.sprite.name == "Background" ||
-                    img.sprite.name == "Knob" ||
-                    img.sprite.name == "UIMask" ||
-                    img.sprite.name == "InputFieldBackground" ||
-                    img.sprite.name == "DropdownArrow" ||
-                    img.sprite.name == "Checkmark")
+                if (BuildConfig.buildInImageSpriteNames.Contains(img.sprite.name))
                 {
-                    Debug.LogError("使用了默认贴图," + img.name + ", 贴图名：" + img.sprite.name + "， path:" + img.transform.GetHierarchy());
+                    Debug.LogError("使用了内置贴图," + img.name + ", 贴图名：" + img.sprite.name + "， path:" + img.transform.GetHierarchy());
                     return false;
                 }
             }
             return true;
         }
+
+        static bool isValidRawImageOfUGUI(RawImage rawImg)
+        {
+            if (rawImg.texture == null)
+            {
+                Debug.LogWarning("warning, rawImage have no texture attached:" + rawImg.transform.GetHierarchy());
+                //only warning
+            }
+            else
+            {
+                //未使用texture格式贴图
+                var texType = AssetDatabaseExt.GetTextureImporterType(rawImg.texture);
+                if (texType != TextureImporterType.Default)
+                {
+                    Debug.LogWarning("warning,rawImage:" + rawImg.transform.GetHierarchy() + "'s texture is not defaultTexture type ");
+                }
+            }
+            return true;
+        }
+
+
         /// <summary>
         /// 是否使用了默认材质球或者shader
         /// </summary>
@@ -892,9 +901,9 @@ namespace ZGame.RessEditor
         static bool isValidMatOrShaderOfUGUI(GameObject target, Material mat)
         {
 
-            if (mat.name == "Default UI Material")//使用了UGUI的默认材质球
+            if (BuildConfig.buildInMaterialNames.Contains(mat.name))
             {
-                Debug.LogError("used ugui's default mat: " + target.GetHierarchy());
+                Debug.LogError("used   default mat: " + mat.name + ", path:" + target.GetHierarchy());
                 return false;
             }
             else
@@ -904,12 +913,6 @@ namespace ZGame.RessEditor
                     Debug.LogError("mat have no shader: " + target.GetHierarchy());
                     return false;
                 }
-                //if (mat.shader.name == "UI/Default")//使用了UGUI的默认shader
-                //{
-                //    Debug.LogError("材质球使用了ugui默认shader," + target.name);
-                //    return false;
-                //}
-
 
                 if (isShaderInList(mat.shader.name, getHierarchyPath(target.transform)) == false)
                 {

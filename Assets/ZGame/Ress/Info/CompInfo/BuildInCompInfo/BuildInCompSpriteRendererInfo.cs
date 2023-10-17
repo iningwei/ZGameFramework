@@ -6,13 +6,11 @@ namespace ZGame.Ress.Info
     [System.Serializable]
     public class BuildInCompSpriteRendererInfo : BuildInCompInfo
     {
+        public SpriteRenderer concreteCompSpriteRenderer;
         public List<SpriteInfo> refSprites;
-        public BuildInCompSpriteRendererInfo(Transform tran, Material mat, string shaderName, List<SpriteInfo> refSprites)
+        public BuildInCompSpriteRendererInfo(Transform tran, SpriteRenderer refSpriteRenderer, List<SpriteInfo> refSprites, string meshName, string matName, string shaderName) : base(tran, meshName, 0, matName, shaderName)
         {
-            this.tran = tran;
-            this.mat = mat;
-
-            this.shaderName = shaderName;
+            this.concreteCompSpriteRenderer = refSpriteRenderer;
             this.refSprites = refSprites;
         }
     }

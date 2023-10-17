@@ -7,9 +7,8 @@ namespace ZGame.Ress.Info
     public class ExtCompSwapSpriteInfo : ExtCompInfo
     {
         public List<SpriteInfo> refSprites;
-        public ExtCompSwapSpriteInfo(Transform tran, List<SpriteInfo> refSprites)
-        {
-            this.tran = tran;
+        public ExtCompSwapSpriteInfo(Transform tran, List<SpriteInfo> refSprites) : base(tran)
+        { 
             this.refSprites = refSprites;
         }
     }

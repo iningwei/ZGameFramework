@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 namespace ZGame.Ress
@@ -8,9 +8,9 @@ namespace ZGame.Ress
         string name;
         TextAsset textAsset;
 
-        public LogicRes(string resName, TextAsset resObj) : base(resName, resObj)
+        public LogicRes(string name, TextAsset resObj) : base(name, resObj)
         {
-            this.name = resName;
+            this.name = this.resName;
             textAsset = resObj;
         }
 

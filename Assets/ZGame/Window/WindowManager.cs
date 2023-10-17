@@ -13,7 +13,6 @@ namespace ZGame.Window
 {
     public class WindowInfo
     {
-
         public string scriptName;
         public bool isLuaWindow;
 
@@ -46,7 +45,7 @@ namespace ZGame.Window
 
         Transform rootCanvasTran = null;
         Canvas rootCanvas = null;
-        Camera rootCanvasCamera = null;
+        Camera rootUICamera = null;
 
 
         Canvas root3DCanvas = null;
@@ -166,13 +165,13 @@ namespace ZGame.Window
             WindowInfos.TryGetValue(windowName, out info);
             return info;
         }
-        private void Awake()
+        public void Init(Transform launcherNode)
         {
-            var launcherNode = GameObject.Find("Launcher").transform;
             if (rootCanvasTran == null)
             {
                 rootCanvasTran = launcherNode.Find("Canvas").transform;
             }
+
             if (rootCanvas == null)
             {
                 if (rootCanvasTran != null)
@@ -184,11 +183,13 @@ namespace ZGame.Window
             {
                 root3DCanvas = launcherNode.Find("Canvas3D")?.GetComponent<Canvas>();
             }
-            if (rootCanvasCamera == null)
+            if (rootUICamera == null)
             {
-                rootCanvasCamera = launcherNode.Find("UICamera").GetComponent<Camera>();
+                rootUICamera = launcherNode.Find("UICamera").GetComponent<Camera>();
             }
+
         }
+
         void initLayerDic()
         {
 
@@ -209,14 +210,14 @@ namespace ZGame.Window
             //自适应基准分辨率比例为 Config.gameDesignRatio
             //即对于竖屏，当比这个分辨率比例更宽的机型，才对其左右进行黑边填充
             float gapRatio = Config.gameDesignRatio.x / Config.gameDesignRatio.y;
-
+            Debug.Log("gameDesignRatio,x:" + Config.gameDesignRatio.x + ", y:" + Config.gameDesignRatio.y);
 
             //int screenWidth = Screen.width;
             //int screenHeight = Screen.height;
             //这里不能使用屏幕的宽高来算后续偏移，需要取主Canvas的宽高来算
             float screenWidth = rootCanvasTran.GetComponent<RectTransform>().sizeDelta.x;
             float screenHeight = rootCanvasTran.GetComponent<RectTransform>().sizeDelta.y;
-
+            //需要注意的是，在PC上的软件，若分辨率大于屏幕的分辨率，那么会导致部分不显示。那么这里算出来的值实际上是显示区域的值。并不包含未显示区域的。
 
 
             float screenRatio = (float)screenWidth / screenHeight;
@@ -224,7 +225,7 @@ namespace ZGame.Window
             {
                 float suitWidth = gapRatio * screenHeight;
                 float offsetX = (screenWidth - suitWidth) / 2;
-                DebugExt.LogE($"do vertical fit pad, screenWidth:{screenWidth},screenHeight:{screenHeight},suitWidth:{suitWidth},offsetX:{offsetX}", this);
+                DebugExt.LogE($"do vertical fit pad, screenWidth:{screenWidth},screenHeight:{screenHeight},gapRatio:{gapRatio}, suitWidth:{suitWidth},offsetX:{offsetX}", this);
                 //设置内置Layer层的左右偏移
                 for (int i = 0; i < WindowLayer.LayerList.Count; i++)
                 {
@@ -392,6 +393,30 @@ namespace ZGame.Window
                 }
             }
         }
+        private void FixedUpdate()
+        {
+            if (openedWindows.Count > 0)
+            {
+
+                List<string> keys = new List<string>(openedWindows.Keys);
+                for (int i = 0; i < keys.Count; i++)
+                {
+                    openedWindows[keys[i]].FixedUpdate();
+                }
+            }
+        }
+        private void LateUpdate()
+        {
+            if (openedWindows.Count > 0)
+            {
+
+                List<string> keys = new List<string>(openedWindows.Keys);
+                for (int i = 0; i < keys.Count; i++)
+                {
+                    openedWindows[keys[i]].LateUpdate();
+                }
+            }
+        }
 
         public void RegisterCallbackOnWindowHide(string windowName, Action callback)
         {
@@ -459,7 +484,6 @@ namespace ZGame.Window
             {
                 if (openedWindows.ContainsKey(window.name))
                 {
-                    Debug.LogWarning("warning,can not add duplicated window to opened window dic,window name:" + window.name);
                     return;
                 }
                 else
@@ -472,7 +496,6 @@ namespace ZGame.Window
             {
                 if (openedWindows.ContainsKey(window.name) == false)
                 {
-                    Debug.LogWarning("warning,can not delete.for opened windows do not contain this window:" + window.name);
                     return;
                 }
                 else
@@ -652,7 +675,7 @@ namespace ZGame.Window
             {
                 if (Config.resLoadType == (int)ResLoadType.AssetBundle)
                 {
-                    ABManager.Instance.loadWindow(info.resName, (obj) =>
+                    ABManager.Instance.LoadWindow(info.resName, (obj) =>
                     {
                         window = createWindow(name, obj as GameObject, info);
                         source = WindowResSource.Newborn;
@@ -668,6 +691,10 @@ namespace ZGame.Window
                         }
 
                         showWindow(window, layerName, inLinkWindow, neverClose, isCache, onWindowShowed, datas);
+                        window.RegisterCallbackOnWindowClose(() =>
+                        {
+                            this.closeWindow(window);
+                        });
                     },
                     sync
                      );
@@ -679,6 +706,10 @@ namespace ZGame.Window
                     source = WindowResSource.Newborn;
                     updateOpenedWindows(window, true);
                     showWindow(window, layerName, inLinkWindow, neverClose, isCache, onWindowShowed, datas);
+                    window.RegisterCallbackOnWindowClose(() =>
+                    {
+                        this.closeWindow(window);
+                    });
                 }
                 else
                 {
@@ -693,7 +724,7 @@ namespace ZGame.Window
                 }
                 if (cachedWindows.ContainsKey(window.name))
                 {
-                    this.ReShowHiddenWindow(window.name, layerName, false);
+                    this.ReShowHiddenWindow(window.name, layerName, true);
                 }
             }
         }
@@ -776,6 +807,14 @@ namespace ZGame.Window
                     closeWindow(window, forceDestroy, destroyImmediate);
                 }
             }
+            else
+            {
+                window = getWindowCached(windowName);
+                if (window != null)
+                {
+                    closeWindow(window, forceDestroy, destroyImmediate);
+                }
+            }
         }
 
 
@@ -799,7 +838,7 @@ namespace ZGame.Window
         }
 
 
-        void hideWindow(Window window)
+        void hideWindow(Window window, bool unableAni = false)
         {
             //DebugExt.Log("hideWindow:" + window.name);
             updateCachedWindows(window, true);
@@ -807,16 +846,23 @@ namespace ZGame.Window
             //set parent layer hidden
             GameObject windowObj = window.rootObj;
             windowObj.transform.SetParent(LayerDic[WindowLayer.Hidden]);
-
+            if (unableAni)
+            {
+                var anis = windowObj.transform.GetComponentsInChildren<Animator>();
+                foreach (var item in anis)
+                {
+                    item.enabled = false;
+                }
+            }
             window.Hide();
         }
 
-        public Window HideWindow(string windowName)
+        public Window HideWindow(string windowName, bool unableAni = false)
         {
             Window window = getWindowOpened(windowName);
             if (window != null)
             {
-                this.hideWindow(window);
+                this.hideWindow(window, unableAni);
             }
             return window;
         }
@@ -837,11 +883,11 @@ namespace ZGame.Window
                     {
                         if (isForbidAnimatorReplay == false)
                         {
-                            animators[i].enabled = false;
+                            animators[i].enabled = true;
                         }
                         else
                         {
-                            animators[i].enabled = true;
+                            animators[i].enabled = false;
                         }
                     }
                 }
@@ -952,9 +998,9 @@ namespace ZGame.Window
             return this.root3DCanvas;
         }
 
-        public Camera GetRootCanvasCamera()
+        public Camera GetRootUICamera()
         {
-            return this.rootCanvasCamera;
+            return this.rootUICamera;
         }
 
     }

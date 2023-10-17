@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
@@ -24,7 +24,7 @@ namespace ZGame.RessEditor
         public string abPrefix;
         public virtual bool Build(UnityEngine.Object obj)
         {
-            DebugExt.LogE("can not build ab:" + AssetDatabase.GetAssetOrScenePath(obj));
+            Debug.LogError("can not build ab:" + AssetDatabase.GetAssetOrScenePath(obj));
             return false;
         }
 
@@ -164,24 +164,45 @@ namespace ZGame.RessEditor
                     }
 
 
-                    if (BuildCommand.CheckValidOfU2D(tmpChild.gameObject) == false)
-                    {
-                        return false;
-                    }
-                    if (BuildCommand.CheckValidOfRenderer(tmpChild.gameObject) == false)
-                    {
-                        return false;
-                    }
-                    if (BuildCommand.CheckValidOfUGUI(tmpChild.gameObject) == false)
-                    {
-                        return false;
-                    }
+                    //场景中的非Root节点就不检查了。只需要针对Root节点检查
+                    ////if (BuildCommand.CheckValidOfU2D(tmpChild.gameObject) == false)
+                    ////{
+                    ////    return false;
+                    ////}
+                    ////if (BuildCommand.CheckValidOfRenderer(tmpChild.gameObject) == false)
+                    ////{
+                    ////    return false;
+                    ////}
+                    ////if (BuildCommand.CheckValidOfUGUI(tmpChild.gameObject) == false)
+                    ////{
+                    ////    return false;
+                    ////}
                 }
             }
 
-
+            if (BuildCommand.CheckValidOfU2D(theRootObj) == false)
+            {
+                return false;
+            }
+            if (BuildCommand.CheckValidOfRenderer(theRootObj) == false)
+            {
+                return false;
+            }
+            if (BuildCommand.CheckValidOfUGUI(theRootObj) == false)
+            {
+                return false;
+            }
 
             return true;
+        }
+
+        public void LogBuildMap(AssetBundleBuild[] finalBuildMap)
+        {
+            Debug.Log("------------>");
+            for (int i = 0; i < finalBuildMap.Length; i++)
+            {
+                Debug.Log("buildMap " + i + ", name:" + finalBuildMap[i].assetBundleName + ", path:" + finalBuildMap[i].assetNames[0]);
+            }
         }
     }
 }

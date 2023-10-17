@@ -8,7 +8,7 @@ namespace ZGame.Ress
 {
     public class SceneRes : Res
     {
-        public SceneRes(string resName, Object resObj) : base(resName, resObj)
+        public SceneRes(string name, Object resObj) : base(name, resObj)
         {
         }
 

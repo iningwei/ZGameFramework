@@ -1,6 +1,8 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+
 namespace ZGame.Ress.Info
 {
     [System.Serializable]
@@ -10,15 +12,12 @@ namespace ZGame.Ress.Info
     /// </summary>
     public class BuildInCompImageInfo : BuildInCompInfo
     {
-
+        public Image concreteCompImage;
         public List<SpriteInfo> refSprites;
 
-        public BuildInCompImageInfo(Transform tran, Material mat, string shaderName, List<SpriteInfo> refSprites)
+        public BuildInCompImageInfo(Transform tran, Image refImage, List<SpriteInfo> refSprites, string meshName, string matName, string shaderName) : base(tran, meshName, 0, matName, shaderName)
         {
-            this.tran = tran;
-            this.mat = mat;
-
-            this.shaderName = shaderName;
+            this.concreteCompImage = refImage;
             this.refSprites = refSprites;
         }
     }

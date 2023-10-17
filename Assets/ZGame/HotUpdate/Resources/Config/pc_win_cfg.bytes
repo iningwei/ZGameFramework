@@ -1,5 +1,5 @@
 {
-  "ProductName": "Meta",
+  "ProductName": "HomeAlert",
   "AppVersion": "1.0.1",
   "AppBundleVersion": "1",
   "ResVersion": "0",
@@ -12,7 +12,7 @@
   "GameDesignRatio": "1080,1920",
   "ScreenOrientation": 1,
   "GameInputType": 1,
-  "ResLoadType": 1,
+  "ResLoadType": 0,
   "FirstOpenWindowName": "LoginWindow",
   "ServerData": [
     {
@@ -40,13 +40,13 @@
   "PackData": [
     {
       "PackType": "PUB",
-      "FtpTxtFileURL": "https://sgame.trillionjoy.com/sgame/clires/pub",
-      "FtpZipFileURL": "https://sgamecdn.trillionjoy.com/sgame/clires/pub"
+      "FtpTxtFileURL": "http://log.qiyoogame.com/hot/garfield/pub",
+      "FtpZipFileURL": "http://log.qiyoogame.com/hot/garfield/pub"
     },
     {
       "PackType": "DEV",
-      "FtpTxtFileURL": "https://sgame.trillionjoy.com/sgame/clires/dev",
-      "FtpZipFileURL": "https://sgamecdn.trillionjoy.com/sgame/clires/dev"
+      "FtpTxtFileURL": "http://log.qiyoogame.com/hot/garfield/dev",
+      "FtpZipFileURL": "http://log.qiyoogame.com/hot/garfield/dev"
     },
     {
       "PackType": "TEST",

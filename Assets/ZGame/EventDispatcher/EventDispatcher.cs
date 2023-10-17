@@ -44,7 +44,7 @@ namespace ZGame.Event
             {
                 return;
             }
-    
+
 #if XLua
             //先调用lua的 DisPatch函数
             if (mEventLuaHandlers.Contains(evtId) || mEventLuaOnceHandlers.Contains(evtId))
@@ -107,7 +107,7 @@ namespace ZGame.Event
         }
 
         public void AddLuaListener(string evtId)
-        {             
+        {
             addLuaListener(mEventLuaHandlers, evtId);
         }
         public void AddLuaListenerOnce(string evtId)
@@ -200,9 +200,5 @@ namespace ZGame.Event
             mEventLuaOnceHandlers.Clear();
         }
 
-        internal void AddLuaListener(string onPlayerCheck1, object onPlayerCheck2)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

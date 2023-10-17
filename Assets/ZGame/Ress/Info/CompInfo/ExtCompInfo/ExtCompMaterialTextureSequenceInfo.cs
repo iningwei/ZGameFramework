@@ -7,9 +7,8 @@ namespace ZGame.Ress.Info
     public class ExtCompMaterialTextureSequenceInfo : ExtCompInfo
     {
         public List<TextureInfo> refTextures;
-        public ExtCompMaterialTextureSequenceInfo(Transform tran, List<TextureInfo> refTextures)
-        {
-            this.tran = tran;
+        public ExtCompMaterialTextureSequenceInfo(Transform tran, List<TextureInfo> refTextures) : base(tran)
+        { 
             this.refTextures = refTextures;
         }
     }

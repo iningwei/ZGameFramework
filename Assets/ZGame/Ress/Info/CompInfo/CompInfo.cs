@@ -8,5 +8,9 @@ namespace ZGame.Ress.Info
     public class CompInfo
     {
         public Transform tran;
+        public CompInfo(Transform tran)
+        {
+            this.tran = tran;
+        }
     }
 }

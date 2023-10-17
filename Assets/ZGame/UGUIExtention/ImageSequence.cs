@@ -8,18 +8,16 @@ using UnityEngine.UI;
 public class ImageSequence : MonoBehaviour
 {
     public Sprite[] sprites;
-
     public float duration;
-
     public int index = 0;
 
 
-    Image image;
     public bool isLoop = true;
+    public float lastFramePauseDuration = 0;//最后一帧动画播放后，停留的时间。一般在isLoop为true时才使用
+    float lastFramePausedTime = 0f;
+    public Action playFinishedCallback;//一般非loop状态才用得到
 
-    //非loop状态下， 播放完后，是否设置Image对应的obj不可见
-    public bool isHideWhilePlayFinishedInNoLoopStatus = false;
-
+    Image image;
     int count = 0;
     float durationValue = 0;
 
@@ -55,25 +53,42 @@ public class ImageSequence : MonoBehaviour
         {
             if (index + 1 == count)
             {
-                index = 0;
                 if (isLoop == false)
                 {
+                    index = 0;
                     isQuit = true;
-                    if (isHideWhilePlayFinishedInNoLoopStatus)
+                    if (this.playFinishedCallback != null)
                     {
-                        this.gameObject.SetActive(false);
+                        this.playFinishedCallback();
                     }
                     return;
+                }
+                else
+                {
+                    if (lastFramePauseDuration > 0f)
+                    {
+                        lastFramePausedTime += useRealtime ? Time.unscaledDeltaTime : Time.deltaTime;
+
+                        if (lastFramePausedTime > lastFramePauseDuration)
+                        {
+                            index = 0;
+                            lastFramePausedTime = 0f;
+                            durationValue = duration;
+                        }
+                    }
+                    else
+                    {
+                        index = 0;
+                        durationValue = duration;
+                    }
                 }
             }
             else
             {
                 index++;
+                durationValue = duration;
             }
             image.sprite = sprites[index];
-
-
-            durationValue = duration;
         }
     }
 }

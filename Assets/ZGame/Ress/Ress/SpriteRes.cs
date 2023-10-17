@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
@@ -20,14 +20,14 @@ namespace ZGame.Ress
         [SerializeField]
         public Sprite[] allSprites;
 
-        public SpriteRes(string resName, Texture2D resObj, Sprite[] allSprites) : base(resName, resObj)
+        public SpriteRes(string name, Texture2D resObj, Sprite[] allSprites) : base(name, resObj)
         {
-            this.atlasName = resName;
+            this.atlasName = this.resName;
             this.allSprites = allSprites;
-             
+
         }
 
-     
+
 
         public override T GetRes<T>(string name)
         {
@@ -70,8 +70,8 @@ namespace ZGame.Ress
                 allSprites = null;
             }
 
-            ABManager.Instance.RemoveRes(ABType.Sprite, this);
-             
+            ABManager.Instance.RemoveCachedRes(ABType.Sprite, this);
+
         }
     }
 }

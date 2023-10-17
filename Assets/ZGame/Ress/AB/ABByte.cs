@@ -18,40 +18,27 @@ namespace ZGame.Ress.AB
         {
             Action<UnityEngine.Object[]> loadFinishHandle = (objs) =>
             {
-                
+
                 TextAsset asset = objs[0] as TextAsset;
 
                 if (asset == null)
                 {
-                    DebugExt.LogE("load byte " + name + " null");
-                }
+                    Debug.LogError("load byte " + name + " null");
+                } 
+
+                ByteRes res = new ByteRes(name, asset);
+                EventDispatcher.Instance.DispatchEvent(EventID.OnABResLoaded, res, sync);
+
                 if (callback != null)
                 {
                     callback(asset);
                 }
-           
-
-                ByteRes res = new ByteRes(name, asset);
-                EventDispatcher.Instance.DispatchEvent(EventID.OnABResLoaded, res, sync);
             };
 
-
-            if (sync)
+            AB.Load(name, ABType.Byte, (objs) =>
             {
-                AB.Load(name, ABType.Byte, (objs) =>
-                {
-                    loadFinishHandle(objs);
-                });
-            }
-            else
-            {
-                AB.LoadAsync(name, ABType.Byte, (objs) =>
-                {
-                    loadFinishHandle(objs);
-                });
-            }
-
-
+                loadFinishHandle(objs);
+            }, sync);
         }
     }
 }

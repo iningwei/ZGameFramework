@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -48,20 +48,10 @@ namespace ZGame.Ress.AB
                 }
             };
 
-            if (sync)
+            AB.Load(atlasName, ABType.Sprite, (objs) =>
             {
-                AB.Load(atlasName, ABType.Sprite, (objs) =>
-                {
-                    loadFinishHandle(objs);
-                });
-            }
-            else
-            {
-                AB.LoadAsync(atlasName, ABType.Sprite, (objs) =>
-                {
-                    loadFinishHandle(objs);
-                });
-            }
+                loadFinishHandle(objs);
+            }, sync);
         }
     }
 

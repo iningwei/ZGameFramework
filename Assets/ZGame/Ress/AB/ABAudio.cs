@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -23,31 +23,23 @@ namespace ZGame.Ress.AB
                 {
                     DebugExt.LogE("load audioclip " + name + " null");
                 }
+
+
+                AudioRes res = new AudioRes(name, clip);
+                EventDispatcher.Instance.DispatchEvent(EventID.OnABResLoaded, res, sync);
+
                 if (callback != null)
                 {
                     callback(clip);
                 }
-
-                AudioRes res = new AudioRes(name, clip);
-                EventDispatcher.Instance.DispatchEvent(EventID.OnABResLoaded, res, sync);
             };
 
 
-            if (sync)
-            {
-                AB.Load(name, ABType.Audio, (objs) =>
-                {
-                    loadFinishHandle(objs);
-                });
-            }
-            else
-            {
-                AB.LoadAsync(name, ABType.Audio, (objs) =>
-                {
-                    loadFinishHandle(objs);
-                });
-            }
 
+            AB.Load(name, ABType.Audio, (objs) =>
+            {
+                loadFinishHandle(objs);
+            }, sync);
 
         }
     }

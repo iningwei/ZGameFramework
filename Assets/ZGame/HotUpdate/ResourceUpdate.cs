@@ -89,12 +89,13 @@ public class ResourceUpdate : Singleton<ResourceUpdate>
                     WindowManager.Instance.CloseWindow("HotUpdateWindow");
                 }
                 ScriptManager.Instance.Init();
-            }).Start();
+            }).Start(); 
 
 
         }
         else
         {
+            //pppath下ab包完整性检测失败
             WindowManager.Instance.SendWindowMessage("HotUpdateWindow", 100, null);
         }
     }
@@ -413,6 +414,7 @@ public class ResourceUpdate : Singleton<ResourceUpdate>
         DebugExt.LogE("res file download fail:" + info.name);
         //EventDispatcher.Instance.DispatchEvent(EventID.OnHotResFileDownloadFail, null);
 
+        //网络错误
         WindowManager.Instance.SendWindowMessage("HotUpdateWindow", 50);
     }
 

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using ZGame.Event;
 using ZGame.Ress.AB;
 
@@ -10,14 +10,12 @@ namespace ZGame.Ress
         string name;
         Texture tex;
 
-        public TextureRes(string resName, Texture resObj) : base(resName, resObj)
+        public TextureRes(string name, Texture resObj) : base(name, resObj)
         {
-            this.name = resName;
+            this.name = this.resName;
             this.tex = resObj;
-             
         }
 
-        
 
         public override T GetRes<T>(string name)
         {
@@ -48,8 +46,7 @@ namespace ZGame.Ress
             base.Destroy();
 
 
-            ABManager.Instance.RemoveRes(ABType.Texture, this);
-            
+            ABManager.Instance.RemoveCachedRes(ABType.Texture, this);
         }
     }
 

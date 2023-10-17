@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -56,12 +56,17 @@ namespace ZGame.Ress.AB
         [ABTypeDes("v_")]
         Video,
 
+        /// <summary>
+        /// FBX
+        /// </summary>
+        [ABTypeDes("fbx_")]
+        FBX,
 
         /// <summary>
         /// 模型
         /// </summary>
-        [ABTypeDes("m_")]
-        Model,
+        [ABTypeDes("mesh_")]
+        Mesh,
 
         /// <summary>
         /// 材质球
@@ -74,5 +79,11 @@ namespace ZGame.Ress.AB
         /// </summary>
         [ABTypeDes("b_")]
         Byte,
+
+        /// <summary>
+        /// 通用的继承自UnityEngine.Object的
+        /// </summary>
+        [ABTypeDes("o_")]
+        Object,
     }
 }

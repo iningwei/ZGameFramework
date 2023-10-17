@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 using ZGame.Ress.AB;
 
@@ -10,9 +10,9 @@ namespace ZGame.Ress
         string name;
         AudioClip clip;
 
-        public AudioRes(string resName, AudioClip resObj) : base(resName, resObj)
+        public AudioRes(string name, AudioClip resObj) : base(name, resObj)
         {
-            this.name = resName;
+            this.name = this.resName;
             this.clip = resObj;
         }
 
@@ -42,7 +42,7 @@ namespace ZGame.Ress
         public override void Destroy()
         {
             base.Destroy();
-            ABManager.Instance.RemoveRes(ABType.Audio, this);
+            ABManager.Instance.RemoveCachedRes(ABType.Audio, this);
         }
     }
 }

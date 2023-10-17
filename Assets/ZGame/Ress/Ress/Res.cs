@@ -18,9 +18,9 @@ namespace ZGame.Ress
         public string resName;
         public UnityEngine.Object resObj;
 
-        public Res(string resName, UnityEngine.Object resObj)
+        public Res(string name, UnityEngine.Object resObj)
         {
-            this.resName = resName;
+            this.resName = name;
             this.resObj = resObj;
         }
 
@@ -95,6 +95,7 @@ namespace ZGame.Ress
             if (resObj != null)
             {
                 GameObject.DestroyImmediate(resObj, true);
+
             }
         }
     }

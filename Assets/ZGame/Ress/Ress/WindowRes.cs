@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 using ZGame.Ress.AB;
 
@@ -7,7 +7,7 @@ namespace ZGame.Ress
     [Serializable]
     public class WindowRes : PrefabRes
     {
-        public WindowRes(string resName, UnityEngine.GameObject resObj) : base(resName, resObj)
+        public WindowRes(string name, UnityEngine.GameObject resObj) : base(name, resObj)
         {
         }
 
@@ -21,7 +21,7 @@ namespace ZGame.Ress
         {
             base.Destroy();
              
-            ABManager.Instance.RemoveRes(ABType.Window, this);
+            ABManager.Instance.RemoveCachedRes(ABType.Window, this);
         }
     }
 }

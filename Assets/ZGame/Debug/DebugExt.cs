@@ -74,30 +74,6 @@ namespace ZGame
               });
         }
 
-        public static void UploadPCLogFileToServer(string url, Action onSuccess, Action onFail)
-        {
-            string path = Application.persistentDataPath + "/Player.log";
-            if (File.Exists(path))
-            {
-                var datas = File.ReadAllBytes(path);
-                string desFileName = productName + "_" + deviceName + "_" + TimeTool.GetyyyyMMddHHmmssfff(DateTime.Now) + "_Player" + ".txt";
-                Debug.Log("desFileName:" + desFileName);
-
-                HttpTool.UploadFile(url, "file", datas, desFileName, (str) =>
-                {
-                    Log(str);
-                    onSuccess?.Invoke();
-                }, (str) =>
-                {
-                    LogE(str);
-                    onFail?.Invoke();
-                });
-            }
-            else
-            {
-                Debug.LogError("not exist file:" + path);
-            }
-        }
 
 
         static void TraceDebug(string content)

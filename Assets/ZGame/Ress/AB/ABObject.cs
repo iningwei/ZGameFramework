@@ -1,0 +1,38 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using Unity.VisualScripting.Dependencies.NCalc;
+using UnityEngine;
+using ZGame.Event;
+
+namespace ZGame.Ress.AB
+{
+    public class ABObject
+    {
+        /// <summary>
+        /// name:no prefix,no suffix
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static void Load(string name, Action<UnityEngine.Object> callback, bool sync)
+        {
+            Action<UnityEngine.Object[]> loadFinishHandle = (objs) =>
+            {
+                var obj = objs[0];
+
+                ObjectRes res = new ObjectRes(name, obj);
+                EventDispatcher.Instance.DispatchEvent(EventID.OnABResLoaded, res, sync);
+
+                if (callback != null)
+                {
+                    callback(obj);
+                }
+            };
+
+            AB.Load(name, ABType.Object, (objs) =>
+            {
+                loadFinishHandle(objs);
+            }, sync);
+        }
+    }
+}

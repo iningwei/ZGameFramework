@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using ZGame.Event;
 using ZGame.Ress.AB;
+using static UnityEngine.GraphicsBuffer;
 
 namespace ZGame.Ress
 {
@@ -15,6 +16,22 @@ namespace ZGame.Ress
         Dictionary<int, AudioSource> soundAudioSourceDic = new Dictionary<int, AudioSource>();
 
         Dictionary<string, AudioClip> soundClipDic = new Dictionary<string, AudioClip>();
+        bool isSoundLimitPlaying(string name, int limitCount = 1)
+        {
+            int count = 0;
+            foreach (var item in soundAudioSourceDic)
+            {
+                if (item.Value.isPlaying && item.Value.clip.name == name)
+                {
+                    count++;
+                }
+            }
+            if (count >= limitCount)
+            {
+                return true;
+            }
+            return false;
+        }
         int getFreeSoundAudioSourceID()
         {
             int target = 0;
@@ -113,7 +130,7 @@ namespace ZGame.Ress
                 {
                     bgmAudioSource.Stop();
                 }
-                var res = ABManager.Instance.GetRes(ABType.Audio, bgmAudioSource.clip.name);
+                var res = ABManager.Instance.GetCachedRes(ABType.Audio, bgmAudioSource.clip.name);
                 if (res != null)
                 {
                     res.Destroy();
@@ -176,7 +193,7 @@ namespace ZGame.Ress
                 {
                     bgmAudioSource.Stop();
                 }
-                var res = ABManager.Instance.GetRes(ABType.Audio, bgmAudioSource.clip.name);
+                var res = ABManager.Instance.GetCachedRes(ABType.Audio, bgmAudioSource.clip.name);
                 if (res != null)
                 {
                     res.Destroy();
@@ -205,9 +222,18 @@ namespace ZGame.Ress
             }
         }
 
-        public int PlaySound(string name, bool isLoop = false)
+        public int PlaySound(string name, float volume, bool isLoop = false)
         {
             if (IsSoundEnabled == false)
+            {
+                return 0;
+            }
+            if (name == "0")
+            {
+                return 0;
+            }
+            //限制同时一种声音播放个数
+            if (isSoundLimitPlaying(name, 2))
             {
                 return 0;
             }
@@ -215,17 +241,6 @@ namespace ZGame.Ress
             var audioSourceId = getFreeSoundAudioSourceID();
             var audioSource = soundAudioSourceDic[audioSourceId];
             audioSource.loop = isLoop;
-            //////ABManager.Instance.LoadAudioClip(name, (clip) =>
-            //////{
-            //////    audioSource.clip = clip;
-            //////    audioSource.Play();
-            //////}, true);
-
-            if (name == "0")
-            {
-                return 0;
-            }
-
 
             if (soundClipDic.ContainsKey(name))
             {
@@ -233,12 +248,20 @@ namespace ZGame.Ress
             }
             else
             {
-                var clip = Resources.Load("Audio/" + name, typeof(AudioClip)) as AudioClip;
-                audioSource.clip = clip;
+                //////var clip = Resources.Load("Audio/" + name, typeof(AudioClip)) as AudioClip;
+                //////audioSource.clip = clip; 
+                //////soundClipDic.Add(name, clip);
 
-                soundClipDic.Add(name, clip);
+                //
+                ABManager.Instance.LoadAudioClip(name, (clip) =>
+                {
+                    audioSource.clip = clip;
+                    soundClipDic.Add(name, clip);
+                }, true);
             }
 
+            //设置音量
+            audioSource.volume = volume;
             audioSource.Play();
 
             return audioSourceId;

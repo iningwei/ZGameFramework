@@ -15,7 +15,7 @@ public class ResUpdateTool2 : Editor
             localResVersion = Config.resVersion;
         }
 
-        Debug.Log("localResVersion:" + localResVersion.ToString());
+        Debug.Log("resversion_" + Config.appVersion + ", " + " localResVersion:" + localResVersion.ToString());
     }
 
 
@@ -31,6 +31,21 @@ public class ResUpdateTool2 : Editor
 
         int index = PlayerPrefs.GetInt("maxzippedindex_" + Config.appVersion + "_" + localResVersion, -1);
 
-        Debug.Log("maxzippedindex：" +  index.ToString());
+        Debug.Log("maxzippedindex：" + index.ToString());
+    }
+    [MenuItem("HotUpdate/游戏热更/重置当前资源版本信息和zipped信息")]
+    public static void DoReset()
+    {
+        PlayerPrefs.DeleteAll();
+        PlayerPrefs.Save();
+        Debug.Log("重置完成!");
+    }
+
+    [MenuItem("HotUpdate/游戏热更/重置当前资源版本信息")]
+    public static void DoResetResVersion()
+    {
+        PlayerPrefs.SetString("resversion_" + Config.appVersion, "-1");
+        PlayerPrefs.Save();
+        Debug.Log("设置完成!");
     }
 }

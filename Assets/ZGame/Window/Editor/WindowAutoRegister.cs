@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -12,7 +13,6 @@ public class WindowAutoRegister
     [DidReloadScripts]
     public static void Auto()
     {
-
         gatherWindowName();
 
         registerWindow();
@@ -20,6 +20,55 @@ public class WindowAutoRegister
         AssetDatabase.Refresh();
     }
 
+    static bool isChildOfTargetClass(Type t, Type targetClass)
+    {
+        if (t.BaseType.Name == targetClass.Name)
+        {
+            return true;
+        }
+        else
+        {
+            if (t.BaseType == typeof(System.Object))
+            {
+                return false;
+            }
+            return isChildOfTargetClass(t.BaseType, targetClass);
+        }
+    }
+
+    static bool isIgnoreRegister(Type windowClassT)
+    {
+        bool flag = false;
+
+        var atts = windowClassT.GetCustomAttributes();
+        foreach (var att in atts)
+        {
+            if (att.ToString() == typeof(IgnoreWindowRegisterAttribute).ToString())
+            {
+                flag = true;
+                break;
+            }
+        }
+
+        return flag;
+    }
+
+    static bool isIgnoreGatherName(Type windowClassT)
+    {
+        bool flag = false;
+
+        var atts = windowClassT.GetCustomAttributes();
+        foreach (var att in atts)
+        {
+            if (att.ToString() == typeof(IgnoreWindowNameGatherAttribute).ToString())
+            {
+                flag = true;
+                break;
+            }
+        }
+
+        return flag;
+    }
     static void gatherWindowName()
     {
         Debug.Log("GatherWindowName--->");
@@ -30,11 +79,11 @@ public class WindowAutoRegister
         var assembly = Assembly.Load(buffer);
         foreach (var t in assembly.GetTypes())
         {
-            if (t.IsClass && t.BaseType != null && t.BaseType.Name == typeof(Window).Name && t.Name.EndsWith("Window") && t.Name != "LuaBridgeWindow" && t.Name != "NetMaskWindow" && t.Name != "TipWindow")
+            if (t.IsClass && t.BaseType != null && isChildOfTargetClass(t, typeof(Window)) && t.Name.EndsWith("Window") && isIgnoreGatherName(t) == false)
             {
+
                 str += "\tpublic static string " + t.Name + " = \"" + t.Name + "\";\n";
                 Debug.Log(t.Name);
-
             }
         }
         str += "}";
@@ -69,14 +118,14 @@ public class WindowAutoRegister
         var assembly = Assembly.Load(buffer);
         foreach (var t in assembly.GetTypes())
         {
-            if (t.IsClass && t.BaseType != null && t.BaseType.Name == typeof(Window).Name && t.Name.EndsWith("Window") && t.Name != "LuaBridgeWindow")
+            if (t.IsClass && t.BaseType != null && isChildOfTargetClass(t, typeof(Window)) && t.Name.EndsWith("Window") && isIgnoreRegister(t) == false  )
             {
                 str += $"\t\twinManager.RegisterWindowType(WindowNames.{t.Name},typeof({t.Name}).ToString(),\"{t.Name}\");\n";
                 Debug.Log(t.Name);
             }
         }
         str += "\t}\n";
-        str += "}";
+        str += "}"; 
 
         string writePath = Application.dataPath + "/Scripts/Window/WindowRegister.cs";
         string d = writePath.Substring(0, writePath.LastIndexOf('/'));

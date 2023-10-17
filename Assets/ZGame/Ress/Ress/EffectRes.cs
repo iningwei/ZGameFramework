@@ -23,7 +23,7 @@ namespace ZGame.Ress
         public override void Destroy()
         {
             base.Destroy();
-            ABManager.Instance.RemoveRes(ABType.Effect, this);
+            ABManager.Instance.RemoveCachedRes(ABType.Effect, this);
         }
     }
 }

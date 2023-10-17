@@ -243,8 +243,7 @@ namespace ZGame
 
                 packDataList.Add(data);
             }
-
-
+             
             //------------------------>
             packType = (string)dic["PackType"];
             isRealPurchase = bool.Parse(dic["IsRealPurchase"].ToString());

@@ -8,7 +8,7 @@ namespace ZGame.RessEditor
 {
     public class BuildMat : BuildBase
     {
-         
+
         public override bool Build(Object obj)
         {
             abPrefix = ABTypeUtil.GetPreFix(ABType.Material);
@@ -28,7 +28,7 @@ namespace ZGame.RessEditor
             buildMap[0].assetBundleName = abPrefix + obj.name.ToLower() + IOTools.abSuffix;
             buildMap[0].assetNames = new string[] { path };
             BuildPipeline.BuildAssetBundles(BuildConfig.outputPath, buildMap, BuildConfig.options, EditorUserBuildSettings.activeBuildTarget);
-
+            Debug.Log("-------->build mat bundle:" + obj.name + ", finished");
             AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
             return true;
         }

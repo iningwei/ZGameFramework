@@ -30,10 +30,6 @@ public class ResUpdateTool : ScriptableWizard
     string outputResDir;
 
 
-
-
-
-
     string getLastResVersionCurResDir()
     {
         return Application.dataPath + "/../hotupdate/" + IOTools.PlatformFolderName + "/channel_" + channelId + "/" + appVersion + "/" + (int.Parse(resVersion) - 1) + "/cur/res";
@@ -339,15 +335,16 @@ public class ResUpdateTool : ScriptableWizard
 
             isGetBasicData = true;
         }
-
     }
 
 
     //点击 确认 按钮
     void OnWizardCreate()
     {
+#if XLua
         //打lua代码ab
         BuildLuaBundle.build();
+#endif
 
         bool r = InitDir();
         if (r == false)

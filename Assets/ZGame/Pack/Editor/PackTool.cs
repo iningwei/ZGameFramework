@@ -273,7 +273,7 @@ public class PackTool
         string targetPath = IOTools.CreateFolder(Application.dataPath + "/StreamingAssets/ResEx");
 
         IOTools.MoveFiles(sourcePath, targetPath, true);
-
+        Debug.Log("copy finished");
         AssetDatabase.Refresh();
     }
 

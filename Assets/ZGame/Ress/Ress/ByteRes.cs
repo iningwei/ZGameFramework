@@ -4,7 +4,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using ZGame.Ress.AB;
 
-//Ò»Ğ©×Ô¶¨Òå¶ş½øÖÆ bytes ÎÄ¼ş
+
+//ä¸€äº›è‡ªå®šä¹‰äºŒè¿›åˆ¶ bytes æ–‡ä»¶
 namespace ZGame.Ress
 {
     [Serializable]
@@ -14,9 +15,9 @@ namespace ZGame.Ress
         TextAsset asset;
 
 
-        public ByteRes(string resName, TextAsset resObj) : base(resName, resObj)
+        public ByteRes(string name, TextAsset resObj) : base(name, resObj)
         {
-            this.name = resName;
+            this.name = this.resName;
             this.asset = resObj;
         }
 
@@ -25,12 +26,12 @@ namespace ZGame.Ress
             T result = default(T);
             if (!(typeof(T).Equals(typeof(TextAsset))))
             {
-                Debug.LogError("ÀàĞÍ²»Æ¥Åä TextAsset");
+                Debug.LogError("ç±»å‹ä¸åŒ¹é… TextAsset");
             }
 
             if (this.resName != name)
             {
-                Debug.LogError("error,name²»Æ¥Åä");
+                Debug.LogError("error,nameä¸åŒ¹é…");
             }
 
             result = (T)(object)asset;
@@ -46,10 +47,10 @@ namespace ZGame.Ress
         public override void Destroy()
         {
             base.Destroy();
-            ABManager.Instance.RemoveRes(ABType.Byte, this);
+            ABManager.Instance.RemoveCachedRes(ABType.Byte, this);
         }
     }
 
 
-    
+
 }

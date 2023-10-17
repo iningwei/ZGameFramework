@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Xml.Linq;
@@ -29,24 +29,10 @@ namespace ZGame.Ress.AB
                 }
             };
 
-            if (sync)
+            AB.Load(texName, ABType.Texture, (objs) =>
             {
-                AB.Load(texName, ABType.Texture, (objs) =>
-                {
-                    loadFinishHandle(objs);
-                });
-            }
-            else
-            {
-                AB.LoadAsync(texName, ABType.Texture, (objs) =>
-                {
-                    loadFinishHandle(objs);
-                });
-            }
-
+                loadFinishHandle(objs);
+            }, sync);
         }
-
-
     }
-
 }

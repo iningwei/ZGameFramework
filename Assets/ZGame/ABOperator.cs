@@ -20,7 +20,7 @@ namespace ZGame
     {
         public string name;
         public ABType abType;
-        public bool isAsync = false;
+        public bool isSync = true;
         public bool keepAB = false;
 
 
@@ -36,13 +36,13 @@ namespace ZGame
         }
 
 
-        public ABRes(string name, ABType abType, Action<UnityEngine.Object[]> callback, bool isAsync = false, bool keepAB = false)
+        public ABRes(string name, ABType abType, Action<UnityEngine.Object[]> callback, bool isSync = true, bool keepAB = false)
         {
             this.name = name;
             this.abType = abType;
             this.callback = callback;
             this.keepAB = keepAB;
-            this.isAsync = isAsync;
+            this.isSync = isSync;
 
 
 
@@ -126,7 +126,7 @@ namespace ZGame
 
         public void Add(ABRes res)
         {
-            if (res.isAsync == false)
+            if (res.isSync)
             {
                 var sameAysncRes = removeABResFromAsyncList(res.GetResPath());
                 AssetBundle ab = null;

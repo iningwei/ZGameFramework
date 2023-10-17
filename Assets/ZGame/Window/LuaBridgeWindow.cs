@@ -8,6 +8,8 @@ using ZGame;
 #endif
 using ZGame.Window;
 
+[IgnoreWindowNameGather]
+[IgnoreWindowRegister]
 public class LuaBridgeWindow : Window
 {
 
@@ -38,7 +40,7 @@ public class LuaBridgeWindow : Window
     }
 
     public override void Destroy(bool destroyImmediate)
-    { 
+    {
         base.Destroy(destroyImmediate);
         this.onDestroyFunc?.Invoke();
     }

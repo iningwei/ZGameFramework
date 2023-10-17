@@ -13,11 +13,13 @@ namespace ZGame.Window
         /// The holder window of this page
         /// </summary>
         public Window parentWindow;
-        public Area(GameObject obj, Window window, params object[] paras)
+        public bool initVisible = false;
+        public Area(GameObject obj, Window window, bool initVisible, params object[] paras)
         {
             this.id = IdAssginer.GetID(IdAssginer.IdType.Area);
             this.rootObj = obj;
             this.parentWindow = window;
+            this.initVisible = initVisible;
             AutoLinkUI(this);
             Init(paras);
             AddEventListener();

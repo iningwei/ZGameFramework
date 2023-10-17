@@ -54,7 +54,7 @@ namespace ZGame.RessEditor
                 //SetDirty to it,then call SaveAssets().
                 //But you can still find a * in your editor.
                 //After build scene assetbundle,you can find rootObj's RootCompInfoHolder's attached message lost.
-                 
+
                 //Tested many methods:
                 //keep rootObj is not a prefab,and then SetDirty() to rootObj and scene,but still have chance accur
                 //<----
@@ -64,34 +64,27 @@ namespace ZGame.RessEditor
 
                 AssetDatabase.Refresh();
                 EditorSceneManager.SaveOpenScenes();
-                 
-                List<AssetBundleBuild> finalTexMap = BuildCommand.GetGameObjectAssetBundleBuildMap(rootObj);
 
-                Dictionary<string, bool> texDic = new Dictionary<string, bool>();
+                List<AssetBundleBuild> collectedBuildList = new List<AssetBundleBuild>(BuildCommand.GetGameObjectAssetBundleBuildMap(rootObj).Values);
 
-                //处理真实目标,以及设置依赖关系          
-                //////AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
-                AssetBundleBuild[] buildMap = new AssetBundleBuild[2 + finalTexMap.Count];
-                buildMap[0] = BuildCommand.GetCommonMap();
-                for (int i = 0; i < finalTexMap.Count; i++)
+
+                //处理真实目标,以及设置依赖关系
+                AssetBundleBuild[] finalBuildMap = new AssetBundleBuild[2 + collectedBuildList.Count];
+                finalBuildMap[0] = BuildCommand.GetCommonMap();
+                for (int i = 0; i < collectedBuildList.Count; i++)
                 {
-
-                    texDic[finalTexMap[i].assetBundleName] = true;
-                    //////Debug.LogError("-------->assetBundleName:" + finalTexMap[i].assetBundleName + ",assetNames[0]: " + finalTexMap[i].assetNames[0].ToString());
-
-                    buildMap[i + 1] = finalTexMap[i];
+                    finalBuildMap[i + 1] = collectedBuildList[i];
                 }
-                buildMap[buildMap.Length - 1].assetBundleName = abPrefix + obj.name.ToLower() + IOTools.abSuffix;
-                buildMap[buildMap.Length - 1].assetNames = new string[] { objPath };
+                finalBuildMap[finalBuildMap.Length - 1].assetBundleName = abPrefix + obj.name.ToLower() + IOTools.abSuffix;
+                finalBuildMap[finalBuildMap.Length - 1].assetNames = new string[] { objPath };
 
+                //打印buildMap
+                LogBuildMap(finalBuildMap);
 
-                BuildPipeline.BuildAssetBundles(BuildConfig.outputPath, buildMap, BuildConfig.options, EditorUserBuildSettings.activeBuildTarget);
+                BuildPipeline.BuildAssetBundles(BuildConfig.outputPath, finalBuildMap, BuildConfig.options, EditorUserBuildSettings.activeBuildTarget);
             }
 
-
-
-            DebugExt.Log("-------->build bundle:" + obj.name + ", finished");
-            //////AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
+            Debug.Log("-------->build scene bundle:" + obj.name + ", finished");
             AssetDatabase.Refresh();
             return true;
         }
@@ -156,32 +149,24 @@ namespace ZGame.RessEditor
                 string objPath = AssetDatabase.GetAssetOrScenePath(obj);
 
 
-                List<AssetBundleBuild> finalTexMap = BuildCommand.GetGameObjectAssetBundleBuildMap(rootObj);
+                List<AssetBundleBuild> collectedBuildList = new List<AssetBundleBuild>(BuildCommand.GetGameObjectAssetBundleBuildMap(rootObj).Values);
 
-                Dictionary<string, bool> texDic = new Dictionary<string, bool>();
 
-                //处理真实目标,以及设置依赖关系          
-                //////AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
-                AssetBundleBuild[] buildMap = new AssetBundleBuild[2 + finalTexMap.Count];
-                buildMap[0] = BuildCommand.GetCommonMap();
-                for (int i = 0; i < finalTexMap.Count; i++)
+                //处理真实目标,以及设置依赖关系           
+                AssetBundleBuild[] finalBuildMap = new AssetBundleBuild[2 + collectedBuildList.Count];
+                finalBuildMap[0] = BuildCommand.GetCommonMap();
+                for (int i = 0; i < collectedBuildList.Count; i++)
                 {
-
-                    texDic[finalTexMap[i].assetBundleName] = true;
-                    //////Debug.LogError("-------->assetBundleName:" + finalTexMap[i].assetBundleName + ",assetNames[0]: " + finalTexMap[i].assetNames[0].ToString());
-
-                    buildMap[i + 1] = finalTexMap[i];
+                    finalBuildMap[i + 1] = collectedBuildList[i];
                 }
-                buildMap[buildMap.Length - 1].assetBundleName = abPrefix + obj.name.ToLower() + IOTools.abSuffix;
-                buildMap[buildMap.Length - 1].assetNames = new string[] { objPath };
+                finalBuildMap[finalBuildMap.Length - 1].assetBundleName = abPrefix + obj.name.ToLower() + IOTools.abSuffix;
+                finalBuildMap[finalBuildMap.Length - 1].assetNames = new string[] { objPath };
 
-
-                BuildPipeline.BuildAssetBundles(BuildConfig.outputPath, buildMap, BuildConfig.options, EditorUserBuildSettings.activeBuildTarget);
+                BuildPipeline.BuildAssetBundles(BuildConfig.outputPath, finalBuildMap, BuildConfig.options, EditorUserBuildSettings.activeBuildTarget);
             }
 
-            //////AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
             AssetDatabase.Refresh();
-            DebugExt.Log("-------->build bundle:" + obj.name + ", finished");
+            DebugExt.Log("-------->build scene bundle:" + obj.name + ", finished");
 
             BuildCommand.DeleteAfterBuildAB();
         }
