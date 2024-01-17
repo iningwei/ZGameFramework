@@ -1,4 +1,3 @@
-using Pathfinding;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -218,15 +217,15 @@ public class ArtFastTool
     [MenuItem("GameObject/美术工具/设置自己和所有子物体的TextMeshPro字体为默认字体")]
     static void SetTextMeshProWithDefaultFontAsset()
     {
-        string defaultFontAssetPath = "Assets/ArtResources/Font/arial SDF.asset";
+        string defaultFontAssetPath = BuildConfig.defaultTMPTextFontPath;
         var selectObj = Selection.activeGameObject;
         var objs = selectObj.GetComponentsInChildren(typeof(Transform), true);
         for (int i = 0; i < objs.Length; i++)
         {
             var obj = objs[i];
-            //TextMeshProUGUI
+            //TextMeshPro UGUI
             var tm = obj.GetComponent<TextMeshProUGUI>();
-            if (tm != null && (tm.font == null || tm.font.name == "LiberationSans SDF"))
+            if (tm != null && (tm.font == null || tm.font.name != BuildConfig.defaultTMPTextFontName))
             {
                 TMP_FontAsset s = AssetDatabase.LoadAssetAtPath(defaultFontAssetPath, typeof(TMP_FontAsset)) as TMP_FontAsset;
                 if (s == null)
@@ -240,19 +239,22 @@ public class ArtFastTool
             }
 
 
-            //TextMeshProUGUI
+            //TextMeshPro InputField
             var tm_input = obj.GetComponent<TMP_InputField>();
-            if (tm_input != null && (tm_input.fontAsset == null || tm_input.fontAsset.name == "LiberationSans SDF"))
+            if (tm_input != null)
             {
-                TMP_FontAsset s = AssetDatabase.LoadAssetAtPath(defaultFontAssetPath, typeof(TMP_FontAsset)) as TMP_FontAsset;
-                if (s == null)
+                if ((tm_input.fontAsset == null || tm_input.fontAsset.name != BuildConfig.defaultTMPTextFontName))
                 {
-                    Debug.LogError("error, s is null");
-                }
+                    TMP_FontAsset s = AssetDatabase.LoadAssetAtPath(defaultFontAssetPath, typeof(TMP_FontAsset)) as TMP_FontAsset;
+                    if (s == null)
+                    {
+                        Debug.LogError("error, s is null");
+                    }
 
-                tm_input.fontAsset = s;
-                Debug.Log($"set TMP_InputField with default Font,path:{tm_input.transform.GetHierarchy()}");
-                EditorUtility.SetDirty(tm_input);
+                    tm_input.fontAsset = s;
+                    Debug.Log($"set TMP_InputField with default Font,path:{tm_input.transform.GetHierarchy()}");
+                    EditorUtility.SetDirty(tm_input);
+                }
             }
 
         }
@@ -321,8 +323,8 @@ public class ArtFastTool
 
 
     //TODO:改变字体后，预制件并没有变化，无法apply，需要手动改个参数才能apply.
-    [MenuItem("GameObject/美术工具/替换默认Arial字体为项目默认字体")]
-    static void ReplaceTextArialWithDefault()
+    [MenuItem("GameObject/美术工具/替换Legacy字体为项目默认字体")]
+    static void SetLegacyTextWithDefaultFont()
     {
         string defaultTextFontPath = BuildConfig.defaultTextFontPath;
 
@@ -441,7 +443,18 @@ public class ArtFastTool
     {
         SetDefaultMaterial();
         SetUIDefaultTex();
-        //SetTextMeshProWithDefaultFontAsset();
-        ReplaceTextArialWithDefault();
+        if (BuildConfig.textType == TextType.TMP)
+        {
+            SetTextMeshProWithDefaultFontAsset();
+        }
+        else if (BuildConfig.textType == TextType.Legacy)
+        {
+
+            SetLegacyTextWithDefaultFont();
+        }
+        else
+        {
+            Debug.LogError("TODO:");
+        }
     }
 }

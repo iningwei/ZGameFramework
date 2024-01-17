@@ -1,3 +1,4 @@
+using AYellowpaper.SerializedCollections;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -30,14 +31,21 @@ namespace ZGame.Ress
         {
             this.resObj = resObj;
         }
-        public virtual T GetRes<T>(string name)
+        public virtual T GetResAsset<T>()
         {
             return default;
         }
 
+        public virtual T GetResAsset<T>(string name)
+        {
+            if (!(typeof(T).Equals(typeof(Sprite))))
+            {
+                Debug.LogError("Only SpriteRes used this method,please change method without name param");
+            }
+            return default;
+        }
 
-        public List<Transform> refTrsList = new List<Transform>();//依赖该资源的Transform,主要用于inspector界面展示用
-        public Dictionary<int, Transform> refTrsDic = new Dictionary<int, Transform>();//key为Transform的ID
+        public SerializedDictionary<int, Transform> refTrsDic = new SerializedDictionary<int, Transform>();//key为Transform的ID
 
         [SerializeField, SetProperty("refTrsCount")]
         int _refTrsCount;
@@ -57,26 +65,24 @@ namespace ZGame.Ress
 
         public void AddRefTrs(Transform refTrs)
         {
-            if (!this.refTrsList.Contains(refTrs))
-            {
-                this.refTrsList.Add(refTrs);
-                refTrsCount = this.refTrsList.Count;
-
-                var id = refTrs.GetInstanceID();
-                refTrsDic.Add(id, refTrs);
-            }
+            var id = refTrs.GetInstanceID();
+            //////if (this.refTrsDic.ContainsKey(id))
+            //////{
+            //////    Debug.LogError(this.resName + " already contain ref tran:" + refTrs.GetHierarchy());
+            //////}
+            refTrsDic[id] = refTrs;
+            refTrsCount = this.refTrsDic.Count;
         }
 
         public void RemoveRefTrs(Transform refTrs)
         {
-            if (this.refTrsList.Contains(refTrs))
+            var id = refTrs.GetInstanceID();
+            if (this.refTrsDic.ContainsKey(id))
             {
-                this.refTrsList.Remove(refTrs);
-                refTrsCount = this.refTrsList.Count;
+                refTrsDic.Remove(id);
 
-                refTrsDic.Remove(refTrs.GetInstanceID());
-
-                if (this.refTrsList.Count == 0)
+                refTrsCount = this.refTrsDic.Count;
+                if (refTrsCount == 0)
                 {
                     //TODO:后续引入驻留机制
                     this.Destroy();
@@ -84,7 +90,7 @@ namespace ZGame.Ress
             }
         }
 
-        public bool CheckRefTrs(Transform refTrs)
+        public bool ContainRefTrs(Transform refTrs)
         {
             var f = this.refTrsDic.ContainsKey(refTrs.GetInstanceID());
             return f;
@@ -95,7 +101,6 @@ namespace ZGame.Ress
             if (resObj != null)
             {
                 GameObject.DestroyImmediate(resObj, true);
-
             }
         }
     }

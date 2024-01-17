@@ -1,5 +1,4 @@
-using AYellowpaper.SerializedCollections;
-using FSG.MeshAnimator.ShaderAnimated;
+ 
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -16,241 +15,6 @@ using ZGame.UGUIExtention;
 
 namespace ZGame.Ress.AB
 {
-    public class ABCache : SingletonMonoBehaviour<ABCache>
-    {
-        public SerializedDictionary<string, SpriteRes> spriteCacheDic = new SerializedDictionary<string, SpriteRes>();
-
-        public SerializedDictionary<string, TextureRes> textureCacheDic = new SerializedDictionary<string, TextureRes>();
-        public SerializedDictionary<string, MatRes> matCacheDic = new SerializedDictionary<string, MatRes>();
-        public SerializedDictionary<string, AudioRes> audioCacheDic = new SerializedDictionary<string, AudioRes>();
-        public SerializedDictionary<string, MeshRes> meshCacheDic = new SerializedDictionary<string, MeshRes>();
-        public SerializedDictionary<string, ObjectRes> objectCacheDic = new SerializedDictionary<string, ObjectRes>();
-
-
-
-        public SerializedDictionary<string, WindowRes> windowCacheDic = new SerializedDictionary<string, WindowRes>();
-        public SerializedDictionary<string, EffectRes> effectCacheDic = new SerializedDictionary<string, EffectRes>();
-        public SerializedDictionary<string, OtherPrefabRes> otherPrefabCacheDic = new SerializedDictionary<string, OtherPrefabRes>();
-
-
-        public void RemoveRes(Res res)
-        {
-            if (res is SpriteRes)
-            {
-                spriteCacheDic.Remove(res.resName);
-            }
-            else if (res is TextureRes)
-            {
-                textureCacheDic.Remove(res.resName);
-            }
-            else if (res is MatRes)
-            {
-                matCacheDic.Remove(res.resName);
-            }
-            else if (res is AudioRes)
-            {
-                audioCacheDic.Remove(res.resName);
-            }
-            else if (res is MeshRes)
-            {
-                meshCacheDic.Remove(res.resName);
-            }
-            else if (res is ObjectRes)
-            {
-                objectCacheDic.Remove(res.resName);
-            }
-
-            else if (res is WindowRes)
-            {
-                windowCacheDic.Remove(res.resName);
-            }
-            else if (res is EffectRes)
-            {
-                effectCacheDic.Remove(res.resName);
-            }
-            else if (res is OtherPrefabRes)
-            {
-                otherPrefabCacheDic.Remove(res.resName);
-            }
-        }
-
-        public void RemoveRes(GameObject targetObj, ABType abType)
-        {
-            string targetKey = "";
-            switch (abType)
-            {
-                case ABType.Effect:
-                    foreach (var item in effectCacheDic)
-                    {
-                        if (item.Value.resObj == targetObj)
-                        {
-                            targetKey = item.Key;
-                            break;
-                        }
-                    }
-                    if (targetKey != "")
-                    {
-                        effectCacheDic.Remove(targetKey);
-                    }
-                    break;
-                case ABType.Window:
-
-                    foreach (var item in windowCacheDic)
-                    {
-                        if (item.Value.resObj == targetObj)
-                        {
-                            targetKey = item.Key;
-                            break;
-                        }
-                    }
-                    if (targetKey != "")
-                    {
-                        windowCacheDic.Remove(targetKey);
-                    }
-                    break;
-                case ABType.OtherPrefab:
-                    foreach (var item in otherPrefabCacheDic)
-                    {
-                        if (item.Value.resObj == targetObj)
-                        {
-                            targetKey = item.Key;
-                            break;
-                        }
-                    }
-                    if (targetKey != "")
-                    {
-                        otherPrefabCacheDic.Remove(targetKey);
-                    }
-                    break;
-                default:
-                    Debug.Log("not supported yet, abType:" + abType);
-                    break;
-
-            }
-        }
-
-        public void AddRes(Res res)
-        {
-            if (res is SpriteRes)
-            {
-                if (this.spriteCacheDic.ContainsKey(res.resName) == false)
-                {
-                    this.spriteCacheDic[res.resName] = res as SpriteRes;
-                }
-            }
-            else if (res is TextureRes)
-            {
-                if (this.textureCacheDic.ContainsKey(res.resName) == false)
-                {
-                    this.textureCacheDic[res.resName] = res as TextureRes;
-                }
-            }
-            else if (res is MatRes)
-            {
-                if (this.matCacheDic.ContainsKey(res.resName) == false)
-                {
-                    this.matCacheDic[res.resName] = res as MatRes;
-                }
-            }
-            else if (res is AudioRes)
-            {
-                if (this.audioCacheDic.ContainsKey(res.resName) == false)
-                {
-                    this.audioCacheDic[res.resName] = res as AudioRes;
-                }
-            }
-            else if (res is MeshRes)
-            {
-                if (this.meshCacheDic.ContainsKey(res.resName) == false)
-                {
-                    this.meshCacheDic[res.resName] = res as MeshRes;
-                }
-            }
-            else if (res is ObjectRes)
-            {
-                if (this.objectCacheDic.ContainsKey(res.resName) == false)
-                {
-                    this.objectCacheDic[res.resName] = res as ObjectRes;
-                }
-            }
-            else if (res is PrefabRes)
-            {
-                if (res is WindowRes)
-                {
-                    if (this.windowCacheDic.ContainsKey(res.resName) == false)
-                    {
-                        this.windowCacheDic[res.resName] = res as WindowRes;
-                    }
-                }
-                else if (res is OtherPrefabRes)
-                {
-                    if (this.otherPrefabCacheDic.ContainsKey(res.resName) == false)
-                    {
-                        this.otherPrefabCacheDic[res.resName] = res as OtherPrefabRes;
-                    }
-                }
-                else if (res is EffectRes)
-                {
-                    if (this.effectCacheDic.ContainsKey(res.resName) == false)
-                    {
-                        this.effectCacheDic[res.resName] = res as EffectRes;
-                    }
-                }
-            }
-
-        }
-
-        public Res GetRes(string name, ABType abType)
-        {
-            if (abType == ABType.Sprite)
-            {
-                if (this.spriteCacheDic.ContainsKey(name))
-                {
-                    return this.spriteCacheDic[name];
-                }
-            }
-            else if (abType == ABType.Texture)
-            {
-                if (this.textureCacheDic.ContainsKey(name))
-                {
-                    return this.textureCacheDic[name];
-                }
-            }
-            else if (abType == ABType.Material)
-            {
-                if (this.matCacheDic.ContainsKey(name))
-                {
-                    return this.matCacheDic[name];
-                }
-            }
-            else if (abType == ABType.Audio)
-            {
-                if (this.audioCacheDic.ContainsKey(name))
-                {
-                    return this.audioCacheDic[name];
-                }
-            }
-            else if (abType == ABType.Mesh)
-            {
-                if (this.meshCacheDic.ContainsKey(name))
-                {
-                    return this.meshCacheDic[name];
-                }
-            }
-            else if (abType == ABType.Object)
-            {
-                if (this.objectCacheDic.ContainsKey(name))
-                {
-                    return this.objectCacheDic[name];
-                }
-            }
-            //其它类型不走缓存，有必要自己通过对象池来实现
-
-            return null;
-        }
-    }
-
-
     public class ABManager : Singleton<ABManager>
     {
         bool isInit = false;
@@ -273,15 +37,17 @@ namespace ZGame.Ress.AB
                     }
 
                     EventDispatcher.Instance.AddListener(EventID.OnABResLoaded, onABResLoaded);
-                    EventDispatcher.Instance.AddListener(EventID.OnRootObjDestroy, onRootObjDestroy);
-                    EventDispatcher.Instance.AddListener(EventID.OnChildObjDestroy, onChildObjDestroy);
+                    EventDispatcher.Instance.AddListener(EventID.OnRootCompInfoHolderObjDestroy, onRootCompObjDestroy);
+                    EventDispatcher.Instance.AddListener(EventID.OnCompInfoHolderChildObjDestroy, onCompInfoHolderChildObjDestroy);
 
-                    EventDispatcher.Instance.AddListener(EventID.OnGameObjectInstantiate, onGameObjectInstantiate);
+
+                    EventDispatcher.Instance.AddListener(EventID.OnDynamicCompInfoHolderObjInstantiate, onDynamicCompInfoHolderObjInstantiate);
                     isInit = true;
 
                 }, true, true);// load common ab,we can not call ab.Unload(false) , otherwise shader will miss on mobile/PC devices!so set keep AB status is true.
             }
         }
+
 
 
         public void RemoveCachedRes(ABType abType, Res res)
@@ -292,22 +58,24 @@ namespace ZGame.Ress.AB
         {
             ABCache.Instance.RemoveRes(obj, abType);
         }
-        public Res GetCachedRes(ABType abType, string name)
+        public T GetCachedRes<T>(string name) where T : Res
         {
-            return ABCache.Instance.GetRes(name, abType);
+            return ABCache.Instance.GetRes<T>(name);
         }
 
 
-        private void onGameObjectInstantiate(string evtId, object[] paras)
+        private void onDynamicCompInfoHolderObjInstantiate(string evtId, object[] paras)
         {
             GameObject obj = paras[0] as GameObject;
             DynamicCompInfoHolder dynamicHolder = obj.GetComponent<DynamicCompInfoHolder>();
             if (dynamicHolder != null)
             {
                 this.fillReferenceOfDynamicCompInfoHolder(obj);
-                this.AddDestroyNotice(obj);
+
             }
 
+
+            //TODO:一般不会直接对带有RootCompInfoHolder的prefab直接instantiate
             //////RootCompInfoHolder rootCompInfoHolder = obj.GetComponent<RootCompInfoHolder>();
             //////if (rootCompInfoHolder != null)
             //////{
@@ -317,12 +85,16 @@ namespace ZGame.Ress.AB
 
         }
 
-        private void onChildObjDestroy(string evtId, object[] paras)
+
+        private void onCompInfoHolderChildObjDestroy(string evtId, object[] paras)
         {
             GameObject obj = paras[0] as GameObject;
             removeSpriteReference(obj.transform);
             removeTextureReference(obj.transform);
             removeMatReference(obj.transform);
+            removeMeshReference(obj.transform);
+            removeAnimatorControllerReference(obj.transform);
+            removeObjectReference(obj.transform);
         }
 
         void removeSpriteReference(Transform trans)
@@ -333,10 +105,10 @@ namespace ZGame.Ress.AB
             for (int j = spriteCacheList.Count - 1; j >= 0; j--)
             {
                 sr = spriteCacheList[j];
-                if (sr.CheckRefTrs(trans))
-                {
-                    sr.RemoveRefTrs(trans);
-                }
+                //////if (sr.ContainRefTrs(trans))
+                //////{
+                sr.RemoveRefTrs(trans);
+                //////}
             }
 
         }
@@ -348,10 +120,10 @@ namespace ZGame.Ress.AB
             for (int j = textureCacheList.Count - 1; j >= 0; j--)
             {
                 tr = textureCacheList[j];
-                if (tr.CheckRefTrs(trans))
-                {
-                    tr.RemoveRefTrs(trans);
-                }
+                //////if (tr.ContainRefTrs(trans))
+                //////{
+                tr.RemoveRefTrs(trans);
+                //////}
             }
 
         }
@@ -363,13 +135,48 @@ namespace ZGame.Ress.AB
             for (int j = matCacheList.Count - 1; j >= 0; j--)
             {
                 mr = matCacheList[j];
-                if (mr.CheckRefTrs(trans))
-                {
-                    mr.RemoveRefTrs(trans);
-                }
+                //////if (mr.ContainRefTrs(trans))
+                //////{
+                mr.RemoveRefTrs(trans);
+                //////}
             }
         }
-        void onRootObjDestroy(string evtId, object[] paras)
+
+        void removeMeshReference(Transform trans)
+        {
+            var meshCacheList = new List<MeshRes>(ABCache.Instance.meshCacheDic.Values);
+            MeshRes mr;
+            for (int j = meshCacheList.Count - 1; j >= 0; j--)
+            {
+                mr = meshCacheList[j];
+                //////if (mr.ContainRefTrs(trans))
+                //////{
+                mr.RemoveRefTrs(trans);
+                //////}
+            }
+        }
+        void removeObjectReference(Transform trans)
+        {
+            var objectCacheList = new List<ObjectRes>(ABCache.Instance.objectCacheDic.Values);
+            ObjectRes objectRes;
+            for (int i = objectCacheList.Count - 1; i >= 0; i--)
+            {
+                objectRes = objectCacheList[i];
+                objectRes.RemoveRefTrs(trans);
+            }
+        }
+        void removeAnimatorControllerReference(Transform trans)
+        {
+            var acCacheList = new List<AnimatorControllerRes>(ABCache.Instance.animatorControllerCacheDic.Values);
+            AnimatorControllerRes acRes;
+            for (int i = acCacheList.Count - 1; i >= 0; i--)
+            {
+                acRes = acCacheList[i];
+                acRes.RemoveRefTrs(trans);
+            }
+        }
+
+        void onRootCompObjDestroy(string evtId, object[] paras)
         {
             GameObject obj = paras[0] as GameObject;
             RootCompInfoHolder holder = obj.GetComponent<RootCompInfoHolder>();
@@ -380,9 +187,9 @@ namespace ZGame.Ress.AB
             }
         }
 
-        public void AddDestroyNotice(GameObject rootObj)
+        public void AddRootCompInfoHolderDestroyNotice(GameObject rootObj)
         {
-            rootObj.GetOrAddComponent<OnObjDestroyNotice>();
+            rootObj.GetOrAddComponent<OnRootCompInfoHolderObjDestroyNotice>();
         }
         private void onABResLoaded(string evtId, object[] paras)
         {
@@ -394,80 +201,16 @@ namespace ZGame.Ress.AB
                 sync = bool.Parse(paras[1].ToString());
             }
 
-            if (res is WindowRes)
+            if (res is PrefabRes)
             {
-                WindowRes wRes = res as WindowRes;
-
-                GameObject obj = wRes.resObj as GameObject;
+                GameObject obj = res.resObj as GameObject;
                 FillReferenceOfRootCompInfoHolder(obj, sync);
-                this.AddDestroyNotice(obj);
+                this.AddRootCompInfoHolderDestroyNotice(obj);
+                res.AddRefTrs(obj.transform);
+            }
+            ABCache.Instance.AddRes(res);
 
-                wRes.AddRefTrs(obj.transform);
-
-
-                ABCache.Instance.AddRes(wRes);
-            }
-            else if (res is EffectRes)
-            {
-                EffectRes effRes = res as EffectRes;
-
-                GameObject obj = effRes.resObj as GameObject;
-                FillReferenceOfRootCompInfoHolder(obj, sync);
-                this.AddDestroyNotice(obj);
-
-                effRes.AddRefTrs(obj.transform);
-
-                ABCache.Instance.AddRes(effRes);
-            }
-            else if (res is OtherPrefabRes)
-            {
-                OtherPrefabRes opRes = res as OtherPrefabRes;
-                GameObject obj = opRes.resObj as GameObject;
-                FillReferenceOfRootCompInfoHolder(obj, sync);
-                this.AddDestroyNotice(obj);
-
-                opRes.AddRefTrs(obj.transform);
-
-                ABCache.Instance.AddRes(opRes);
-            }
-            else if (res is SpriteRes)
-            {
-                SpriteRes sRes = res as SpriteRes;
-
-                ABCache.Instance.AddRes(sRes);
-            }
-            else if (res is TextureRes)
-            {
-                TextureRes tRes = res as TextureRes;
-                ABCache.Instance.AddRes(tRes);
-            }
-            else if (res is MatRes)
-            {
-                MatRes matRes = res as MatRes;
-                ABCache.Instance.AddRes(matRes);
-            }
-            else if (res is MeshRes)
-            {
-                MeshRes meshRes = res as MeshRes;
-                ABCache.Instance.AddRes(meshRes);
-            }
-            else if (res is AudioRes)
-            {
-                AudioRes aRes = res as AudioRes;
-                ABCache.Instance.AddRes(aRes);
-            }
-            else if (res is ObjectRes)
-            {
-                ObjectRes oRes = res as ObjectRes;
-                ABCache.Instance.AddRes(oRes);
-            }
-            else
-            {
-                Debug.LogError("onABResLoaded TODO::::" + res.resName);
-            }
         }
-
-
 
 
         public void LoadWindow(string name, Action<UnityEngine.Object> callback, bool sync)
@@ -543,9 +286,7 @@ namespace ZGame.Ress.AB
                     DebugExt.LogE("can not find shader:" + shaderName);
                 }
             }
-
 #endif
-
         }
 
         void fillReferenceOfDynamicCompInfoHolder(GameObject target)
@@ -565,10 +306,10 @@ namespace ZGame.Ress.AB
                     Transform childTarget = item.tran;
                     if (item.refSprites != null && item.refSprites.Count > 0)
                     {
-                        ImgRes imgRes = this.GetCachedRes(ABType.Sprite, item.refSprites[0].atlasName) as ImgRes;
-                        if (imgRes != null)
+                        SpriteRes spriteRes = this.GetCachedRes<SpriteRes>(item.refSprites[0].atlasName);
+                        if (spriteRes != null)
                         {
-                            imgRes.AddRefTrs(childTarget);
+                            spriteRes.AddRefTrs(childTarget);
                         }
                         else
                         {
@@ -577,7 +318,7 @@ namespace ZGame.Ress.AB
                     }
                     if (item.matIndex != -1)
                     {
-                        MatRes matRes = this.GetCachedRes(ABType.Material, item.matName) as MatRes;
+                        MatRes matRes = this.GetCachedRes<MatRes>(item.matName);
                         if (matRes != null)
                         {
                             matRes.AddRefTrs(childTarget);
@@ -590,6 +331,42 @@ namespace ZGame.Ress.AB
                 }
             }
 
+            //-------------->BuildIn RawImage
+            if (holder.buildInCompRawImageInfos != null && holder.buildInCompRawImageInfos.Count > 0)
+            {
+                foreach (var item in holder.buildInCompRawImageInfos)
+                {
+                    Transform childTarget = item.tran;
+                    if (!string.IsNullOrEmpty(item.texName))
+                    {
+                        TextureRes texRes = this.GetCachedRes<TextureRes>(item.texName);
+                        if (texRes != null)
+                        {
+                            texRes.AddRefTrs(childTarget);
+                        }
+                        else
+                        {
+                            Debug.LogError("error, please check Image");
+                        }
+                    }
+                    if (item.matIndex != -1)
+                    {
+                        MatRes matRes = this.GetCachedRes<MatRes>(item.matName);
+                        if (matRes != null)
+                        {
+                            matRes.AddRefTrs(childTarget);
+                        }
+                        else
+                        {
+                            Debug.LogError("error, please check mat");
+                        }
+                    }
+                }
+            }
+
+
+
+
             //-------------->BuildIn SpriteRenderer
             if (holder.buildInCompSpriteRendererInfos != null && holder.buildInCompSpriteRendererInfos.Count > 0)
             {
@@ -598,10 +375,10 @@ namespace ZGame.Ress.AB
                     Transform childTarget = item.tran;
                     if (item.refSprites != null && item.refSprites.Count > 0)
                     {
-                        ImgRes imgRes = this.GetCachedRes(ABType.Sprite, item.refSprites[0].atlasName) as ImgRes;
-                        if (imgRes != null)
+                        SpriteRes spriteRes = this.GetCachedRes<SpriteRes>(item.refSprites[0].atlasName);
+                        if (spriteRes != null)
                         {
-                            imgRes.AddRefTrs(childTarget);
+                            spriteRes.AddRefTrs(childTarget);
                         }
                         else
                         {
@@ -610,7 +387,7 @@ namespace ZGame.Ress.AB
                     }
                     if (item.matIndex != -1)
                     {
-                        MatRes matRes = this.GetCachedRes(ABType.Material, item.matName) as MatRes;
+                        MatRes matRes = this.GetCachedRes<MatRes>(item.matName);
                         if (matRes != null)
                         {
                             matRes.AddRefTrs(childTarget);
@@ -631,10 +408,10 @@ namespace ZGame.Ress.AB
                     Transform childTarget = item.tran;
                     for (int k = 0; k < item.refTextures.Count; k++)
                     {
-                        ImgRes imgRes = this.GetCachedRes(ABType.Texture, item.refTextures[k].texName) as ImgRes;
-                        if (imgRes != null)
+                        TextureRes texRes = this.GetCachedRes<TextureRes>(item.refTextures[k].texName);
+                        if (texRes != null)
                         {
-                            imgRes.AddRefTrs(childTarget);
+                            texRes.AddRefTrs(childTarget);
                         }
                         else
                         {
@@ -654,10 +431,10 @@ namespace ZGame.Ress.AB
                     {
                         for (int i = 0; i < item.refSprites.Count; i++)
                         {
-                            ImgRes imgRes = this.GetCachedRes(ABType.Sprite, item.refSprites[i].atlasName) as ImgRes;
-                            if (imgRes != null)
+                            SpriteRes spriteRes = this.GetCachedRes<SpriteRes>(item.refSprites[i].atlasName);
+                            if (spriteRes != null)
                             {
-                                imgRes.AddRefTrs(childTarget);
+                                spriteRes.AddRefTrs(childTarget);
                             }
                             else
                             {
@@ -670,19 +447,19 @@ namespace ZGame.Ress.AB
             }
 
             //-------------->Ext SpriteSequence
-            if (holder.extCompSpriteSequenceInfos != null && holder.extCompSpriteSequenceInfos.Count > 0)
+            if (holder.extCompSpriteRendererSequenceInfos != null && holder.extCompSpriteRendererSequenceInfos.Count > 0)
             {
-                foreach (var item in holder.extCompSpriteSequenceInfos)
+                foreach (var item in holder.extCompSpriteRendererSequenceInfos)
                 {
                     Transform childTarget = item.tran;
                     if (item.refSprites != null && item.refSprites.Count > 0)
                     {
                         for (int i = 0; i < item.refSprites.Count; i++)
                         {
-                            ImgRes imgRes = this.GetCachedRes(ABType.Sprite, item.refSprites[i].atlasName) as ImgRes;
-                            if (imgRes != null)
+                            SpriteRes spriteRes = this.GetCachedRes<SpriteRes>(item.refSprites[i].atlasName);
+                            if (spriteRes != null)
                             {
-                                imgRes.AddRefTrs(childTarget);
+                                spriteRes.AddRefTrs(childTarget);
                             }
                             else
                             {
@@ -703,10 +480,10 @@ namespace ZGame.Ress.AB
                     {
                         for (int i = 0; i < item.refSprites.Count; i++)
                         {
-                            ImgRes imgRes = this.GetCachedRes(ABType.Sprite, item.refSprites[i].atlasName) as ImgRes;
-                            if (imgRes != null)
+                            SpriteRes spriteRes = this.GetCachedRes<SpriteRes>(item.refSprites[i].atlasName);
+                            if (spriteRes != null)
                             {
-                                imgRes.AddRefTrs(childTarget);
+                                spriteRes.AddRefTrs(childTarget);
                             }
                             else
                             {
@@ -733,130 +510,30 @@ namespace ZGame.Ress.AB
                 return;
             }
 
-
+            //TODO:改成通过反射的方式调用
             //----------------->BuildIn Image
             if (holder.buildInCompImageInfos != null && holder.buildInCompImageInfos.Count > 0)
             {
-
                 foreach (var item in holder.buildInCompImageInfos)
                 {
-                    Transform childTarget = item.tran;
-                    Material imageMat = null;
-                    if (item.matIndex != -1)
-                    {
-                        this.LoadMatWithCheck(item.matName, (mat) =>
-                        {
-                            imageMat = mat;
-                            item.concreteCompImage.material = imageMat;
-                        }, item.tran);
-                    }
-                    if (imageMat != null)
-                    {
-                        //add mat ref 
-                        MatRes matRes = this.GetCachedRes(ABType.Material, item.matName) as MatRes;
-                        matRes.AddRefTrs(childTarget);
-                        if (item.refSprites != null && item.refSprites.Count > 0)
-                        {
-                            LoadSpriteToTarget<Image>(item.concreteCompImage, item.refSprites[0].atlasName, item.refSprites[0].spriteName, sync);
-                        }
-
-                        ResetEditorShader(childTarget, imageMat, item.shaderName);
-                    }
-
+                    item.FillCompElement(sync);
                 }
             }
             //-------------->BuildIn RawImage
             if (holder.buildInCompRawImageInfos != null && holder.buildInCompRawImageInfos.Count > 0)
             {
-
                 foreach (var item in holder.buildInCompRawImageInfos)
                 {
-                    Transform childTarget = item.tran;
-                    Material rawImgMat = null;
-                    if (item.matIndex != -1)
-                    {
-                        this.LoadMatWithCheck(item.matName, (mat) =>
-                        {
-                            rawImgMat = mat;
-                            item.concreteCompRawImage.material = mat;
-                        }, item.tran);
-                    }
-                    if (rawImgMat != null)
-                    {
-                        //add mat ref 
-                        MatRes matRes = this.GetCachedRes(ABType.Material, item.matName) as MatRes;
-                        matRes.AddRefTrs(childTarget);
-
-                        if (item.texName != "")
-                        {
-
-                            LoadTexture(item.texName, (tex) =>
-                            {
-                                var oldTex = item.concreteCompRawImage.texture;
-                                string oldTexName = null;
-                                if (oldTex != null)
-                                {
-                                    oldTexName = oldTex.name;
-                                }
-
-                                item.concreteCompRawImage.texture = tex;
-
-                                //remove old ref
-                                if (string.IsNullOrEmpty(oldTexName) == false && oldTexName != item.texName)
-                                {
-                                    var oldRes = this.GetCachedRes(ABType.Texture, oldTexName);
-                                    if (oldRes != null)
-                                    {
-                                        oldRes.RemoveRefTrs(item.tran);
-                                    }
-                                }
-
-                                //add ref
-                                if (item.tran != null)
-                                {
-                                    TextureRes texRes = this.GetCachedRes(ABType.Texture, item.texName) as TextureRes;
-                                    texRes.AddRefTrs(item.tran);
-                                }
-
-                            }, sync);
-                        }
-
-                        ResetEditorShader(childTarget, rawImgMat, item.shaderName);
-                    }
-
+                    item.FillCompElement(sync);
                 }
             }
-
 
             //-------------->BuildIn SpriteRenderer
             if (holder.buildInCompSpriteRendererInfos != null && holder.buildInCompSpriteRendererInfos.Count > 0)
             {
                 foreach (var item in holder.buildInCompSpriteRendererInfos)
                 {
-                    Transform childTarget = item.tran;
-                    Material srMat = null;
-                    if (item.matIndex != -1)
-                    {
-                        LoadMatWithCheck(item.matName, (mat) =>
-                        {
-                            srMat = mat;
-                            item.concreteCompSpriteRenderer.material = srMat;
-
-                        }, item.tran);
-                    }
-                    if (srMat != null)
-                    {
-                        //add mat ref 
-                        MatRes matRes = this.GetCachedRes(ABType.Material, item.matName) as MatRes;
-                        matRes.AddRefTrs(childTarget);
-                        if (item.refSprites != null && item.refSprites.Count > 0)
-                        {
-                            LoadSpriteToTarget<SpriteRenderer>(childTarget.GetComponent<SpriteRenderer>(), item.refSprites[0].atlasName,
-                                                   item.refSprites[0].spriteName, sync);
-                        }
-
-                        ResetEditorShader(childTarget, srMat, item.shaderName);
-                    }
+                    item.FillCompElement(sync);
                 }
             }
             //-------------->BuildIn Text
@@ -864,25 +541,7 @@ namespace ZGame.Ress.AB
             {
                 foreach (var item in holder.buildInCompTextInfos)
                 {
-                    Transform childTarget = item.tran;
-                    Material textMat = null;
-                    if (item.matIndex != -1)
-                    {
-                        LoadMatWithCheck(item.matName, (mat) =>
-                        {
-                            textMat = mat;
-                            item.concreteCompText.material = textMat;
-
-                        }, item.tran);
-                    }
-                    if (textMat != null)
-                    {
-                        //add mat ref 
-                        MatRes matRes = this.GetCachedRes(ABType.Material, item.matName) as MatRes;
-                        matRes.AddRefTrs(childTarget);
-
-                        ResetEditorShader(childTarget, textMat, item.shaderName);
-                    }
+                    item.FillCompElement(sync);
                 }
             }
             //-------->BuildIn TextMeshProUGUI
@@ -890,108 +549,91 @@ namespace ZGame.Ress.AB
             {
                 foreach (var item in holder.buildInCompTextMeshProUGUIInfos)
                 {
-                    Transform childTarget = item.tran;
-                    Material tmpTxtMat = null;
-                    if (item.matIndex != -1)
-                    {
-                        LoadMatWithCheck(item.matName, (mat) =>
-                        {
-                            tmpTxtMat = mat;
-                            item.concreteCompTextMeshProUGUI.material = tmpTxtMat;
-
-                        }, item.tran);
-                    }
-                    if (tmpTxtMat != null)
-                    {
-                        //add mat ref 
-                        MatRes matRes = this.GetCachedRes(ABType.Material, item.matName) as MatRes;
-                        matRes.AddRefTrs(childTarget);
-
-                        ResetEditorShader(childTarget, tmpTxtMat, item.shaderName);
-                    }
+                    item.FillCompElement(sync);
                 }
             }
 
             //-------------->BuildIn Renderer
             if (holder.buildInCompRendererInfos != null && holder.buildInCompRendererInfos.Count > 0)
             {
-                //Debug.Log(target.name + ", buildInRenderer count:" + holder.buildInCompRendererInfos.Count + ", sync:" + sync.ToString());
                 foreach (var item in holder.buildInCompRendererInfos)
                 {
-                    if (sync)
-                    {
-                        if (item.meshName != "")
-                        {
-                            Mesh mesh = null;
-                            LoadMesh(item.meshName, (m) =>
-                            {
-                                mesh = m;
-                                if (item.concreteCompRenderer is MeshRenderer)
-                                {
-                                    item.tran.GetComponent<MeshFilter>().sharedMesh = mesh;
+                    //////if (sync)
+                    //////{
+                    //////    if (item.meshName != "")
+                    //////    {
+                    //////        Mesh mesh = null;
+                    //////        LoadMesh(item.meshName, (res) =>
+                    //////        {
+                    //////            mesh = res.GetResAsset<Mesh>();
+                    //////            if (item.concreteCompRenderer is MeshRenderer)
+                    //////            {
+                    //////                item.tran.GetComponent<MeshFilter>().sharedMesh = mesh;
 
-                                    ShaderMeshAnimator sma = item.tran.GetComponent<ShaderMeshAnimator>();
-                                    if (sma != null)
-                                    {
-                                        sma.baseMesh = mesh;
-                                    }
-                                }
-                                else if (item.concreteCompRenderer is SkinnedMeshRenderer)
-                                {
-                                    (item.concreteCompRenderer as SkinnedMeshRenderer).sharedMesh = mesh;
-                                }
-                                else if (item.concreteCompRenderer is ParticleSystemRenderer)
-                                {
-                                    (item.concreteCompRenderer as ParticleSystemRenderer).mesh = mesh;
-                                }
+                    //////                ShaderMeshAnimator sma = item.tran.GetComponent<ShaderMeshAnimator>();
+                    //////                if (sma != null)
+                    //////                {
+                    //////                    sma.baseMesh = mesh;
+                    //////                }
+                    //////            }
+                    //////            else if (item.concreteCompRenderer is SkinnedMeshRenderer)
+                    //////            {
+                    //////                (item.concreteCompRenderer as SkinnedMeshRenderer).sharedMesh = mesh;
+                    //////            }
+                    //////            else if (item.concreteCompRenderer is ParticleSystemRenderer)
+                    //////            {
+                    //////                (item.concreteCompRenderer as ParticleSystemRenderer).mesh = mesh;
+                    //////            }
 
-                                //add mesh ref 
-                                MeshRes meshRes = this.GetCachedRes(ABType.Mesh, item.meshName) as MeshRes;
-                                meshRes.AddRefTrs(item.tran);
+                    //////            //add mesh ref 
+                    //////            MeshRes meshRes = this.GetCachedRes<MeshRes>(item.meshName);
+                    //////            meshRes.AddRefTrs(item.tran);
 
-                            }, sync);
-                        }
+                    //////        }, sync);
+                    //////    }
 
-                        if (item.matIndex != -1)
-                        {
-                            Material renderMat = null;
-                            LoadMatWithCheck(item.matName, (mat) =>
-                            {
-                                renderMat = mat;
-                                if (item.concreteCompRenderer is ParticleSystemRenderer)//particleSystemRenderer需要特殊处理
-                                {
-                                    item.concreteCompRenderer.sharedMaterial = renderMat;
-                                }
-                                else
-                                {
-                                    Material[] sharedMaterialsCopy = item.concreteCompRenderer.sharedMaterials;
-                                    sharedMaterialsCopy[item.matIndex] = renderMat;
-                                    item.concreteCompRenderer.sharedMaterials = sharedMaterialsCopy;
-                                }
-                            }, item.tran);
-                            if (renderMat != null)
-                            {
-                                Transform childTarget = item.tran;
-                                //add mat ref 
-                                MatRes matRes = this.GetCachedRes(ABType.Material, item.matName) as MatRes;
-                                matRes.AddRefTrs(childTarget);
+                    //////    if (item.matIndex != -1)
+                    //////    {
+                    //////        Material renderMat = null;
+                    //////        LoadMat(item.matName, (matRes) =>
+                    //////        {
+                    //////            renderMat = matRes.GetResAsset<Material>();
+                    //////            if (item.concreteCompRenderer is ParticleSystemRenderer)//particleSystemRenderer需要特殊处理
+                    //////            {
+                    //////                item.concreteCompRenderer.sharedMaterial = renderMat;
+                    //////            }
+                    //////            else
+                    //////            {
+                    //////                Material[] sharedMaterialsCopy = item.concreteCompRenderer.sharedMaterials;
+                    //////                sharedMaterialsCopy[item.matIndex] = renderMat;
+                    //////                item.concreteCompRenderer.sharedMaterials = sharedMaterialsCopy;
+                    //////            }
+                    //////        });
+                    //////        if (renderMat != null)
+                    //////        {
+                    //////            Transform childTarget = item.tran;
+                    //////            //add mat ref 
+                    //////            MatRes matRes = this.GetCachedRes<MatRes>(item.matName) as MatRes;
+                    //////            matRes.AddRefTrs(childTarget);
 
-                                if (item.refTextures != null && item.refTextures.Count > 0)
-                                {
-                                    for (int k = 0; k < item.refTextures.Count; k++)
-                                    {
-                                        LoadTextureToMat(childTarget, item.refTextures[k].texName, item.refTextures[k].shaderProp, renderMat, sync, null);
-                                    }
-                                }
-                                ResetEditorShader(childTarget, renderMat, item.shaderName);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        BuildInCompRenderInfoSyncOperator.Instance.Add(item);
-                    }
+                    //////            if (item.refTextures != null && item.refTextures.Count > 0)
+                    //////            {
+                    //////                for (int k = 0; k < item.refTextures.Count; k++)
+                    //////                {
+                    //////                    LoadTextureToMat(childTarget, item.refTextures[k].texName, item.refTextures[k].shaderProp, renderMat, sync, null);
+                    //////                }
+                    //////            }
+                    //////            ResetEditorShader(childTarget, renderMat, item.shaderName);
+                    //////        }
+                    //////    }
+                    //////}
+                    //////else
+                    //////{
+                    //////    BuildInCompRenderInfoSyncOperator.Instance.Add(item);
+                    //////}
 
+
+                    item.FillCompElement(sync);
                 }
             }
 
@@ -1000,36 +642,25 @@ namespace ZGame.Ress.AB
             {
                 foreach (var item in holder.buildInCompMeshColliderInfos)
                 {
-                    if (item.meshName != "")
-                    {
-                        Mesh mesh = null;
-                        LoadMesh(item.meshName, (m) =>
-                        {
-                            mesh = m;
-                            item.concreteCompMeshCollider.sharedMesh = mesh;
-
-                            //add mesh ref 
-                            MeshRes meshRes = this.GetCachedRes(ABType.Mesh, item.meshName) as MeshRes;
-                            meshRes.AddRefTrs(item.tran);
-                        }, sync);
-                    }
+                    item.FillCompElement(sync);
                 }
             }
+
+            //--------------->BuildIn AnimatorController
+            if (holder.buildInCompAnimatorInfos != null && holder.buildInCompAnimatorInfos.Count > 0)
+            {
+                foreach (var item in holder.buildInCompAnimatorInfos)
+                {
+                    item.FillCompElement(sync);
+                }
+            }
+
             //-------------->Ext ImageSequence
             if (holder.extCompImageSequenceInfos != null && holder.extCompImageSequenceInfos.Count > 0)
             {
                 foreach (var item in holder.extCompImageSequenceInfos)
                 {
-                    Transform childTarget = item.tran;
-                    if (item.refSprites != null && item.refSprites.Count > 0)
-                    {
-                        ImageSequence imageSequence = childTarget.GetComponent<ImageSequence>();
-                        for (int i = 0; i < item.refSprites.Count; i++)
-                        {
-                            LoadSpriteToTarget(imageSequence, item.refSprites[i].atlasName, item.refSprites[i].spriteName, sync, i);
-                        }
-                    }
-
+                    item.FillCompElement(sync);
                 }
             }
 
@@ -1038,32 +669,16 @@ namespace ZGame.Ress.AB
             {
                 foreach (var item in holder.extCompMaterialTextureSequenceInfos)
                 {
-                    Transform childTarget = item.tran;
-                    if (item.refTextures != null && item.refTextures.Count > 0)
-                    {
-                        MaterialTextureSequence matTextureSeq = childTarget.GetComponent<MaterialTextureSequence>();
-                        for (int i = 0; i < item.refTextures.Count; i++)
-                        {
-                            LoadTextureToMatTextureSeq(matTextureSeq, item.refTextures[i].texName, i, sync);
-                        }
-                    }
+                    item.FillCompElement(sync);
                 }
             }
 
-            //-------------->Ext SpriteSequence
-            if (holder.extCompSpriteSequenceInfos != null && holder.extCompSpriteSequenceInfos.Count > 0)
+            //-------------->Ext SpriteRendererSequence
+            if (holder.extCompSpriteRendererSequenceInfos != null && holder.extCompSpriteRendererSequenceInfos.Count > 0)
             {
-                foreach (var item in holder.extCompSpriteSequenceInfos)
+                foreach (var item in holder.extCompSpriteRendererSequenceInfos)
                 {
-                    Transform childTarget = item.tran;
-                    if (item.refSprites != null && item.refSprites.Count > 0)
-                    {
-                        SpriteSequence spriteSequence = childTarget.GetComponent<SpriteSequence>();
-                        for (int i = 0; i < item.refSprites.Count; i++)
-                        {
-                            LoadSpriteToTarget(spriteSequence, item.refSprites[i].atlasName, item.refSprites[i].spriteName, sync, i);
-                        }
-                    }
+                    item.FillCompElement(sync);
                 }
             }
             //-------------->Ext SwapSprite
@@ -1072,68 +687,26 @@ namespace ZGame.Ress.AB
 
                 foreach (var item in holder.extCompSwapSpriteInfos)
                 {
-                    Transform childTarget = item.tran;
-                    if (item.refSprites != null && item.refSprites.Count > 0)
-                    {
-                        SwapSprite swapSprite = childTarget.GetComponent<SwapSprite>();
-                        for (int i = 0; i < item.refSprites.Count; i++)
-                        {
-                            LoadSpriteToTarget(swapSprite, item.refSprites[i].atlasName, item.refSprites[i].spriteName, sync, i);
-                        }
-                    }
+                    item.FillCompElement(sync);
                 }
             }
             //-------------->Ext Switch2Button
             if (holder.extCompSwitch2ButtonInfos != null && holder.extCompSwitch2ButtonInfos.Count > 0)
             {
-
                 foreach (var item in holder.extCompSwitch2ButtonInfos)
                 {
-                    Transform childTarget = item.tran;
-                    if (item.refSprites != null && item.refSprites.Count > 0)
-                    {
-                        Switch2Button switch2Btn = childTarget.GetComponent<Switch2Button>();
-                        for (int i = 0; i < item.refSprites.Count; i++)
-                        {
-                            LoadSpriteToTarget(switch2Btn, item.refSprites[i].atlasName, item.refSprites[i].spriteName, sync, i);
-                        }
-                    }
+                    item.FillCompElement(sync);
                 }
             }
             //-------------->Ext ShaderMeshAnimator
-            if (holder.extCompShaderMeshAnimationInfos != null && holder.extCompShaderMeshAnimationInfos.Count > 0)
-            {
-                foreach (var item in holder.extCompShaderMeshAnimationInfos)
-                {
-                    Transform childTarget = item.tran;
-                    if (!string.IsNullOrEmpty(item.defaultAnimation) && item.animations.Count > 0)
-                    {
-                        ShaderMeshAnimator animator = childTarget.GetComponent<ShaderMeshAnimator>();
-                        //defaultAnimation
-                        LoadObject(item.defaultAnimation, (obj) =>
-                        {
-                            animator.defaultMeshAnimation = obj as ShaderMeshAnimation;
-
-                            //add ShaderMeshAnim ref 
-                            ObjectRes objectRes = this.GetCachedRes(ABType.Object, item.defaultAnimation) as ObjectRes;
-                            objectRes.AddRefTrs(childTarget);
-
-                        }, sync);
-                        //animations
-                        for (int i = 0; i < item.animations.Count; i++)
-                        {
-                            LoadObject(item.animations[i], (obj) =>
-                            {
-                                animator.meshAnimations[i] = obj as ShaderMeshAnimation;
-
-                                //add ShaderMeshAnim ref 
-                                ObjectRes objectRes = this.GetCachedRes(ABType.Object, item.animations[i]) as ObjectRes;
-                                objectRes.AddRefTrs(childTarget);
-                            }, sync);
-                        }
-                    }
-                }
-            }
+            //META NEW TODO:zhouhui
+            //////if (holder.extCompShaderMeshAnimationInfos != null && holder.extCompShaderMeshAnimationInfos.Count > 0)
+            //////{
+            //////    foreach (var item in holder.extCompShaderMeshAnimationInfos)
+            //////    {
+            //////        item.FillCompElement(sync);
+            //////    }
+            //////}
             //---------------->Lightmap
             //if (holder.lightmapInfo != null && holder.lightmapInfo.lightmapColors != null && holder.lightmapInfo.lightmapColors.Count > 0 && holder.lightmapInfo.lightmapRenders != null && holder.lightmapInfo.lightmapRenders.Count > 0)
             //{
@@ -1145,91 +718,85 @@ namespace ZGame.Ress.AB
         }
 
 
+
+
         public void LoadTexture(string texName, Action<Texture> callback, bool sync)
         {
-            loadTexture(texName, callback, sync);
-        }
-
-        void loadTexture(string texName, Action<Texture> callback, bool sync)
-        {
             Texture tex = null;
-            var cache = this.GetCachedRes(ABType.Texture, texName);
+            var cache = this.GetCachedRes<TextureRes>(texName);
             if (cache == null)
             {
-                //Debug.Log($"get texture:{texName}  from ab");
                 ABTexture.Load(texName, callback, sync);
             }
             else
             {
-                //Debug.Log($"get texture:{texName}  from cache");
-                tex = cache.GetRes<Texture>(texName);
+                tex = cache.GetResAsset<Texture>();
                 callback?.Invoke(tex);
-
             }
         }
 
-        public void LoadMatWithCheck(string name, Action<Material> callback, Transform refTran)
+
+
+
+        public void LoadMat(string matName, Action<MatRes> callback)
         {
-            if (name == "")
-            {
-                Debug.LogError("error matName is nil:" + refTran.GetHierarchy());
-            }
-            this.LoadMat(name, callback);
+            loadMat(matName, callback, true);
         }
 
-        public void LoadMat(string name, Action<Material> callback)
-        {
-            loadMat(name, callback);
-        }
-
-        private void loadMat(string matName, Action<Material> callback)
+        private void loadMat(string matName, Action<MatRes> callback, bool sync)
         {
             Material mat = null;
-            var cache = this.GetCachedRes(ABType.Material, matName);
-            if (cache == null)
+            var cacheRes = this.GetCachedRes<MatRes>(matName);
+            if (cacheRes == null)
             {
-                ABMaterial.Load(matName, callback, true);
+                ABMaterial.Load(matName, callback, sync);
             }
             else
             {
-                mat = cache.GetRes<Material>(matName);
-                callback?.Invoke(mat);
+                callback?.Invoke(cacheRes);
             }
         }
-        public void LoadMesh(string meshName, Action<Mesh> callback, bool sync)
+        public void LoadAnimatorController(string acName, Action<AnimatorControllerRes> callback, bool sync)
+        {
+            var cacheRes = this.GetCachedRes<AnimatorControllerRes>(acName);
+            if (cacheRes == null)
+            {
+                ABAnimatorController.Load(acName, callback, sync);
+            }
+            else
+            {
+                callback?.Invoke(cacheRes);
+            }
+        }
+
+        public void LoadMesh(string meshName, Action<MeshRes> callback, bool sync)
         {
             this.loadMesh(meshName, callback, sync);
         }
-        void loadMesh(string meshName, Action<Mesh> callback, bool sync)
+        void loadMesh(string meshName, Action<MeshRes> callback, bool sync)
         {
-            Mesh mesh = null;
-            var cache = this.GetCachedRes(ABType.Mesh, meshName);
-            if (cache == null)
+            var cacheRes = this.GetCachedRes<MeshRes>(meshName);
+            if (cacheRes == null)
             {
                 ABMesh.Load(meshName, callback, sync);
             }
             else
             {
-                mesh = cache.GetRes<Mesh>(meshName);
-                callback?.Invoke(mesh);
+                callback?.Invoke(cacheRes);
             }
         }
 
         public void LoadSprite(string atlasName, string spriteName, Action<Sprite> callback, bool sync)
         {
-            loadSprite(atlasName, spriteName, callback, sync);
-        }
-        void loadSprite(string atlasName, string spriteName, Action<Sprite> callback, bool sync)
-        {
             Sprite target = null;
-            var cache = this.GetCachedRes(ABType.Sprite, atlasName);
+            var cache = this.GetCachedRes<SpriteRes>(atlasName);
             if (cache == null)
             {
                 ABSprite.Load(atlasName, spriteName, callback, sync);
             }
             else
             {
-                target = cache.GetRes<Sprite>(spriteName);
+                target = cache.GetResAsset<Sprite>(spriteName);
                 callback?.Invoke(target);
             }
         }
@@ -1239,7 +806,7 @@ namespace ZGame.Ress.AB
             Action<Texture> handleTextureAfterLoad = (tex) =>
             {
                 var oldTex = mat.GetTexture(shaderPropName);
-                string oldTexName = null;
+                string oldTexName = "";
                 if (oldTex != null)
                 {
                     oldTexName = oldTex.name;
@@ -1247,27 +814,37 @@ namespace ZGame.Ress.AB
 
                 mat.SetTexture(shaderPropName, tex);
 
+
                 //remove old ref
-                if (string.IsNullOrEmpty(oldTexName) == false && oldTexName != texName)
+                if (!string.IsNullOrEmpty(oldTexName) && oldTexName != texName)
                 {
-                    var oldRes = this.GetCachedRes(ABType.Texture, oldTexName);
-                    if (oldRes != null && oldTexName != texName)
+                    var oldRes = this.GetCachedRes<TextureRes>(oldTexName);
+                    if (oldRes != null)
                     {
                         oldRes.RemoveRefTrs(targetTrs);
+                        Debug.Log(oldTexName + " remove ref tran:" + targetTrs.GetHierarchy());
                     }
                 }
 
                 //add ref
                 if (targetTrs != null)
                 {
-                    ImgRes imgRes = this.GetCachedRes(ABType.Texture, texName) as ImgRes;
-                    imgRes.AddRefTrs(targetTrs);
+                    try
+                    {
+                        TextureRes texRes = this.GetCachedRes<TextureRes>(texName);
+                        texRes.AddRefTrs(targetTrs);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogError("error, texName:" + texName + ", tran:" + targetTrs.GetHierarchy());
+                    }
                 }
+
 
                 callback?.Invoke();
             };
 
-            loadTexture(texName, handleTextureAfterLoad, sync);
+            LoadTexture(texName, handleTextureAfterLoad, sync);
 
         }
 
@@ -1281,36 +858,72 @@ namespace ZGame.Ress.AB
             }
 
 
-            loadTexture(texName, (tex) =>
+            LoadTexture(texName, (tex) =>
             {
                 ts.textures[index] = tex;
 
+
                 //remove old ref
-                if (string.IsNullOrEmpty(oldTexName) == false && oldTexName != texName)
+                if (!string.IsNullOrEmpty(oldTexName) && oldTexName != texName)
                 {
-                    var oldRes = this.GetCachedRes(ABType.Texture, oldTexName);
-                    if (oldRes != null && oldTexName != texName)
+                    var oldRes = this.GetCachedRes<TextureRes>(oldTexName);
+                    if (oldRes != null)
                     {
                         oldRes.RemoveRefTrs(ts.transform);
                     }
                 }
 
-
                 //add ref
-                TextureRes texRes = this.GetCachedRes(ABType.Texture, texName) as TextureRes;
+                TextureRes texRes = this.GetCachedRes<TextureRes>(texName);
                 texRes.AddRefTrs(ts.transform);
+
             },
             sync);
 
         }
 
+        public void LoadTextureToRawImage(RawImage targetRawImage, string texName, bool sync)
+        {
+            Action<Texture> handleTextureAfterLoad = (tex) =>
+            {
+                var oldTex = targetRawImage.texture;
+                string oldTexName = "";
+                if (oldTex != null)
+                {
+                    oldTexName = oldTex.name;
+                }
+
+                targetRawImage.texture = tex;
+
+
+
+                //remove old ref
+                if (!string.IsNullOrEmpty(oldTexName) && oldTexName != texName)
+                {
+                    var oldRes = this.GetCachedRes<TextureRes>(oldTexName);
+                    if (oldRes != null)
+                    {
+                        oldRes.RemoveRefTrs(targetRawImage.transform);
+                    }
+                }
+
+                //add ref 
+                TextureRes texRes = this.GetCachedRes<TextureRes>(texName);
+                texRes.AddRefTrs(targetRawImage.transform);
+
+
+            };
+
+
+            LoadTexture(texName, handleTextureAfterLoad, sync);
+        }
 
         public void LoadSpriteToTarget<T>(T target, string atlasName, string spriteName, bool sync, params object[] objs) where T : UnityEngine.Component
         {
             Action<Sprite> handleSpriteAfterLoad = (s) =>
             {
                 Transform trs = target.transform;
-                string oldAtlasName = null;
+                string oldAtlasName = "";
 
                 Type ty = target.GetType();
                 if (ty.Equals(typeof(SpriteRenderer)))
@@ -1325,9 +938,9 @@ namespace ZGame.Ress.AB
                     oldAtlasName = img.sprite != null ? img.sprite.texture.name : "";
                     img.sprite = s;
                 }
-                else if (ty.Equals(typeof(SpriteSequence)))
+                else if (ty.Equals(typeof(SpriteRendererSequence)))
                 {
-                    SpriteSequence ss = target as SpriteSequence;
+                    SpriteRendererSequence ss = target as SpriteRendererSequence;
                     int index = int.Parse(objs[0].ToString());
                     oldAtlasName = ss.sprites[index] != null ? ss.sprites[index].texture.name : "";
                     ss.sprites[index] = s;
@@ -1353,32 +966,29 @@ namespace ZGame.Ress.AB
                     int index = int.Parse(objs[0].ToString());
                     oldAtlasName = s2b.switchSprites[index] != null ? s2b.switchSprites[index].texture.name : "";
                     s2b.switchSprites[index] = s;
-
                 }
-
                 else
                 {
                     DebugExt.LogE("type not suit!!");
                 }
 
 
+
                 //remove old ref
-                if (string.IsNullOrEmpty(oldAtlasName) == false)
+                if (!string.IsNullOrEmpty(oldAtlasName) && oldAtlasName != atlasName)
                 {
-                    var oldRes = this.GetCachedRes(ABType.Sprite, oldAtlasName);
-                    if (oldRes != null && oldAtlasName != atlasName)
+                    var oldRes = this.GetCachedRes<SpriteRes>(oldAtlasName);
+                    if (oldRes != null)
                     {
                         oldRes.RemoveRefTrs(trs);
                     }
                 }
 
                 //add ref
-                ImgRes imgRes = this.GetCachedRes(ABType.Sprite, atlasName) as ImgRes;
-                imgRes.AddRefTrs(trs);
+                var spriteRes = this.GetCachedRes<SpriteRes>(atlasName);
+                spriteRes.AddRefTrs(trs);
             };
-
-            loadSprite(atlasName, spriteName, handleSpriteAfterLoad, sync);
-
+            LoadSprite(atlasName, spriteName, handleSpriteAfterLoad, sync);
         }
 
 
@@ -1386,15 +996,28 @@ namespace ZGame.Ress.AB
         public void LoadAudioClip(string name, Action<UnityEngine.AudioClip> callback, bool sync)
         {
             AudioClip clip = null;
-            var cache = this.GetCachedRes(ABType.Audio, name);
+            var cache = this.GetCachedRes<AudioRes>(name);
             if (cache == null || cache.resObj == null)
             {
                 ABAudio.Load(name, callback, sync);
             }
             else
             {
-                clip = cache.GetRes<AudioClip>(name);
+                clip = cache.GetResAsset<AudioClip>();
                 callback?.Invoke(clip);
+            }
+        }
+
+        public void LoadAnimationClip(string name, Action<AnimationClipRes> callback, bool sync)
+        {
+            var cache = this.GetCachedRes<AnimationClipRes>(name);
+            if (cache == null)
+            {
+                ABAnimationClip.Load(name, callback, sync);
+            }
+            else
+            {
+                callback?.Invoke(cache);
             }
         }
 
@@ -1402,29 +1025,28 @@ namespace ZGame.Ress.AB
         public void LoadByte(string name, Action<TextAsset> callback, bool sync)
         {
             TextAsset asset = null;
-            var cache = this.GetCachedRes(ABType.Byte, name);
+            var cache = this.GetCachedRes<ByteRes>(name);
             if (cache == null || cache.resObj == null)
             {
                 ABByte.Load(name, callback, sync);
             }
             else
             {
-                asset = cache.GetRes<TextAsset>(name);
+                asset = cache.GetResAsset<TextAsset>();
                 callback?.Invoke(asset);
             }
         }
 
-        public void LoadObject(string name, Action<UnityEngine.Object> callback, bool sync)
+        public void LoadObject(string name, Action<ObjectRes> callback, bool sync)
         {
-            var cache = this.GetCachedRes(ABType.Object, name);
-            if (cache == null || cache.resObj == null)
+            var cacheRes = this.GetCachedRes<ObjectRes>(name);
+            if (cacheRes == null || cacheRes.resObj == null)
             {
                 ABObject.Load(name, callback, sync);
             }
             else
             {
-                UnityEngine.Object asset = cache.GetRes<UnityEngine.Object>(name);
-                callback?.Invoke(asset);
+                callback?.Invoke(cacheRes);
             }
         }
 
@@ -1445,9 +1067,10 @@ namespace ZGame.Ress.AB
         public override void OnDestroy()
         {
             EventDispatcher.Instance.RemoveListener(EventID.OnABResLoaded, onABResLoaded);
-            EventDispatcher.Instance.RemoveListener(EventID.OnRootObjDestroy, onRootObjDestroy);
-            EventDispatcher.Instance.RemoveListener(EventID.OnChildObjDestroy, onChildObjDestroy);
-            EventDispatcher.Instance.RemoveListener(EventID.OnGameObjectInstantiate, onGameObjectInstantiate);
+            EventDispatcher.Instance.RemoveListener(EventID.OnRootCompInfoHolderObjDestroy, onRootCompObjDestroy);
+            EventDispatcher.Instance.RemoveListener(EventID.OnCompInfoHolderChildObjDestroy, onCompInfoHolderChildObjDestroy);
+
+            EventDispatcher.Instance.RemoveListener(EventID.OnDynamicCompInfoHolderObjInstantiate, onDynamicCompInfoHolderObjInstantiate);
         }
     }
 }

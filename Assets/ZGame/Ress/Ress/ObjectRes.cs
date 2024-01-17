@@ -21,7 +21,7 @@ namespace ZGame.Ress
             this.asset = resObj;
         }
 
-        public override T GetRes<T>(string name)
+        public override T GetResAsset<T>()
         {
             T result = default(T);
             if (!(typeof(T).Equals(typeof(UnityEngine.Object))))
@@ -29,17 +29,13 @@ namespace ZGame.Ress
                 Debug.LogError("类型不匹配 UnityEngine.Object");
             }
 
-            if (this.resName != name)
-            {
-                Debug.LogError("error,name不匹配");
-            }
 
             result = (T)(object)asset;
 
 
             if (result == null)
             {
-                Debug.LogError("error, get res fail, asset is null");
+                Debug.LogError("error, get res fail, asset is null:" + this.resName);
             }
             return result;
         }

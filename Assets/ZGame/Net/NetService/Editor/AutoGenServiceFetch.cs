@@ -18,7 +18,7 @@ public class AutoGenServiceFetch
 
 
     //生成通过 RuntimeInitializeOnLoadMethod， 自动实例化各种service的ServiceFetch.cs
-    //由于我是通过hybrid clr对assembly dll热更，因此会导致 RuntimeInitializeOnLoadMethod 不生效
+    //由于我是通过hybrid clr对assembly dll热更，因此会导致 RuntimeInitializeOnLoadMethod 不生效（官方使用指南->不支持的特性 一栏中有提到）
     //格式如下
     /*
     using UnityEngine;
@@ -95,6 +95,7 @@ public class AutoGenServiceFetch
 
         List<string> classDes = new List<string>();
         List<string> classProperty = new List<string>();
+        List<string> initFunc = new List<string>();
 
         string path = "./Library/ScriptAssemblies/Assembly-CSharp.dll";
         byte[] buffer = File.ReadAllBytes(path);
@@ -104,7 +105,7 @@ public class AutoGenServiceFetch
             if (t.IsClass && t.BaseType != null && t.BaseType.Name == typeof(NetService).Name && t.Name.EndsWith("Service"))
             {
                 classDes.Add("\tpublic static " + t.Name + " _" + t.Name.FirstCharToLower() + ";");
-
+                initFunc.Add("\t\t"+t.Name.FirstCharacterToLower() + ".Init();");
                 //属性拼接
                 string propertyStr = "\tpublic static " + t.Name + " " + t.Name.FirstCharacterToLower() + "\n";
                 propertyStr += "\t{\n";
@@ -127,6 +128,12 @@ public class AutoGenServiceFetch
         }
         str += "\n";
 
+        str += "\tpublic static void Init()\n" + "\t{\n";
+        for (int i = 0; i < initFunc.Count; i++)
+        {
+            str += initFunc[i] + "\n";
+        }
+        str += "\t}\n\n";
 
         for (int i = 0; i < classProperty.Count; i++)
         {

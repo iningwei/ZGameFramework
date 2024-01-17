@@ -1,3 +1,4 @@
+using Google.Protobuf;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,16 +9,30 @@ using ZGame.TimerTween;
 public class PingManager : Singleton<PingManager>
 {
     Timer sendTimer;
+    long sendTimerId;
+
     int sendPingIndex = 0;
     int rcvPingIndex = 0;
     long curPingTimeStamp;
     float intervalTime;
 
     byte pingStatus = 0;//1为开，0为关
-    public void StartPing(float pingIntervalTime = 10)
+
+
+    ProtobufMsgID c2sMsgId;
+    ProtobufMsgID s2cMsgId;
+
+    Func<int, long, IMessage> c2sAssemble;
+    Func<byte[], int> s2cHandle;
+    public void StartPing(ProtobufMsgID c2sID, ProtobufMsgID s2cID, Func<int, long, IMessage> c2sAssemble, Func<byte[], int> s2cHandle, float pingIntervalTime = 10)
     {
         Debug.Log("start Ping");
-        ProtobufMessage.AddListener(ProtobufMsgIDDesUtils.GetIDStr(ProtobufMsgID.S2CPing), onS2CPing);
+        ProtobufMessage.AddListener(s2cID, onS2CPing);
+
+        this.c2sMsgId = c2sID;
+        this.s2cMsgId = s2cID;
+        this.c2sAssemble = c2sAssemble;
+        this.s2cHandle = s2cHandle;
 
         intervalTime = pingIntervalTime;
         rcvPingIndex = sendPingIndex;
@@ -26,8 +41,8 @@ public class PingManager : Singleton<PingManager>
         {
             C2SPing();
             return true;
-        }, true);
-        sendTimer.Start();
+        }, true).SetTag("Send-Ping");
+        sendTimer.Start(out sendTimerId);
 
         pingStatus = 1;
     }
@@ -44,15 +59,11 @@ public class PingManager : Singleton<PingManager>
         }
         sendPingIndex++;
         curPingTimeStamp = TimeTool.GetNowStamp();
-        TimeTool.GetStamp(DateTime.Now);
-        C2SPing p = new C2SPing();
-        p.Index = sendPingIndex;
-        p.TimeStamp = curPingTimeStamp;
-        var des = ProtobufMsgIDDesUtils.GetIDDes(ProtobufMsgID.C2SPing);
 
-        ProtobufMessage.PrintMessage(ProtobufMsgID.C2SPing, p);
-        WebSocketManager.Instance.Send(des.msgId, p);
-        //StarTopSocketManager.Instance.Send(des.msgId, p);
+        if (c2sAssemble != null)
+        {
+            SocketManager.Instance.Send(c2sMsgId, c2sAssemble(sendPingIndex, curPingTimeStamp));
+        }
     }
 
     /// <summary>
@@ -61,20 +72,19 @@ public class PingManager : Singleton<PingManager>
     /// <param name="data"></param>
     private void onS2CPing(byte[] data)
     {
-        S2CPing msg = S2CPing.Parser.ParseFrom(data);
-        ProtobufMessage.PrintMessage(ProtobufMsgID.S2CPing, msg);
-        rcvPingIndex = msg.Index;
+        if (this.s2cHandle != null)
+        {
+            rcvPingIndex = this.s2cHandle(data);
+        }
     }
-
 
     private void pingTimeError()
     {
         Debug.LogError($"心跳出错，准备重连！send:{sendPingIndex}，rcv:{rcvPingIndex}");
         StopPing();
-        //////WebSocketManager.Instance.Close();
-        //////WebSocketManager.Instance.Reconnect();
-        StarTopSocketManager.Instance.Close();
-        StarTopSocketManager.Instance.Reconnect();
+
+        this.StopPing();
+        SocketManager.Instance.Reconnect();
     }
 
     /// <summary>
@@ -87,17 +97,13 @@ public class PingManager : Singleton<PingManager>
             return;
         }
 
-        DebugExt.Log("stop ping");
-        if (sendTimer != null)
-        {
-            sendTimer.Cancel();
-            sendTimer = null;
-        }
+        Debug.Log("stop ping");
+        TimerTween.Cancel(sendTimer, sendTimerId);
 
-        ProtobufMessage.RemoveListener(ProtobufMsgIDDesUtils.GetIDStr(ProtobufMsgID.S2CPing), onS2CPing);
+        ProtobufMessage.RemoveListener(s2cMsgId, onS2CPing);
+        this.c2sAssemble = null;
+        this.s2cHandle = null;
         pingStatus = 0;
         sendPingIndex = 0;
     }
-
-
 }

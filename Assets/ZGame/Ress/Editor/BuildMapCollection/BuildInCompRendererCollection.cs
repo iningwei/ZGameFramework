@@ -2,7 +2,6 @@ using Codice.Utils;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using UniRx;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
@@ -59,16 +58,21 @@ public class BuildInCompRendererCollection : CompResCollection, IRefResCollectio
                 meshName = "";//暂时不对内置mesh处理
             }
 
-            //引用了fbx内部的mesh，且该fbx不被剥离。则该mesh不单独打ab包。
-            if (meshName != "" && (meshPath.EndsWith(".fbx") || meshPath.EndsWith(".FBX")))
+
+            ////////引用了fbx内部的mesh，且该fbx不被剥离。则该mesh不单独打ab包。
+            //////if (meshName != "" && (meshPath.EndsWith(".fbx") || meshPath.EndsWith(".FBX")))
+            //////{
+            //////    if ((buildMapIgnore != null && this.IsStripIgnoredFBX(buildMapIgnore.stripIgnoredFBXs, meshPath) == true))
+            //////    {
+            //////        meshName = "";
+            //////    }
+            //////}
+
+            //暂时先不把fbx剥离了，问题挺多的（比如avatar也是在fbx里面的fbx剥离后avatar也会丢失）
+            if ((meshPath.EndsWith(".fbx") || meshPath.EndsWith(".FBX")))
             {
-                if ((buildMapIgnore != null && this.IsStripIgnoredFBX(buildMapIgnore.stripIgnoredFBXs, meshPath) == true))
-                {
-                    meshName = "";
-                }
+                meshName = "";//这里要把meshName置空
             }
-
-
 
             if (renderer.sharedMaterials == null || renderer.sharedMaterials.Length == 0)
             {
@@ -194,35 +198,41 @@ public class BuildInCompRendererCollection : CompResCollection, IRefResCollectio
                 meshName = "";
             }
 
-
-            string cachedFBXName = "";
-            string cachedFBXPath = "";
-            if (meshName != "" && (meshPath.EndsWith(".fbx") || meshPath.EndsWith(".FBX")))
+            //Debug.Log("meshName:" + meshName + ", path:" + meshPath);
+            //暂时先不把fbx剥离了，问题挺多的（比如avatar也是在fbx里面的fbx剥离后avatar也会丢失）
+            if ((meshPath.EndsWith(".fbx") || meshPath.EndsWith(".FBX")))
             {
-                if ((buildMapIgnore != null && this.IsStripIgnoredFBX(buildMapIgnore.stripIgnoredFBXs, meshPath) == true))
-                {
-                    meshName = "";
-                }
-                else
-                {
-
-                    cachedFBXName = Path.GetFileNameWithoutExtension(Application.dataPath + meshPath);
-                    cachedFBXPath = meshPath;
-                    //缓存的fbx/FBX文件需要加入到buildMap中。否则打prefab或者场景时，由于是对fbx/FBX的直接依赖，会把fbx打入到对应prefab或场景对应的ab文件中
-                    this.AddBundleBuildData(cachedFBXName, cachedFBXPath, ABType.FBX, ref buildMap);
-
-
-                    //引用的是fbx内的mesh，那么则从fbx内导出临时mesh文件，用来打ab
-                    this.ExportMeshToTmpFolder(meshPath);
-                    //从临时文件夹内获得真实的路径
-                    meshPath = this.GetMeshPathFromTmpFolder(meshName);
-                }
+                meshName = "";//这里要把meshName置空
             }
+            //////string cachedFBXName = "";
+            //////string cachedFBXPath = "";
+            //////if (meshName != "" && (meshPath.EndsWith(".fbx") || meshPath.EndsWith(".FBX")))
+            //////{
+            //////    if ((buildMapIgnore != null && this.IsStripIgnoredFBX(buildMapIgnore.stripIgnoredFBXs, meshPath) == true))
+            //////    {
+            //////        meshName = "";
+            //////    }
+            //////    else
+            //////    {
+
+            //////        cachedFBXName = Path.GetFileNameWithoutExtension(Application.dataPath + meshPath);
+            //////        cachedFBXPath = meshPath;
+            //////        //缓存的fbx/FBX文件需要加入到buildMap中。否则打prefab或者场景时，由于是对fbx/FBX的直接依赖，会把fbx打入到对应prefab或场景对应的ab文件中。该fbx bundle在BuildCommand中DeleteAfterBuildAB会被删除
+            //////        this.AddBundleBuildData(cachedFBXName, cachedFBXPath, ABType.FBX, ref buildMap);
+
+
+            //////        //引用的是fbx内的mesh，那么则从fbx内导出临时mesh文件，用来打ab
+            //////        AssetDatabaseExt.ExportAssetToFBXTmpFolder(meshPath, "mesh");
+            //////        //从临时文件夹内获得真实的路径
+            //////        meshPath = AssetDatabaseExt.GetAssetPathFromFBXTmpFolder(meshName, "mesh");
+            //////    }
+            //////}
 
             if (meshName != "")
             {
                 if (meshPath.EndsWith(".mesh"))
                 {
+                    Debug.Log($"meshName:{meshName},meshPath:{meshPath}");
                     this.AddBundleBuildData(meshName, meshPath, ABType.Mesh, ref buildMap);
                 }
                 else

@@ -130,7 +130,7 @@ namespace ZGame.Ress
                 {
                     bgmAudioSource.Stop();
                 }
-                var res = ABManager.Instance.GetCachedRes(ABType.Audio, bgmAudioSource.clip.name);
+                var res = ABManager.Instance.GetCachedRes<AudioRes>(bgmAudioSource.clip.name);
                 if (res != null)
                 {
                     res.Destroy();
@@ -193,7 +193,7 @@ namespace ZGame.Ress
                 {
                     bgmAudioSource.Stop();
                 }
-                var res = ABManager.Instance.GetCachedRes(ABType.Audio, bgmAudioSource.clip.name);
+                var res = ABManager.Instance.GetCachedRes<AudioRes>(bgmAudioSource.clip.name);
                 if (res != null)
                 {
                     res.Destroy();

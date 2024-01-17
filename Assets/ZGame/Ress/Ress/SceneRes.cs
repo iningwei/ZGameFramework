@@ -12,7 +12,7 @@ namespace ZGame.Ress
         {
         }
 
-        public override T GetRes<T>(string name)
+        public override T GetResAsset<T>()
         {
             T result = default(T);
 
@@ -20,15 +20,12 @@ namespace ZGame.Ress
             {
                 Debug.LogError("类型不匹配 Scene");
             }
-            if (this.resName != name)
-            {
-                Debug.LogError("error,名字不匹配！！");
-            }
+
 
             result = (T)(object)resObj;
             if (result == null)
             {
-                Debug.LogError("Get SceneRes fail :" + name);
+                Debug.LogError("Get SceneRes fail :" + this.resName);
             }
             return result;
 

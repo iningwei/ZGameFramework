@@ -10,7 +10,7 @@ namespace ZGame.Ress.AB
     public class ABMaterial
     {
 
-        public static void Load(string matName, Action<Material> callback, bool sync)
+        public static void Load(string matName, Action<MatRes> callback, bool sync)
         {
             Action<UnityEngine.Object[]> loadFinishHandle = (objs) =>
             {
@@ -21,7 +21,7 @@ namespace ZGame.Ress.AB
 
                 if (callback != null)
                 {
-                    callback(mat);
+                    callback(res);
                 }
             };
 

@@ -1,4 +1,4 @@
-using FSG.MeshAnimator.ShaderAnimated;
+ 
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -70,18 +70,13 @@ public class BuildInCompRenderInfoSyncOperator : SingletonMonoBehaviour<BuildInC
         if (info.meshName != "")
         {
             Mesh mesh = null;
-            ABManager.Instance.LoadMesh(info.meshName, (m) =>
+            ABManager.Instance.LoadMesh(info.meshName, (res) =>
             {
-                mesh = m;
+                mesh = res.GetResAsset<Mesh>();
                 if (info.concreteCompRenderer is MeshRenderer)
                 {
                     info.tran.GetComponent<MeshFilter>().sharedMesh = mesh;
-
-                    ShaderMeshAnimator sma = info.tran.GetComponent<ShaderMeshAnimator>();
-                    if (sma != null)
-                    {
-                        sma.baseMesh = mesh;
-                    }
+                     
                 }
                 else if (info.concreteCompRenderer is SkinnedMeshRenderer)
                 {
@@ -92,7 +87,7 @@ public class BuildInCompRenderInfoSyncOperator : SingletonMonoBehaviour<BuildInC
                     (info.concreteCompRenderer as ParticleSystemRenderer).mesh = mesh;
                 }
                 //add mesh ref
-                MeshRes meshRes = ABManager.Instance.GetCachedRes(ABType.Mesh, info.meshName) as MeshRes;
+                MeshRes meshRes = ABManager.Instance.GetCachedRes<MeshRes>(info.meshName);
                 meshRes.AddRefTrs(info.tran);
 
             }, false);
@@ -101,17 +96,17 @@ public class BuildInCompRenderInfoSyncOperator : SingletonMonoBehaviour<BuildInC
         if (info.matIndex != -1)
         {
             Material renderMat = null;
-            ABManager.Instance.LoadMatWithCheck(info.matName, (mat) =>
+            ABManager.Instance.LoadMat(info.matName, (matRes) =>
           {
-              renderMat = mat;
-              info.concreteCompRenderer.sharedMaterials[info.matIndex] = mat;
-          }, info.tran);
+              renderMat = matRes.GetResAsset<Material>();
+              info.concreteCompRenderer.sharedMaterials[info.matIndex] = renderMat;
+          });
 
             if (renderMat != null)
             {
                 Transform childTarget = info.tran;
                 //add mat ref 
-                MatRes matRes = ABManager.Instance.GetCachedRes(ABType.Material, info.matName) as MatRes;
+                MatRes matRes = ABManager.Instance.GetCachedRes<MatRes>(info.matName);
                 matRes.AddRefTrs(childTarget);
 
                 if (info.refTextures != null && info.refTextures.Count > 0)

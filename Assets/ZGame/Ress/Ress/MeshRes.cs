@@ -15,7 +15,7 @@ namespace ZGame.Ress
             this.mesh = resObj;
         }
 
-        public override T GetRes<T>(string name)
+        public override T GetResAsset<T>()
         {
             T result = default(T);
             if (!(typeof(T).Equals(typeof(Mesh))))
@@ -23,16 +23,11 @@ namespace ZGame.Ress
                 Debug.LogError("类型不匹配 Mesh");
             }
 
-            if (this.resName != name)
-            {
-                Debug.LogError("error,name不匹配");
-            }
-
             result = (T)(object)this.mesh;
 
             if (result == null)
             {
-                Debug.LogError("error, get res fail,mesh is null， meshName:" + name);
+                Debug.LogError("error, get res fail,mesh is null， meshName:" + this.resName);
             }
 
             return result;

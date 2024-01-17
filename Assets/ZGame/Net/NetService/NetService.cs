@@ -9,7 +9,11 @@ public class NetService
     {
         this.RegisterRcvMsg();
     }
-    
+
+    public virtual void Init()
+    {
+        
+    }
     public virtual void RegisterRcvMsg()
     {
 

@@ -14,9 +14,9 @@ namespace ZGame.Ress
 
         }
 
-        public override T GetRes<T>(string name)
+        public override T GetResAsset<T>()
         {
-            return base.GetRes<T>(name);
+            return base.GetResAsset<T>();
         }
 
         public override void Destroy()

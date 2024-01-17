@@ -14,7 +14,7 @@ namespace ZGame.Ress.AB
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        public static void Load(string name, Action<UnityEngine.Object> callback, bool sync)
+        public static void Load(string name, Action<ObjectRes> callback, bool sync)
         {
             Action<UnityEngine.Object[]> loadFinishHandle = (objs) =>
             {
@@ -23,10 +23,7 @@ namespace ZGame.Ress.AB
                 ObjectRes res = new ObjectRes(name, obj);
                 EventDispatcher.Instance.DispatchEvent(EventID.OnABResLoaded, res, sync);
 
-                if (callback != null)
-                {
-                    callback(obj);
-                }
+                callback?.Invoke(res);
             };
 
             AB.Load(name, ABType.Object, (objs) =>

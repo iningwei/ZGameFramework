@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using ZGame;
 using ZGame.Obfuscation;
+using Unity.VisualScripting;
 
 public class IOTools
 {
@@ -98,13 +99,7 @@ public class IOTools
         //Debug.LogError("testPPath:" + testPPath);
         //Debug.LogError("testSPath:" + testSPath);
 
-
-
-        if (!Directory.Exists(resPersistantPath))
-        {
-            Directory.CreateDirectory(resPersistantPath);
-        }
-
+        CreateDirectorySafe(resPersistantPath);
         if (Application.platform == RuntimePlatform.Android)
         {
             //经笔者测试，StreamingAssets目录下的AB资源使用AssetBundle.LoadFromFile()加载的话
@@ -115,8 +110,7 @@ public class IOTools
             //resStreamingPath = Application.dataPath + "!assets/ResEx";
         }
         else if (Application.platform == RuntimePlatform.IPhonePlayer)
-        {
-
+        { 
 #if UNITY_IOS
             //设置iOS沙盒不备份该路径
             //iOS上可能会因为这个原因审核不通过
@@ -306,18 +300,44 @@ public class IOTools
     public static void WriteString(string path, string content)
     {
         string d = path.Substring(0, path.LastIndexOf('/'));
-        if (!Directory.Exists(d))
-        {
-            Directory.CreateDirectory(d);
-        }
-
-        if (!File.Exists(path))
-        {
-            File.Create(path).Dispose();
-        }
+        CreateDirectorySafe(d);
+        CreateFileSafe(path);
         File.WriteAllText(path, content);
     }
 
+    public static bool CreateDirectorySafe(string folderPath)
+    {
+        try
+        {
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError("CreateDirectory error，target folderPath:" + folderPath + ", ex:" + ex.ToString());
+            return false;
+        }
+    }
+    public static bool CreateFileSafe(string filePath)
+    {
+        try
+        {
+            if (!File.Exists(filePath))
+            {
+                File.Create(filePath).Dispose();
+            }
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError("CreateFile error,target filePath:" + filePath + ", ex:" + ex.ToString());
+            return false;
+        }
+
+    }
 
     /// <summary>
     /// 获得文件所在的文件夹名
@@ -330,16 +350,6 @@ public class IOTools
         return Path.GetFileNameWithoutExtension(directory);
     }
 
-
-    public static string CreateFolder(string path)
-    {
-        if (!Directory.Exists(path))
-        {
-            Directory.CreateDirectory(path);
-        }
-
-        return path;
-    }
 
 
     public static string[] getAllABFilesInUpdateDir()

@@ -29,7 +29,7 @@ namespace ZGame.Ress
 
 
 
-        public override T GetRes<T>(string name)
+        public override T GetResAsset<T>(string name)
         {
             T result = default(T);
             if (!(typeof(T).Equals(typeof(Sprite))))
@@ -69,9 +69,9 @@ namespace ZGame.Ress
                 }
                 allSprites = null;
             }
+            //TODO:texture,mesh等等实体也要删除
 
             ABManager.Instance.RemoveCachedRes(ABType.Sprite, this);
-
         }
     }
 }

@@ -21,8 +21,9 @@ public class IdAssginer
         Audio = 5,
         WWW = 6,
         CoolDown = 7,
-        Times = 8,
+        
         Res = 9,
+        Timer=10,
 
         Window = 10,
         Area = 11,

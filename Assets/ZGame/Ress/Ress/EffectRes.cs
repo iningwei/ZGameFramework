@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,9 +14,9 @@ namespace ZGame.Ress
 
         }
 
-        public override T GetRes<T>(string name)
+        public override T GetResAsset<T>()
         {
-            return base.GetRes<T>(name);
+            return base.GetResAsset<T>();
         }
 
 

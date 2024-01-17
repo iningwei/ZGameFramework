@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,14 +8,14 @@ using UnityEngine.Rendering;
 
 namespace ZGame.TimerTween
 {
+
     [Serializable]
     public class Timer
     {
-
         private Action onComplete;
         private Action<float> onUpdate;
-        private Action<float> onRealUpdate;//根据Time.deltaTime模拟真实的update
-        private Action<float> onRealFixedUpdate;//根据Time.deltaTime模拟真实的update
+        private Action<float> onRealUpdate;
+        private Action<float> onRealFixedUpdate;
         private bool isNeedDoRealFixedUpdate = false;
 
         private float? timeElapsedBeforePause;
@@ -24,7 +24,7 @@ namespace ZGame.TimerTween
         private bool hasAutoDestroyOwner;
         private float startTime;
         private float lastUpdateTime;
-        private int loopedCount;//Already played count
+        public int loopedCount;//Already played count
         private Func<float, float> easeFunc = EaseTool.Get(Ease.Linear);
 
 
@@ -42,23 +42,14 @@ namespace ZGame.TimerTween
         public bool IsCompleted { get; private set; }
 
         public bool UseRealTime { get; private set; }
-        //unique id,you can get timer or cancel timer by it
-        [SerializeField, SetProperty("ID")]
-        private int id;
-        public int ID
-        {
-            get
-            {
-                return id;
-            }
-            private set
-            {
-                id = value;
-            }
-        }
+        //unique id,you can get timer or cancel timer by it  //TODO:改成private
+        private long id = -1;
+
+
         //string tag, it is used for you to rectify timer
         [SerializeField, SetProperty("Tag")]
-        private string tag;
+        private string tag = "";
+
         public string Tag
         {
             get
@@ -119,17 +110,17 @@ namespace ZGame.TimerTween
 
         }
 
+        [Obsolete("Do not use this ctor, it can not set unique id,Now we use TimerManager to generate or reuse timer with unique id")]
         public Timer(float duration, Action onComplete = null, Action<float> onUpdate = null, int loop = 1, bool useRealTime = false, MonoBehaviour autoDestroyOwner = null)
         {
             this.Duration = duration;
             this.onComplete = onComplete;
             this.onUpdate = onUpdate;
             this.Loop = loop;
+            loopedCount = 0;
             this.UseRealTime = useRealTime;
             this.autoDestroyOwner = autoDestroyOwner;
             this.hasAutoDestroyOwner = autoDestroyOwner != null;
-            //////this.startTime = this.getWorldTime();
-            //////this.lastUpdateTime = this.startTime;
         }
 
 
@@ -141,13 +132,40 @@ namespace ZGame.TimerTween
             this.lastUpdateTime = this.startTime;
             startFlag = true;
         }
+        public void Start(out long refId)
+        {
+            refId = this.GetId();
+            this.Start();
+        }
+        public void Recycle()
+        {
+            this.startFlag = false;
+            this.onComplete = null;
+            this.onUpdate = null;
+            this.onRealUpdate = null;
+            this.onRealFixedUpdate = null;
 
+            this.Loop = 1;
+            this.UseRealTime = false;
+            this.autoDestroyOwner = null;
+            this.hasAutoDestroyOwner = false;
+            this.isNeedDoRealFixedUpdate = false;
+            this.SetId(-1);
+            this.loopedCount = 0;
+            if (String.IsNullOrEmpty(this.Tag) == false)
+            {
+                this.Tag = "";
+            }
+            this.timeElapsedBeforePause = null;
+            this.timeElapsedBeforeCancel = null;
+            this.IsCompleted = false;
+        }
 
         public Timer SetOnComplete(Action onComplete)
         {
             if (this.onComplete != null)
             {
-                Debug.LogWarning("Timer already has onComplete function,you will override it");
+                Debug.LogWarning("Timer, id:" + this.GetId() + ", tag:" + (String.IsNullOrEmpty(this.tag) == false ? this.tag : "") + " , already has onComplete function,you will override it");
             }
             this.onComplete = onComplete;
             return this;
@@ -207,6 +225,16 @@ namespace ZGame.TimerTween
             this.Loop = loop;
             return this;
         }
+        public Timer SetDuration(float duration)
+        {
+            if (duration < 0)
+            {
+                Debug.LogError("can not set duration less than 0,we force set it to 0");
+                duration = 0;
+            }
+            this.Duration = duration;
+            return this;
+        }
 
         public Timer SetUseRealTime(bool useRealTime)
         {
@@ -216,6 +244,7 @@ namespace ZGame.TimerTween
         public Timer SetOwner(MonoBehaviour owner)
         {
             this.autoDestroyOwner = owner;
+            this.hasAutoDestroyOwner = true;
             return this;
         }
         public Timer SetEase(Ease ease)
@@ -228,9 +257,14 @@ namespace ZGame.TimerTween
             this.Tag = tag;
             return this;
         }
-        public void SetId(int id)
+        public Timer SetId(long id)
         {
-            this.ID = id;
+            this.id = id;
+            return this;
+        }
+        public long GetId()
+        {
+            return this.id;
         }
 
 
@@ -287,10 +321,6 @@ namespace ZGame.TimerTween
             }
             if (this.getWorldTime() >= this.getFireTime())
             {
-                if (this.onComplete != null)
-                {
-                    this.onComplete();
-                }
                 loopedCount++;
                 if (Loop != 1)
                 {
@@ -309,23 +339,31 @@ namespace ZGame.TimerTween
                             this.IsCompleted = true;
                         }
                     }
-
                 }
                 else
                 {
                     this.IsCompleted = true;
                 }
+
+                this.onComplete?.Invoke();
             }
         }
 
-        public void ForceExecuteCompletCallback()
+
+
+        public void ExecuteCompleteCallback()
         {
-            if (this.onComplete != null)
-            { 
-                this.onComplete();
-            }
+            this.onComplete?.Invoke();
         }
 
+        [Obsolete("Do not use it!use TimerTween.CancelAndExeculteCompleteCallbackTimer")]
+        public void CancelAndExecuteCompleteCallback()
+        {
+            this.onComplete?.Invoke();
+            this.Cancel();
+        }
+
+        [Obsolete("Do not use it!use TimerTween.Cancel")]
         public void Cancel()
         {
             if (this.IsDone)
@@ -366,5 +404,7 @@ namespace ZGame.TimerTween
         {
             return this.GetTimeRemaining() / this.Duration;
         }
+
+
     }
 }

@@ -141,34 +141,74 @@ public class UnityWebRequestMgr : SingletonMonoBehaviour<UnityWebRequestMgr>
         }
     }
 
-    /// <summary>
-    /// 请求图片
-    /// </summary>
-    /// <param name="url">图片地址,like 'http://www.my-server.com/image.png '</param>
-    /// <param name="action">请求发起后处理回调结果的委托,处理请求结果的图片</param>
-    /// <returns></returns>
+    //判断是否WebP文件
+    bool isWebP(byte[] imageData)
+    {
+        if (imageData.Length < 12)
+        {
+            return false;
+        }
+        byte[] webpHeader = { 0x52, 0x49, 0x46, 0x46 };
+        for (int i = 0; i < webpHeader.Length; i++)
+        {
+            if (imageData.Length <= i || imageData[i] != webpHeader[i])
+            {
+                return false;
+            }
+        }
+
+        byte[] webpIdentifier = { 0x57, 0x45, 0x42, 0x50 };
+        for (int i = 8; i < 12; i++)
+        {
+            if (imageData.Length <= i || imageData[i] != webpIdentifier[i - 8])
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+    //常见报错Curl error 60: Cert verify failed: UNITYTLS_X509VERIFY_FLAG_USER_  （遇到的是访问外网需要开梯子的图片，梯子不通的时候会报这个错） 
     IEnumerator _GetTexture(string url, Action<Texture2D> actionResult)
     {
         UnityWebRequest uwr = new UnityWebRequest(url);
         //uwr.certificateHandler = new CertificateWhore();
         //解决报错问题--->https://answers.unity.com/questions/1874008/curl-error-60-cert-verify-failed-unitytls-x509veri-1.html
-        //上述通过自己定义验证函数的方式在iOS上还遇到了报错：Unable to complete SSL connection的问题
-        //服务端通过修改证书的参数，重做了https协议的证书，已经解决上述提到的两种报错问题
 
-
-
-        DownloadHandlerTexture downloadTexture = new DownloadHandlerTexture(true);
+        DownloadHandlerTexture downloadTexture = new DownloadHandlerTexture(true);//true will set texture readable
         uwr.downloadHandler = downloadTexture;
         yield return uwr.SendWebRequest();
         Texture2D t = null;
 
         if (!(uwr.result == UnityWebRequest.Result.ConnectionError || uwr.result == UnityWebRequest.Result.ProtocolError))
         {
+#if WebP
+            var byteDatas = downloadTexture.data;
+            if (isWebP(byteDatas))
+            {                
+                Texture2D texture = WebP.Texture2DExt.CreateTexture2DFromWebP(byteDatas, lMipmaps: true, lLinear: false, lError: out WebP.Error lError, scalingFunction: null, makeNoLongerReadable: false);
+                if (lError == WebP.Error.Success)
+                {
+                    t = texture;
+                }
+                else
+                {
+                    Debug.LogError("Webp Load Error : " + lError.ToString());
+                }
+            }
+            else
+            {                
+                t = downloadTexture.texture;
+            }
+#else
             t = downloadTexture.texture;
+#endif
         }
-        else {
+        else
+        {
             string error = uwr.error;
-            DebugExt.Log("get texture error:"+error);
+            Debug.LogError("get texture:" + url + " , error:" + error);
         }
         if (actionResult != null)
         {

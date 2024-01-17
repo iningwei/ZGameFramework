@@ -17,6 +17,7 @@ public class CompResCollection
             {
                 if (item.Value.assetNames[i] == assetPath)
                 {
+                    Debug.LogWarning("-->try add assetName:" + assetName + ", assetPath:" + assetPath + ", abType:" + abType.ToString() + "。but already exist assetPath:" + assetPath + ", it's name is :" + item.Key);
                     return;
                 }
             }
@@ -31,62 +32,6 @@ public class CompResCollection
             build.assetNames = new string[] { assetPath };
             buildMap.Add(bundleName, build);
         }
-    }
-
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="fbxFilePath">start with:Assets/</param>
-    public void ExportMeshToTmpFolder(string fbxFilePath)
-    {
-        if (!fbxFilePath.EndsWith(".fbx") && !fbxFilePath.EndsWith(".FBX"))
-        {
-            Debug.LogError("it is not fbx/FBX:" + fbxFilePath);
-            return;
-        }
-        string fbxFileName = Path.GetFileNameWithoutExtension(Path.Combine(Application.dataPath, fbxFilePath));
-
-        string tmpFolder = Path.Combine(Application.dataPath, "temp_for_fbx/" + fbxFileName);
-        if (!Directory.Exists(tmpFolder))
-        {
-            Directory.CreateDirectory(tmpFolder);
-        }
-        string outputFolder = "Assets/" + "/temp_for_fbx/" + fbxFileName;
-        //create meshes
-        Object[] objects = AssetDatabase.LoadAllAssetsAtPath(fbxFilePath);
-        for (int i = 0; i < objects.Length; i++)
-        {
-            if (objects[i] is Mesh)
-            {
-                Mesh mesh = Object.Instantiate(objects[i]) as Mesh;
-
-                string outputPath = outputFolder + "/" + objects[i].name + ".mesh";
-
-                AssetDatabase.CreateAsset(mesh, outputPath);
-            }
-        }
-
-        AssetDatabase.SaveAssets();
-        AssetDatabase.Refresh();
-    }
-
-    public string GetMeshPathFromTmpFolder(string name)
-    {
-        string[] files = Directory.GetFiles(Application.dataPath + "/temp_for_fbx", "*.mesh", SearchOption.AllDirectories);
-        if (files.Length > 0)
-        {
-            for (int i = 0; i < files.Length; i++)
-            {
-                string filePath = files[i];
-                string fileName = Path.GetFileNameWithoutExtension(filePath);
-                if (fileName == name)
-                {
-                    return filePath.Substring(filePath.IndexOf("Assets"));
-                }
-            }
-        }
-        return "";
     }
 
 

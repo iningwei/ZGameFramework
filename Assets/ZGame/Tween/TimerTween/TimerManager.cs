@@ -1,99 +1,118 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace ZGame.TimerTween
 {
     class TimerManager : SingletonMonoBehaviour<TimerManager>
     {
+        public Queue<Timer> cachedTimer = new Queue<Timer>();
+
         public List<Timer> timers = new List<Timer>();
 
-        public List<Timer> timersToAdd = new List<Timer>();
 
-
-        public void RegisterTimer(Timer timer)
+        public Timer GetFreeTimer(out long id)
         {
-            TimerGlobal.Counter++;
-            if (GetTimer(TimerGlobal.Counter) != null)
+            Timer timer = null;
+            if (cachedTimer.Count > 0)
             {
-                //duplicated id, then continue call RegisterTimer can auto add id
-                this.RegisterTimer(timer);
-
+                timer = cachedTimer.Dequeue();
             }
             else
             {
-                timer.SetId(TimerGlobal.Counter);
-                this.timersToAdd.Add(timer);
+                timer = new Timer();
             }
+            id = IdAssginer.GetID(IdAssginer.IdType.Timer);
+            timer.SetId(id);//set new id
+            return timer;
         }
 
-        public void CancelAllTimers()
+        void recycleTimer(Timer timer)
         {
-            foreach (Timer timer in this.timers)
-            {
-                timer.Cancel();
-            }
+            timer.Recycle();
+            this.cachedTimer.Enqueue(timer);
+            //Debug.Log("cachedTimer count:" + cachedTimer.Count);
 
-            this.timers = new List<Timer>();
-            this.timersToAdd = new List<Timer>();
         }
 
-        public void PauseAllTimers()
+        public void RegisterTimer(Timer timer)
         {
-            foreach (Timer timer in timers)
-            {
-                timer.Pause();
-            }
+            this.timers.Add(timer);
         }
 
-        public void ResumeAllTimers()
-        {
-            foreach (Timer timer in timers)
-            {
-                timer.Resume();
-            }
-        }
+        //////public void CancelAllTimers()
+        //////{
+        //////    foreach (Timer timer in this.timers)
+        //////    {
+        //////        timer.CancelSelf();
+        //////        this.recycleTimer(timer);
+        //////    }
+        //////    foreach (Timer timer in this.timersToAdd)
+        //////    {
+        //////        this.recycleTimer(timer);
+        //////    }
+        //////    this.timers = new List<Timer>();
+        //////    this.timersToAdd = new List<Timer>();
+        //////}
 
-        public void CancelTimer(Timer timer)
+        //////public void PauseAllTimers()
+        //////{
+        //////    foreach (Timer timer in timers)
+        //////    {
+        //////        timer.Pause();
+        //////    }
+        //////}
+
+        //////public void ResumeAllTimers()
+        //////{
+        //////    foreach (Timer timer in timers)
+        //////    {
+        //////        timer.Resume();
+        //////    }
+        //////}
+
+        public void CancelTimer(Timer timer, long id)
         {
-            if (this.timersToAdd.Contains(timer))
-            {
-                this.timersToAdd.Remove(timer);
-            }
-            if (this.timers.Contains(timer))
+            bool flag = false;
+            if (this.timers.Contains(timer) && timer.GetId() == id)
             {
                 this.timers.Remove(timer);
+                flag = true;
             }
-            timer?.Cancel();
+            if (flag)
+            {
+                //timer.Cancel();
+                this.recycleTimer(timer);
+            }
+        }
+
+        public void CancelAndExeculteCompleteCallbackTimer(Timer timer, long id)
+        {
+            bool flag = false;
+            if (this.timers.Contains(timer) && timer.GetId() == id)
+            {
+                this.timers.Remove(timer);
+                flag = true;
+            }
+            if (flag)
+            {
+                //timer.CancelAndExecuteCompleteCallback();
+                timer.ExecuteCompleteCallback();
+                this.recycleTimer(timer);
+            }
         }
 
         public Timer GetTimer(int id)
         {
-            foreach (Timer timer in this.timersToAdd)
-            {
-                if (timer.ID == id)
-                {
 
-                    return timer;
-                }
-            }
             foreach (Timer timer in this.timers)
             {
-                if (timer.ID == id)
+                if (timer.GetId() == id)
                 {
                     return timer;
                 }
             }
             return null;
-        }
-
-        public void CancelTimer(int id)
-        {
-            Timer timer = GetTimer(id);
-            CancelTimer(timer);
         }
 
         private void Update()
@@ -107,34 +126,33 @@ namespace ZGame.TimerTween
 
 
         int timerCount = 0;
+        Timer tmpTimer;
         void updateAllTimers()
         {
-            if (this.timersToAdd.Count > 0)
-            {
-                this.timers.AddRange(this.timersToAdd);
-                this.timersToAdd.Clear();
-            }
-
             timerCount = timers.Count;
             if (timerCount > 0)
             {
-                //Debug.Log("timers count:" + timers.Count);
-
-                for (int i = timerCount - 1; i >= 0; i--)
+                int i = timerCount - 1;
+                try
                 {
-                    if (timers[i] != null)
+                    for (; i >= 0; i--)
                     {
-                        timers[i].Update();
+                        if (i < timers.Count)
+                        {
+                            tmpTimer = this.timers[i];
+                            if (tmpTimer != null)
+                            {
+                                tmpTimer.Update();
+                            }
+                        }
                     }
                 }
+                catch (Exception ex)
+                {
 
-
-
-
-                this.timers.RemoveAll(t => t.IsDone);
-
+                    Debug.LogError("error:" + ex.ToString() + ",timerCount: " + timerCount + ", cur i:" + i);
+                }
             }
-
         }
 
         void fixedUpdateTimers()
@@ -151,12 +169,12 @@ namespace ZGame.TimerTween
                             {
                                 timer.FixedUpdate();
                             }
-
                         }
                         catch (Exception ex)
                         {
-                            Debug.LogError("fixedUpdate timer ex:" + ex.ToString() + ", we remove it! please check, tag:" + timer.Tag);
-                            timer.Cancel();
+                            Debug.LogError("fixedUpdate timer ex:" + ex.ToString() + ", we remove it! please check,Id:" + timer.GetId() + ",  Tag:" + timer.Tag);
+                            //////timer.CancelSelf();
+                            //////this.recycleTimer(timer);
                         }
                     }
                 }
@@ -164,9 +182,6 @@ namespace ZGame.TimerTween
                 {
                     Debug.LogError("fixedUpdate timer ex1:" + ex1.ToString());
                 }
-
-
-
             }
         }
     }

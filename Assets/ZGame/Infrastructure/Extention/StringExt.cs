@@ -40,13 +40,14 @@ public static class StringExt
 
     /// <summary>
     /// 判断资源名是否合法
-    /// 规则：“字母、数字、下划线_、 空格符 ”组成，且开头和结尾只能是字母或者数字
+    /// 规则：“字母、数字、空格符 、下划线_、中划线-”组成，且开头和结尾只能是字母或者数字
     /// </summary>
     /// <param name="resNameWithoutExt">不带后缀的文件名</param>
     /// <returns></returns>
     public static bool IsResNameValid(this string resNameWithoutExt)
     {
-        if (Regex.Match(resNameWithoutExt, @"^[0-9a-zA-Z][a-zA-Z0-9_ ]+[0-9a-zA-Z]$").Success)
+       
+        if (Regex.Match(resNameWithoutExt, @"^[0-9a-zA-Z][a-zA-Z0-9 _\-]+[0-9a-zA-Z]$").Success)
         {
             return true;
         }

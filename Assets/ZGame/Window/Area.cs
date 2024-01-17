@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using ZGame.Ress;
+
 namespace ZGame.Window
 {
     /// <summary>
@@ -14,16 +16,16 @@ namespace ZGame.Window
         /// </summary>
         public Window parentWindow;
         public bool initVisible = false;
-        public Area(GameObject obj, Window window, bool initVisible, params object[] paras)
+        public Area(GameObject obj, Window window, bool initVisible, params object[] paras) : base(obj)
         {
             this.id = IdAssginer.GetID(IdAssginer.IdType.Area);
-            this.rootObj = obj;
+
             this.parentWindow = window;
             this.initVisible = initVisible;
             AutoLinkUI(this);
             Init(paras);
             AddEventListener();
-
+            this.FillTextContent();
             window.AddArea(this);
         }
         public virtual void Init(params object[] paras)
@@ -31,9 +33,7 @@ namespace ZGame.Window
 
         }
 
-
-
-
+         
         public virtual void Show()
         {
             this.rootObj.SetActive(true);
@@ -47,7 +47,14 @@ namespace ZGame.Window
         public virtual void Destroy()
         {
             RemoveEventListener();
-            GameObject.Destroy(this.rootObj);
+            if (Config.resLoadType == (int)ResLoadType.AssetBundle)
+            {
+                GameObjectHelper.DestroyImmediate(this.rootObj);
+            }
+            else
+            {
+                GameObject.DestroyImmediate(this.rootObj);
+            }
         }
 
     }

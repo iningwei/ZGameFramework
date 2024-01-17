@@ -5,6 +5,8 @@ using System.Reflection;
 using Unity.VisualScripting;
 using UnityEngine;
 using ZGame;
+using ZGame.Event;
+
 namespace ZGame.Window
 {
     public class UIRoot
@@ -12,6 +14,16 @@ namespace ZGame.Window
         public long id;
         public GameObject rootObj;
 
+
+        public UIRoot(GameObject obj)
+        {
+            this.rootObj = obj;
+        }
+
+        public virtual void FillTextContent()
+        {
+
+        }
         public void AutoLinkUI(UIRoot uiRoot)
         {
             Type trueType = uiRoot.GetType();
@@ -35,14 +47,11 @@ namespace ZGame.Window
                 else
                 {
                     Component tmpCom = this.rootObj.transform.FindComponent(field.FieldType, field.Name.Replace("ui_", ""), true);
-                    if (tmpCom == null)
+                    if (tmpCom != null)
                     {
-                        //////Debug.LogWarning("window " + trueType.Name + ",can not find：" + field.Name.Replace("ui_", ""));
-                        continue;
+                        field.SetValue(uiRoot, tmpCom);
                     }
-                    field.SetValue(uiRoot, tmpCom);
                 }
-
             }
         }
 
@@ -61,13 +70,17 @@ namespace ZGame.Window
         }
         public virtual void AddEventListener()
         {
-
+            EventDispatcher.Instance.AddListener(EventID.OnLanguageCodeChange, this.onLanguageCodeChange);
         }
 
+        private void onLanguageCodeChange(string evtId, object[] paras)
+        {
+            this.FillTextContent();
+        }
 
         public virtual void RemoveEventListener()
         {
-
+            EventDispatcher.Instance.RemoveListener(EventID.OnLanguageCodeChange, this.onLanguageCodeChange);
         }
     }
 }

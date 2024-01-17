@@ -1,9 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ZGame.TimerTween
 {
@@ -15,8 +10,8 @@ namespace ZGame.TimerTween
             float gap = to - from;
             float offset = gap / duration;
             int tickedCount = 0;
-            Timer timer = new Timer(duration,
-                onComplete: () =>
+            Timer timer = TimerManager.Instance.GetFreeTimer(out long id);
+            timer.SetDuration(duration).SetOnComplete(() =>
             {
                 //UnityEngine.Debug.Log("tickedCount:" + tickedCount);
                 lastTime = 0;
@@ -25,8 +20,8 @@ namespace ZGame.TimerTween
                 {
                     complteCallback();
                 }
-            },
-                onUpdate: (t) =>
+                Cancel(timer, id);
+            }).SetOnUpdate((t) =>
             {
                 //UnityEngine.Debug.Log("  t:" + t);
                 if (Math.Abs(t - lastTime) >= interval)
@@ -40,7 +35,8 @@ namespace ZGame.TimerTween
                         updateCallback(v);
                     }
                 }
-            });
+            }).SetLoop(1);
+
             TimerManager.Instance.RegisterTimer(timer);
             return timer;
         }
@@ -51,15 +47,16 @@ namespace ZGame.TimerTween
             float offset = gap / duration;
             int tickedCount = 0;
             //t由于要进行ease变换，故限制了范围为[0,1]
-            Timer timer = new Timer(duration, onComplete: () =>
+            Timer timer = TimerManager.Instance.GetFreeTimer(out long id);
+            timer.SetDuration(duration).SetOnComplete(() =>
             {
-                //UnityEngine.Debug.Log("tickedCount:" + tickedCount);
                 tickedCount = 0;
                 if (complteCallback != null)
                 {
                     complteCallback();
                 }
-            }, onUpdate: (t) =>
+                Cancel(timer, id);
+            }).SetOnUpdate((t) =>
             {
                 tickedCount++;
                 float v = from + t * duration * offset;
@@ -68,22 +65,23 @@ namespace ZGame.TimerTween
                 {
                     updateCallback(v);
                 }
-            });
-
+            }).SetLoop(1);
             TimerManager.Instance.RegisterTimer(timer);
             return timer;
         }
 
         public static Timer Delay(float delayTime, Action call)
         {
-            Timer timer = new Timer(delayTime, onComplete: () =>
+            Timer timer = TimerManager.Instance.GetFreeTimer(out long id);
+
+            timer.SetDuration(delayTime).SetOnComplete(() =>
             {
-                if (call != null)
-                {
-                    call();
-                }
-            });
+                call?.Invoke();
+                Cancel(timer, id);
+            }).SetLoop(1);
+
             TimerManager.Instance.RegisterTimer(timer);
+
             return timer;
         }
 
@@ -96,16 +94,15 @@ namespace ZGame.TimerTween
                     repeatCallback();
                 }
             }
-            Timer timer = new Timer(interval);
-            timer.SetLoop(0);
-            timer.SetOnComplete(() =>
+            Timer timer = TimerManager.Instance.GetFreeTimer(out long id);
+            timer.SetDuration(interval).SetLoop(0).SetOnComplete(() =>
             {
                 if (repeatCallback != null)
                 {
                     bool r = repeatCallback();
                     if (!r)
                     {
-                        timer.Cancel();
+                        Cancel(timer, id);
                     }
                 }
             });
@@ -116,7 +113,7 @@ namespace ZGame.TimerTween
 
         public static Timer RealUpdate(Action<float> realUpdateCallback)
         {
-            Timer timer = new Timer();
+            Timer timer = TimerManager.Instance.GetFreeTimer(out long id);
             timer.SetOnRealUpdate(realUpdateCallback);
 
             TimerManager.Instance.RegisterTimer(timer);
@@ -125,7 +122,7 @@ namespace ZGame.TimerTween
 
         public static Timer RealFixedUpdate(Action<float> realFixedUpdateCallback)
         {
-            Timer timer = new Timer();
+            Timer timer = TimerManager.Instance.GetFreeTimer(out long id);
             timer.SetOnRealFixedUpdate(realFixedUpdateCallback);
 
             TimerManager.Instance.RegisterTimer(timer);
@@ -139,7 +136,6 @@ namespace ZGame.TimerTween
                 UnityEngine.Debug.LogError("error, count<0");
                 return null;
             }
-            Timer timer = new Timer(interval);
             if (callOnawake)
             {
                 count--;
@@ -148,6 +144,9 @@ namespace ZGame.TimerTween
                     repeatCallback();
                 }
             }
+
+            Timer timer = TimerManager.Instance.GetFreeTimer(out long id);
+            timer.SetDuration(interval);
             timer.SetLoop(count);
             timer.SetOnComplete(() =>
             {
@@ -156,7 +155,7 @@ namespace ZGame.TimerTween
                     bool r = repeatCallback();
                     if (!r)
                     {
-                        timer.Cancel();
+                        Cancel(timer, id);
                     }
                 }
             });
@@ -165,9 +164,20 @@ namespace ZGame.TimerTween
             return timer;
         }
 
-        public static void Cancel(Timer timer)
+        public static void Cancel(Timer timer, long id)
         {
-            TimerManager.Instance.CancelTimer(timer);
+            if (timer != null)
+            {
+                TimerManager.Instance.CancelTimer(timer, id);
+            }
+        }
+
+        public static void CancelAndExeculteCompleteCallbackTimer(Timer timer, long id)
+        {
+            if (timer != null)
+            {
+                TimerManager.Instance.CancelAndExeculteCompleteCallbackTimer(timer, id);
+            }
         }
 
         public static void Pause(Timer timer)

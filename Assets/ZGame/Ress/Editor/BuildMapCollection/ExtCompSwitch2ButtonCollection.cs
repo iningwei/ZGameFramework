@@ -34,7 +34,7 @@ public class ExtCompSwitch2ButtonCollection : IRefResCollection
                 spriteInfos.Add(spriteInfo);
             }
 
-            CompInfo extCompSwitch2BtnInfo = new ExtCompSwitch2ButtonInfo(switch2Btn.transform, spriteInfos);
+            CompInfo extCompSwitch2BtnInfo = new ExtCompSwitch2ButtonInfo(switch2Btn.transform, switch2Btn, spriteInfos);
             compInfos.Add(extCompSwitch2BtnInfo);
         }
 

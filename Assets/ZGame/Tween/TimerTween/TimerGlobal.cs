@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,9 +17,9 @@ namespace ZGame.TimerTween
             }
             set
             {
-                if (value > 100000)
+                if (value > 100000000)
                 {
-                    value = 1;
+                    value = 0;
                 }
                 counter = value;
             }

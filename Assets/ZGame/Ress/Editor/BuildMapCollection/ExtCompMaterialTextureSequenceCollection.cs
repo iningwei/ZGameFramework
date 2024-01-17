@@ -36,6 +36,7 @@ public class ExtCompMaterialTextureSequenceCollection : CompResCollection, IRefR
 
             CompInfo extCompMaterialTextureSequenceInfo = new ExtCompMaterialTextureSequenceInfo(
                     mtSequence.transform,
+                    mtSequence,
                     texInfos);
             compInfos.Add(extCompMaterialTextureSequenceInfo);
 

@@ -1,94 +1,100 @@
-using System.Collections;
-using System.Collections.Generic;
+
+using System;
+using Unity.VisualScripting;
 using UnityEngine;
 using ZGame.Event;
 using ZGame.Ress.AB;
 using ZGame.Ress.AB.Holder;
+using ZGame.TimerTween;
 
 namespace ZGame.Ress
 {
     public class GameObjectHelper
     {
-
         public static GameObject Instantiate(GameObject target)
         {
-            if (target.GetComponent<DynamicCompInfoHolder>() == null)
+            if (Config.resLoadType == (int)ResLoadType.AssetBundle)
             {
-                Debug.LogError("The instantiate target have no component DynamicCompInfoHolder attached:" + target.GetHierarchy());
-                return null;
+                if (target.GetComponent<DynamicCompInfoHolder>() == null)
+                {
+                    Debug.LogError("The instantiate target have no component DynamicCompInfoHolder attached:" + target.GetHierarchy());
+                    return null;
+                }
+                GameObject resultObj = GameObject.Instantiate(target);
+
+                EventDispatcher.Instance.DispatchEvent(EventID.OnDynamicCompInfoHolderObjInstantiate, resultObj);
+
+                return resultObj;
             }
-            GameObject resultObj = GameObject.Instantiate(target);
-
-            EventDispatcher.Instance.DispatchEvent(EventID.OnGameObjectInstantiate, resultObj);
-
-            return resultObj;
+            else
+            {
+                GameObject resultObj = GameObject.Instantiate(target);
+                return resultObj;
+            }
         }
 
 
-        public static void Destroy(UnityEngine.Object target, float time)
+        public static void Destroy(GameObject target, float time)
         {
-            if (target is GameObject)
+            if (target == null)
             {
-                var targetGameObj = target as GameObject;
-                if (targetGameObj == null)
+                return;
+            }
+            if (Config.resLoadType == (int)ResLoadType.AssetBundle)
+            {
+                ZGame.TimerTween.TimerTween.Delay(time, () =>
                 {
-                    return;
-                }
-                CompInfoHolder compInfoHolder = targetGameObj.GetComponent<CompInfoHolder>();
-                if (compInfoHolder == null)
-                {
-                    if (Config.resLoadType == (int)ResLoadType.AssetBundle)
+                    if (target)
                     {
-                        Debug.LogError("error, target have no CompInfoHolder , can not destroy, please check:" + targetGameObj.GetHierarchy());
-                    }
-                    else
-                    {
-                        UnityEngine.Object.Destroy(target, time);
-                    }
+                        if (target.GetComponent<RootCompInfoHolder>() != null)
+                        {
+                            EventDispatcher.Instance.DispatchEvent(EventID.OnRootCompInfoHolderObjDestroy, target);
+                        }
 
-                }
-                else
-                {
-                    if (compInfoHolder is RootCompInfoHolder)
-                    {
-                        UnityEngine.Object.Destroy(target, time);
+                        //通知所有物体要删除咯
+                        NoticeAllChildTranWillBeDestroy(target);
+                        UnityEngine.Object.Destroy(target);
                     }
-                    else if (compInfoHolder is DynamicCompInfoHolder)
-                    {
-                        UnityEngine.Object.Destroy(target, time);
-                    }
-                }
+                }).Start();
+            }
+            else
+            {
+                UnityEngine.Object.Destroy(target, time);
             }
         }
 
-        public static void DestroyImmediate(UnityEngine.Object target)
+
+
+        public static void DestroyImmediate(GameObject target)
         {
-            if (target is GameObject)
+            if (target == null)
             {
-                var targetGameObj = target as GameObject;
-                if (targetGameObj == null)
+                return;
+            }
+            if (Config.resLoadType == (int)ResLoadType.AssetBundle)
+            {
+                if (target.GetComponent<RootCompInfoHolder>() != null)
                 {
-                    return;
+                    EventDispatcher.Instance.DispatchEvent(EventID.OnRootCompInfoHolderObjDestroy, target);
                 }
-                CompInfoHolder compInfoHolder = targetGameObj.GetComponent<CompInfoHolder>();
-                if (compInfoHolder == null)
-                {
-                    Debug.LogError("error, target have no compInfoHolder , can not destroy, please check:" + targetGameObj.GetHierarchy());
-                }
-                else
-                {
-                    if (compInfoHolder is RootCompInfoHolder)
-                    {
-                        UnityEngine.Object.DestroyImmediate(target);
-                    }
-                    else if (compInfoHolder is DynamicCompInfoHolder)
-                    {
-                        UnityEngine.Object.DestroyImmediate(target);
-                    }
-                }
+
+                NoticeAllChildTranWillBeDestroy(target);
+                UnityEngine.Object.DestroyImmediate(target);
+            }
+            else
+            {
+                UnityEngine.Object.DestroyImmediate(target);
             }
 
         }
+        public static void NoticeAllChildTranWillBeDestroy(GameObject target)
+        {
+            var childs = target.GetComponentsInChildren<Transform>(true);
 
+            for (int i = 0; i < childs.Length; i++)
+            {
+                EventDispatcher.Instance.DispatchEvent(EventID.OnCompInfoHolderChildObjDestroy, childs[i].gameObject);
+            }
+        }
     }
 }

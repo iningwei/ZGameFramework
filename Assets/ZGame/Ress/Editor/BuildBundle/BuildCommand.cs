@@ -709,10 +709,8 @@ namespace ZGame.RessEditor
 
 
 
-
             if (infoHolder is RootCompInfoHolder)
             {
-
                 var abType = (infoHolder as RootCompInfoHolder).abType;
                 if (abType == Ress.AB.ABType.Scene)
                 {
@@ -768,28 +766,6 @@ namespace ZGame.RessEditor
             /*
             //////BuildInCompImageCollection buildInCompImageCollection = new BuildInCompImageCollection();
             //////texMap.AddRange(buildInCompImageCollection.GetResMap(obj));
-
-            //////BuildInCompSpriteRendererCollection buildInCompSpriteRendererCollection = new BuildInCompSpriteRendererCollection();
-            //////texMap.AddRange(buildInCompSpriteRendererCollection.GetResMap(obj));
-
-            //////BuildInCompRendererCollection buildInCompRendererCollection = new BuildInCompRendererCollection();
-            //////texMap.AddRange(buildInCompRendererCollection.GetResMap(obj));
-
-             
-            //////BuildInCompTextCollection buildInCompTextCollection = new BuildInCompTextCollection();
-            //////texMap.AddRange(buildInCompTextCollection.GetResMap(obj));
-
-            //////ExtCompImageSequenceCollection extCompImageSequenceCollection = new ExtCompImageSequenceCollection();
-            //////texMap.AddRange(extCompImageSequenceCollection.GetResMap(obj));
-
-            //////ExtCompSpriteSequenceCollection extCompSpriteSequenceCollection = new ExtCompSpriteSequenceCollection();
-            //////texMap.AddRange(extCompSpriteSequenceCollection.GetResMap(obj));
-
-            //////ExtCompSwapSpriteCollection extCompSwapSpriteCollection = new ExtCompSwapSpriteCollection();
-            //////texMap.AddRange(extCompSwapSpriteCollection.GetResMap(obj));
-
-            //////ExtCompSwitch2ButtonCollection extCompSwitch2ButtonCollection = new ExtCompSwitch2ButtonCollection();
-            //////texMap.AddRange(extCompSwitch2ButtonCollection.GetResMap(obj));
             */
 
 

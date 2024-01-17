@@ -5,7 +5,7 @@ using System.Security.Cryptography;
 using UnityEditor;
 using UnityEngine;
 using ZGame;
-using ZGame.Obfuscation; 
+using ZGame.Obfuscation;
 
 public class BuildLuaBundle
 {
@@ -25,12 +25,13 @@ public class BuildLuaBundle
     public static void build()
     {
 
-        abPath = IOTools.CreateFolder(abPath);
-        luaABTMP_Path = IOTools.CreateFolder(luaABTMP_Path);
+        IOTools.CreateDirectorySafe(abPath);
+        IOTools.CreateDirectorySafe(luaABTMP_Path);
 
 
         //先把所有lua脚本拷贝到Assets/TempLuaScript目录下
-        string tmpPath = IOTools.CreateFolder(Application.dataPath + "/TempLuaScript");
+        string tmpPath = Application.dataPath + "/TempLuaScript";
+        IOTools.CreateDirectorySafe(tmpPath);
         IOTools.DeleteAllFiles(tmpPath, true);
 
         editorLuaScripts.Clear();
@@ -80,7 +81,7 @@ public class BuildLuaBundle
         AssetDatabase.Refresh();
 
 
- 
+
 
 
         //二进制文件头增加3字节，同时混淆其名称
@@ -92,7 +93,7 @@ public class BuildLuaBundle
             string fileName = Path.GetFileNameWithoutExtension(files[i]);
             string fileExt = Path.GetExtension(files[i]);
 
-            string newFileName =Config.isABResNameCrypto ? ZGame.Obfuscation.DES.EncryptStrToHex(fileName, Config.abResNameCryptoKey) : fileName;
+            string newFileName = Config.isABResNameCrypto ? ZGame.Obfuscation.DES.EncryptStrToHex(fileName, Config.abResNameCryptoKey) : fileName;
             string targetFile = abPath + "/" + newFileName + fileExt;
 
 
@@ -113,10 +114,10 @@ public class BuildLuaBundle
                 }
             }
 
-             
+
         }
 
-         
+
         Debug.Log("build lua bundle finish:" + abPath);
     }
 

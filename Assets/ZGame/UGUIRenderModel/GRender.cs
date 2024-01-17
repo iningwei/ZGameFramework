@@ -155,7 +155,7 @@ public class GRender : MonoBehaviour
         img.material = rawImgMat;
 
     }
-
+    //TODO:不如直接instantiate目标相机
     private Camera CreateCamera(string name, Color bgColor)
     {
         GameObject obj = new GameObject(name);

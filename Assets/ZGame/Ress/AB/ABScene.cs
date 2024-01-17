@@ -59,7 +59,7 @@ public class ABScene
 
     static Action<string, LoadSceneMode, Action, bool> loadFinishHandle = (name, loadMode, lightmapAttachedCallback, sync) =>
     {
-        Debug.Log("scene load finish handle");
+        Debug.Log(name + " ,scene load finish handle");
         Scene curScene = SceneManager.GetSceneByName(name);
         GameObject[] rootObjs = curScene.GetRootGameObjects();
         //find node "Root",get it's ref then   load them.
@@ -96,7 +96,7 @@ public class ABScene
             }
 
 
-            ABManager.Instance.AddDestroyNotice(targetRootNode);
+            ABManager.Instance.AddRootCompInfoHolderDestroyNotice(targetRootNode);
         }
         else
         {

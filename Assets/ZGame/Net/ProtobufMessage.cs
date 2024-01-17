@@ -91,18 +91,15 @@ public class ProtobufMessage
 {
     static Dictionary<string, Action<byte[]>> eventHandlers = new Dictionary<string, Action<byte[]>>();
 
+    //不打印的消息ID
+    //TODO:后续通过cfg配置，cfg表改成可热更，这样可以动态调
+    static List<ProtobufMsgID> ignoreLogMsgIds = new List<ProtobufMsgID>() {
+ 
+    };
 
-    public bool Contain(int bigId, int smallId)
+    public static void AddListener(ProtobufMsgID msgId, Action<byte[]> handler)
     {
-        string idStr = bigId + "@" + smallId;
-        if (eventHandlers.ContainsKey(idStr))
-        {
-            return true;
-        }
-        return false;
-    }
-    public static void AddListener(string idStr, Action<byte[]> handler)
-    {
+        string idStr = ProtobufMsgIDDesUtils.GetIDStr(msgId);
         addListener(idStr, handler);
     }
 
@@ -121,8 +118,9 @@ public class ProtobufMessage
         }
     }
 
-    public static void RemoveListener(string idStr, Action<byte[]> handler)
+    public static void RemoveListener(ProtobufMsgID msgId, Action<byte[]> handler)
     {
+        string idStr = ProtobufMsgIDDesUtils.GetIDStr(msgId);
         removeListener(idStr, handler);
     }
     static void removeListener(string idStr, Action<byte[]> handler)
@@ -159,9 +157,11 @@ public class ProtobufMessage
 
     public static void PrintMessage(ProtobufMsgID msgId, IMessage msg)
     {
+        if (ignoreLogMsgIds.Contains(msgId))
+        {
+            return;
+        }
         var des = ProtobufMsgIDDesUtils.GetIDDes(msgId);
-        DebugExt.Log($"{des.name}, {des.msgId} :{msg.ToString()}");
+        Debug.Log($"{des.name}, {des.msgId} :{msg.ToString()};frame:" + Time.frameCount + ", stamp(ms):" + TimeTool.GetNowStamp());
     }
-
-
 }

@@ -1,12 +1,11 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using ZGame;
 
 public class IOAndroidLoader : Singleton<IOAndroidLoader>
-{
-
+{ 
     AndroidJavaClass readAsset = new AndroidJavaClass("com.zgame.sdk.ReadAsset");
     public IOAndroidLoader()
     {
@@ -17,6 +16,10 @@ public class IOAndroidLoader : Singleton<IOAndroidLoader>
         }
     }
 
+    public bool IsFileExist(string path)//path为StreamingAssets文件夹内的全路径
+    {
+        return readAsset.CallStatic<bool>("isFileExists", path);
+    }
 
     public byte[] GetBytes(string path)
     {

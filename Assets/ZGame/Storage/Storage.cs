@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -82,13 +82,41 @@ namespace ZGame
         /// <returns></returns>
         public static string GetAppLanguage()
         {
-            return PlayerPrefs.GetString("Language", "chinese");
+            string code = PlayerPrefs.GetString("Language", "");
+            if (code == "")
+            {
+                Debug.Log("Application.systemLanguage:" + Application.systemLanguage);
+                if (Application.systemLanguage == SystemLanguage.Chinese || Application.systemLanguage == SystemLanguage.ChineseSimplified)
+                {
+                    code = "CN";
+                }
+                else if (Application.systemLanguage == SystemLanguage.ChineseTraditional)
+                {
+                    code = "TC";
+                }
+                else if (Application.systemLanguage == SystemLanguage.English)
+                {
+                    code = "EN";
+                }
+                else if (Application.systemLanguage == SystemLanguage.Unknown)
+                {
+                    code = "EN";
+                }
+                else
+                {
+                    code = "CN";
+                }
+                SetAppLanguage(code);
+            }
+
+            return code;
         }
 
         public static void SetAppLanguage(string code)
         {
             PlayerPrefs.SetString("Language", code);
             PlayerPrefs.Save();
+            Debug.Log("set language code:" + code);
         }
 
         public static void SetFCMToken(string token)

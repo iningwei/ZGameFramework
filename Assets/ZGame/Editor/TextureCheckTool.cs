@@ -165,17 +165,21 @@ public class TextureCheckTool
         string path = Application.dataPath;
 
 
-        Debug.LogError("--------->图片");//*.png|*.jpg|*.bmp|*.jpeg|*.tga 
+        Debug.Log(" --->check 图片");//*.png|*.jpg|*.bmp|*.jpeg|*.tga 
         logSameFileMsg(Directory.GetFiles(path, "*.*", SearchOption.AllDirectories).Where(s => s.EndsWith(".png") || s.EndsWith(".jpg") || s.EndsWith(".bmp") || s.EndsWith(".jpeg") || s.EndsWith(".tga")).ToArray());
-        Debug.LogError("--------->预制件");
+        Debug.Log(" --->check 预制件");
         logSameFileMsg(Directory.GetFiles(path, "*.prefab", SearchOption.AllDirectories));
-        Debug.LogError("--------->材质球");
+        Debug.Log(" --->check 材质球");
         logSameFileMsg(Directory.GetFiles(path, "*.mat", SearchOption.AllDirectories));
 
-        Debug.LogError("--------->fbx/FBX");
+        Debug.Log(" --->check fbx/FBX");
         logSameFileMsg(Directory.GetFiles(path, "*.*", SearchOption.AllDirectories).Where(s => s.EndsWith(".fbx") || s.EndsWith(".FBX")).ToArray());
-        Debug.LogError("--------->mesh");
+        Debug.Log(" --->check mesh");
         logSameFileMsg(Directory.GetFiles(path, "*.mesh", SearchOption.AllDirectories));
+        Debug.Log(" --->check anim");//动画片段
+        logSameFileMsg(Directory.GetFiles(path, "*.anim", SearchOption.AllDirectories));
+        Debug.Log(" --->check controller");
+        logSameFileMsg(Directory.GetFiles(path, "*.controller", SearchOption.AllDirectories));
 
         Debug.LogError("检查完毕");
     }
@@ -201,25 +205,20 @@ public class TextureCheckTool
                 resultDic[filename] = new List<string>();
                 resultDic[filename].Add(path);
             }
-
-
         }
 
 
-        //打印
+        //log duplicated files
         foreach (var item in resultDic)
         {
-
             List<string> list = item.Value;
             if (list.Count >= 2)
             {
-                Debug.Log("--->");
                 for (int i = 0; i < list.Count; i++)
                 {
-                    Debug.Log(list[i]);
+                    Debug.Log(list[i].Substring(list[i].IndexOf("Assets")));
                 }
             }
-
         }
     }
 }

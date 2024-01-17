@@ -13,7 +13,7 @@ namespace ZGame.Ress.AB
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        public static void Load(string name, Action<UnityEngine.Mesh> callback, bool sync)
+        public static void Load(string name, Action<MeshRes> callback, bool sync)
         {
             Action<UnityEngine.Object[]> loadFinishHandle = (objs) =>
             {
@@ -29,7 +29,7 @@ namespace ZGame.Ress.AB
 
                 if (callback != null)
                 {
-                    callback(mesh);
+                    callback(res);
                 }
             };
 

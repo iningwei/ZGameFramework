@@ -14,18 +14,14 @@ namespace ZGame.Ress
             textAsset = resObj;
         }
 
-        public override T GetRes<T>(string name)
+        public override T GetResAsset<T>( )
         {
             T result = default(T);
             if (!(typeof(T).Equals(typeof(TextAsset))))
             {
                 Debug.LogError("类型不匹配 TextAsset");
             }
-
-            if (this.resName != name)
-            {
-                Debug.LogError("error,name不匹配");
-            }
+             
 
             result = (T)(object)this.textAsset;
 

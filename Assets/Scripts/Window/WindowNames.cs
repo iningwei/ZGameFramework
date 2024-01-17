@@ -1,3 +1,3 @@
-public class WindowNames
+public class WindowNames:WindowBaseNames
 {
 }

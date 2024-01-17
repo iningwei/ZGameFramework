@@ -82,7 +82,7 @@ public class ABLargeScene
             {
                 //基础场景就不烘焙了。
             }
-            ABManager.Instance.AddDestroyNotice(targetRootNode);
+            ABManager.Instance.AddRootCompInfoHolderDestroyNotice(targetRootNode);
         }
         else
         {

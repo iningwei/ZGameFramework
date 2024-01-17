@@ -4,6 +4,8 @@ using TMPro;
 using UnityEditor;
 using UnityEngine;
 using ZGame.Ress.Info;
+using static PlasticGui.PlasticTableColumn;
+using ZGame.RessEditor;
 
 public class BuildInCompTextMeshProUGUICollection : CompResCollection, IRefResCollection
 {
@@ -16,9 +18,14 @@ public class BuildInCompTextMeshProUGUICollection : CompResCollection, IRefResCo
         for (int i = 0; i < textChilds.Count; i++)
         {
             TextMeshProUGUI text = textChilds[i];
-
+            //////if (BuildConfig.ignoredMats.Contains(text.font.material.name))
+            //////{
+            //////    Debug.LogError("GetCompInfo mat ignore check:" + text.font.material.name + "， path:" + text.transform.GetHierarchy());
+            //////    continue;
+            //////}
             //be careful not use text.material,otherwise it will return old ugui text's default material.
-            CompInfo buildInCompTextMeshProInfo = new BuildInCompTextMeshProUGUIInfo(text.transform, text, "", text.font.material.name, text.font.material.shader.name);
+             CompInfo buildInCompTextMeshProInfo = new BuildInCompTextMeshProUGUIInfo(text.transform, text, "", text.font.material.name, text.font.material.shader.name);
+          
             compInfos.Add(buildInCompTextMeshProInfo);
 
             Debug.Log("---->shader name:" + text.font.material.shader.name + ", transform:" + text.transform.name);
@@ -38,7 +45,9 @@ public class BuildInCompTextMeshProUGUICollection : CompResCollection, IRefResCo
             TextMeshProUGUI tmpTMP = textChilds[i];
 
             //buildMap add mat element
-            this.AddBundleBuildData(tmpTMP.material.name, AssetDatabase.GetAssetPath(tmpTMP.material), ZGame.Ress.AB.ABType.Material, ref buildMap);
+            //////this.AddBundleBuildData(tmpTMP.material.name, AssetDatabase.GetAssetPath(tmpTMP.material), ZGame.Ress.AB.ABType.Material, ref buildMap);
+            //TMP的字体不需要对材质球打ab，其没有类似于Lagacy字体组件的材质球设置。
+            //使用的是字体本身的材质球
         }
 
         return buildMap;

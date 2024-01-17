@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -7,8 +7,20 @@ using UnityEngine.Networking;
 
 namespace ZGame.Net
 {
+    /// <summary>
+    /// socket连上的方式：直连；重连
+    /// </summary>
+    public enum SocketConnectedStyle
+    {
+        Direct,
+        ReConnect,
+    }
     public class NetTool
     {
+        public static SocketConnectedStyle socketConnectedStyle = SocketConnectedStyle.Direct ;
+
+
+
         public static bool IsGoogleReachable = false;
         public static void CheckGoogleReachable(Action reachable, Action unreachable)
         {

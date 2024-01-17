@@ -7,6 +7,7 @@ using ZGame.Window;
 using UnityEngine.UI;
 using ZGame.cc;
 using ScreenOrientation = ZGame.ScreenOrientation;
+using System.Globalization;
 
 namespace ZGame
 {
@@ -61,11 +62,13 @@ namespace ZGame
             //    if (Screen.width > 1280)
             //        Screen.SetResolution(1280, (int)(1280 / rotio), true);
             //}
-             
+
             //RenderSettings.fog = false;
 
             bool hdrSupport = SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.DefaultHDR);
             DebugExt.Log("platform support hdr:" + hdrSupport);
+
+            CultureInfo.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB");//设置全局文化标准，避免德标下float.Parse转换失败
 
             var reporterObj = launcherRootNode.Find("Reporter").gameObject;
             if (Config.isShowReporter)
@@ -102,22 +105,24 @@ namespace ZGame
 #endif
 #endif
 
-            //PC上先注释。
+#if UNITY_ANDROID || UNITY_IOS
             //屏幕适配相关 
-            //////if (Config.screenOrientation == (int)ScreenOrientation.Portrait)
-            //////{
-            //////    WindowManager.Instance.UIVerticalFitPad();
-            //////    WindowManager.Instance.UIVerticalFitSafeArea();
-            //////}
-            //////else if (Config.screenOrientation == (int)ScreenOrientation.Landscape)
-            //////{
-            //////    Debug.Log("TODO:");
-            //////    //WindowManager.Instance.UIHorizentalFitSafeArea();
-            //////}
-            //////else
-            //////{
-            //////    Debug.LogError("unsupported screenOrientation:" + Config.screenOrientation);
-            //////}
+            if (Config.screenOrientation == (int)ScreenOrientation.Portrait)
+            {
+                WindowManager.Instance.UIVerticalFitPad();
+                WindowManager.Instance.UIVerticalFitSafeArea();
+            }
+            else if (Config.screenOrientation == (int)ScreenOrientation.Landscape)
+            {
+                Debug.Log("TODO:");
+                //WindowManager.Instance.UIHorizentalFitSafeArea();
+            }
+            else
+            {
+                Debug.LogError("unsupported screenOrientation:" + Config.screenOrientation);
+            }
+#endif
+
         }
 
         //GC.Collect();can only remove managered memory, do nothing with native memory such as mats、shaders、textures...
@@ -142,7 +147,9 @@ namespace ZGame
         }
         private void LateUpdate()
         {
+#if XLua
             luaSocketManager.LateUpdate();
+#endif
         }
         private void OnDestroy()
         {

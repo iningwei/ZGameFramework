@@ -207,7 +207,7 @@ namespace ZGame
             isABResNameCrypto = bool.Parse(dic["IsABResNameCrypto"].ToString());
             abResNameCryptoKey = (string)dic["ABResNameCryptoKey"];
             abResByteOffset = (int)(long)dic["ABResByteOffset"];
-
+             
             var ratioStrs = ((string)dic["GameDesignRatio"]).Split(',');
             gameDesignRatio = new Vector2(int.Parse(ratioStrs[0]), int.Parse(ratioStrs[1]));
             screenOrientation = (int)(long)dic["ScreenOrientation"];

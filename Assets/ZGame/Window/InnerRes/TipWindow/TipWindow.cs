@@ -19,21 +19,18 @@ public class TipWindow : Window
     public Text ui_TipTxt;
 
     Timer delayHideTimer;
+    long delayHideTimerId;
     void showTip(string tip)
     {
-        if (this.delayHideTimer != null)
-        {
-            this.delayHideTimer.Cancel();
-            this.delayHideTimer = null;
-        }
+        TimerTween.Cancel(this.delayHideTimer, delayHideTimerId);
 
         this.ui_TipTran.gameObject.SetActive(true);
         this.ui_TipTxt.text = tip.ToString();
         this.delayHideTimer = TimerTween.Delay(5f, () =>
         {
             this.ui_TipTran.gameObject.SetActive(false);
-        });
-        this.delayHideTimer.Start();
+        }).SetTag("DelayHideTip");
+        this.delayHideTimer.Start(out delayHideTimerId);
 
     }
     public TipWindow(GameObject obj, string windowName) : base(obj, windowName)

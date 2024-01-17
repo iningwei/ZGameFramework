@@ -270,8 +270,8 @@ public class PackTool
     static void copyAllResFilesToStreamingAssets()
     {
         string sourcePath = Application.dataPath + "/../ResEx/" + IOTools.PlatformFolderName;
-        string targetPath = IOTools.CreateFolder(Application.dataPath + "/StreamingAssets/ResEx");
-
+        string targetPath = Application.dataPath + "/StreamingAssets/ResEx";
+        IOTools.CreateDirectorySafe(targetPath);
         IOTools.MoveFiles(sourcePath, targetPath, true);
         Debug.Log("copy finished");
         AssetDatabase.Refresh();
@@ -285,7 +285,8 @@ public class PackTool
             Debug.LogError("directory not exist:" + sourcePath);
             return false;
         }
-        string targetPath = IOTools.CreateFolder(Application.dataPath + "/StreamingAssets/ResEx");
+        string targetPath = Application.dataPath + "/StreamingAssets/ResEx";
+        IOTools.CreateDirectorySafe(targetPath);
 
         IOTools.MoveFiles(sourcePath, targetPath, true);
 

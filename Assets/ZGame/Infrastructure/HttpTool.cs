@@ -307,19 +307,20 @@ public class HttpTool
                         //originalRequest.Send();
                         break;
                     default:
+                        Debug.Log("error occur:" + originalRequest.State.ToString());
                         break;
                 }
             });
         request.ConnectTimeout = TimeSpan.FromSeconds(3);
         request.Timeout = TimeSpan.FromSeconds(timeout);
         request.RawData = data;
-        
+
         //加密的话，增加header
         if (isEncrypt)
         {
             request.AddHeader("dopwt", "1617049598");
         }
-        
+
         request.Send();
     }
 

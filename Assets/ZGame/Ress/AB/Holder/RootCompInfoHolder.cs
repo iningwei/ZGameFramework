@@ -7,6 +7,6 @@ namespace ZGame.Ress.AB.Holder
     public class RootCompInfoHolder : CompInfoHolder
     {
         public ABType abType;
-        public bool finishedSet = false;
+        public bool finishedSet = false;         
     }
 }

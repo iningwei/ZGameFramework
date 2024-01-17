@@ -192,8 +192,6 @@ namespace ZGame.Window
 
         void initLayerDic()
         {
-
-
             for (int i = 0; i < WindowLayer.LayerList.Count; i++)
             {
                 var layerName = WindowLayer.LayerList[i];
@@ -389,7 +387,10 @@ namespace ZGame.Window
                 List<string> keys = new List<string>(openedWindows.Keys);
                 for (int i = 0; i < keys.Count; i++)
                 {
-                    openedWindows[keys[i]].Update();
+                    if (openedWindows[keys[i]] != null)
+                    {
+                        openedWindows[keys[i]].Update();
+                    }
                 }
             }
         }
@@ -397,11 +398,14 @@ namespace ZGame.Window
         {
             if (openedWindows.Count > 0)
             {
-
-                List<string> keys = new List<string>(openedWindows.Keys);
-                for (int i = 0; i < keys.Count; i++)
+                //////List<string> keys = new List<string>(openedWindows.Keys);
+                //////for (int i = 0; i < keys.Count; i++)
+                //////{
+                //////    openedWindows[keys[i]].FixedUpdate();
+                //////}
+                foreach (var item in openedWindows)
                 {
-                    openedWindows[keys[i]].FixedUpdate();
+                    item.Value.FixedUpdate();
                 }
             }
         }
@@ -409,11 +413,15 @@ namespace ZGame.Window
         {
             if (openedWindows.Count > 0)
             {
-
-                List<string> keys = new List<string>(openedWindows.Keys);
-                for (int i = 0; i < keys.Count; i++)
+                //////List<string> keys = new List<string>(openedWindows.Keys);
+                //////for (int i = 0; i < keys.Count; i++)
+                //////{
+                //////    openedWindows[keys[i]].LateUpdate();
+                //////}
+                ///
+                foreach (var item in openedWindows)
                 {
-                    openedWindows[keys[i]].LateUpdate();
+                    item.Value.LateUpdate();
                 }
             }
         }

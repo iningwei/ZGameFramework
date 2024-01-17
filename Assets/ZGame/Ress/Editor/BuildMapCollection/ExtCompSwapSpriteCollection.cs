@@ -38,6 +38,7 @@ public class ExtCompSwapSpriteCollection : IRefResCollection
 
             CompInfo extCompSwapSpriteInfo = new ExtCompSwapSpriteInfo(
                     swapSprite.transform,
+                    swapSprite,
                     spriteInfos);
             compInfos.Add(extCompSwapSpriteInfo);
 

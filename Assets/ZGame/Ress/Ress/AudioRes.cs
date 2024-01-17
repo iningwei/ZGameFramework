@@ -16,22 +16,15 @@ namespace ZGame.Ress
             this.clip = resObj;
         }
 
-        public override T GetRes<T>(string name)
+        public override T GetResAsset<T>( )
         {
             T result = default(T);
             if (!(typeof(T).Equals(typeof(AudioClip))))
             {
                 Debug.LogError("类型不匹配AudioClip");
             }
-
-            if (this.resName != name)
-            {
-                Debug.LogError("error,name不匹配");
-            }
-
-            result = (T)(object)clip;
-
-
+             
+            result = (T)(object)clip; 
             if (result == null)
             {
                 Debug.LogError("error, get res fail, audio clip is null");

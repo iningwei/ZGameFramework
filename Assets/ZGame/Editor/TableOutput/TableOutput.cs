@@ -13,4 +13,11 @@ public class TableOutput : Editor
         Process.Start(path);
 
     }
+    
+    [MenuItem("工具/打开Excel配置表文件夹")]
+    private static void OpenExcelFolder()
+    {
+        string path = Application.dataPath + "/../table_tools/table";
+        Process.Start(path);
+    }
 }

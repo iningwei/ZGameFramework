@@ -9,6 +9,8 @@ using ZGame.Window;
 public class NetMaskWindow : Window
 {
     Timer rollTimer;
+    long rollTimerId;
+
     public Transform ui_bgTran;
     public Transform ui_rollTran;
     float eulerZ = 0f;
@@ -25,14 +27,11 @@ public class NetMaskWindow : Window
     void showRoll()
     {
         this.ui_bgTran.gameObject.SetActive(true);
-        if (rollTimer != null)
-        {
-            rollTimer.Cancel();
-            rollTimer = null;
-        }
+
+        TimerTween.Cancel(rollTimer, rollTimerId);
+
         rollTimer = TimerTween.Repeat(0.03f, () =>
         {
-
             if (eulerZ - 0.03f <= -360f)
             {
                 eulerZ += 360f;
@@ -41,17 +40,14 @@ public class NetMaskWindow : Window
 
             ui_rollTran.localEulerAngles = new Vector3(0, 0, eulerZ);
             return true;
-        }, true);
-        rollTimer.Start();
+        }, true).SetTag("NetMaskRollTimer");
+        rollTimer.Start(out rollTimerId);
 
     }
     void hideRoll()
     {
-        if (rollTimer != null)
-        {
-            rollTimer.Cancel();
-            rollTimer = null;
-        }
+        TimerTween.Cancel(rollTimer, rollTimerId);
+
         this.ui_bgTran.gameObject.SetActive(false);
     }
 
@@ -69,10 +65,6 @@ public class NetMaskWindow : Window
     public override void Destroy(bool destroyImmediate)
     {
         base.Destroy(destroyImmediate);
-        if (rollTimer != null)
-        {
-            rollTimer.Cancel();
-            rollTimer = null;
-        }
+        TimerTween.Cancel(rollTimer, rollTimerId);
     }
 }

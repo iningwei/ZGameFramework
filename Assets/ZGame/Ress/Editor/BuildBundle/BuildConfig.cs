@@ -9,6 +9,11 @@ using ZGame.Ress.AB.Holder;
 
 namespace ZGame.RessEditor
 {
+    public enum TextType
+    {
+        Legacy,
+        TMP,
+    }
     /// <summary>
     /// AssetBundle打包配置类
     /// </summary>
@@ -41,8 +46,12 @@ namespace ZGame.RessEditor
              
         };
 
+        public static TextType textType = TextType.TMP;
         public static string defaultTextFontName = "有爱魔兽圆体-B";
         public static string defaultTextFontPath = "Assets/ArtResources/Font/有爱魔兽圆体-B.ttf";
+
+        public static string defaultTMPTextFontName = "SourceHanSansSC-Medium SDF";
+        public static string defaultTMPTextFontPath = "Assets/ArtResources/Font/SourceHanSansSC-Medium SDF.asset";
 
         //打AB时，不处理的material列表
         public static List<string> ignoredMats = new List<string>();
@@ -50,7 +59,7 @@ namespace ZGame.RessEditor
 
         public static void Init()
         {
-            //ignoredMats.Add("LiberationSans SDF Material");
+            ignoredMats.Add("SourceHanSansSC-Medium Atlas Material");
             ignoredMats.Add("arial Atlas Material");
 
 
@@ -123,6 +132,11 @@ namespace ZGame.RessEditor
         /// <returns></returns>
         public static Func<UnityEngine.Object, bool> getBuildFunc(string resPath, object asset)
         {
+            if (resPath.EndsWith("AnimationClipList.prefab"))
+            {
+                Debug.LogError("实质上并不会对AnimationClipList打AB，而是会找到附加的所有AnimationClip，并分别打AB");
+                return new BuildAnimationClipList().Build;
+            }
             //预制件要通过holder中的abType来确定
             if (resPath.EndsWith(".prefab"))
             {
@@ -145,6 +159,11 @@ namespace ZGame.RessEditor
                     else if (holder.abType == ABType.OtherPrefab)
                     {
                         return new BuildOtherPrefab().Build;
+                    }
+                    else
+                    {
+                        Debug.LogError("please set correct abType, cur abType:" + holder.abType.ToString());
+                        return null;
                     }
                 }
             }

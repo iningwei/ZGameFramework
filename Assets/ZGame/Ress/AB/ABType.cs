@@ -50,6 +50,8 @@ namespace ZGame.Ress.AB
         [ABTypeDes("a_")]
         Audio,
 
+        [ABTypeDes("clip_")]
+        AnimationClip,
         /// <summary>
         /// 视频
         /// </summary>
@@ -73,6 +75,12 @@ namespace ZGame.Ress.AB
         /// </summary>
         [ABTypeDes("mat_")]
         Material,
+
+        /// <summary>
+        /// AnimatorController
+        /// </summary>
+        [ABTypeDes("ac_")]
+        AnimatorController,
 
         /// <summary>
         /// 玩家自定义的二进制文件

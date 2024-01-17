@@ -48,7 +48,8 @@ public class ResUpdateTool : ScriptableWizard
         curDir = resVersionPath + "/cur";
         curResDir = curDir + "/res";
 
-        Directory.CreateDirectory(curDir);
+        //Directory.CreateDirectory(curDir);
+        IOTools.CreateDirectorySafe(curDir);
         Directory.CreateDirectory(curResDir);
 
         needUpdateDir = resVersionPath + "/needUpdate";
@@ -341,6 +342,7 @@ public class ResUpdateTool : ScriptableWizard
     //点击 确认 按钮
     void OnWizardCreate()
     {
+        Debug.Log("ResUpdateTool OnWizardCreate!");
 #if XLua
         //打lua代码ab
         BuildLuaBundle.build();

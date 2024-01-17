@@ -36,6 +36,7 @@ public class ExtCompImageSequenceCollection : IRefResCollection
 
             CompInfo buildInCompImageInfo = new ExtCompImageSequenceInfo(
                     imageSequence.transform,
+                    imageSequence,
                     spriteInfos);
             compInfos.Add(buildInCompImageInfo);
 

@@ -64,17 +64,17 @@ namespace ZGame.Window
             callbackOnWindowDestroy += callback;
         }
 
-        public Window(GameObject obj, string windowName)
+        public Window(GameObject obj, string windowName) : base(obj)
         {
             this.id = IdAssginer.GetID(IdAssginer.IdType.Window);
 
-            this.rootObj = obj;
             this.name = windowName;
 
             AutoLinkUI(this);
 
             Init(windowName, obj);
             AddEventListener();
+            this.FillTextContent();
         }
 
 
@@ -95,7 +95,7 @@ namespace ZGame.Window
         /// <param name="datas"> </param>
         public virtual void Show(string layerName, params object[] datas)
         {
-
+            Debug.Log("show window:" + name);
             this.windowLayer = layerName;
             var rt = this.rootObj.GetComponent<RectTransform>();
             //rt.offsetMin = Vector2.zero;
@@ -213,6 +213,8 @@ namespace ZGame.Window
         }
         public virtual void Destroy(bool destroyImmediate)
         {
+            Debug.Log("destroy window:" + name);
+
             RemoveEventListener();
             if (callbackOnWindowDestroy != null)
             {
@@ -220,6 +222,11 @@ namespace ZGame.Window
             }
             callbackOnWindowHide = null;
             callbackOnWindowDestroy = null;
+
+            foreach (var area in areaMap)
+            {
+                area.Value.Destroy();
+            }
 
             if (destroyImmediate)
             {
@@ -230,10 +237,7 @@ namespace ZGame.Window
                 GameObjectHelper.Destroy(this.rootObj, 0);
             }
 
-            foreach (var area in areaMap)
-            {
-                area.Value.Destroy();
-            }
+
 
         }
 
