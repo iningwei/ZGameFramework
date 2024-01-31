@@ -1,10 +1,30 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 
 public static class NumberExt
 {
+    public static Vector2 ToVector2(this float[] floatArray)
+    {
+        if (floatArray == null || floatArray.Length < 2)
+        {
+            Debug.LogError("floatArray can not change to Vector2" + floatArray.ToString());
+            return Vector2.zero;
+        }
+        return new Vector2(floatArray[0], floatArray[1]);
+    }
+    public static Vector3 ToVector3(this float[] floatArray)
+    {
+        if (floatArray == null || floatArray.Length < 3)
+        {
+            Debug.LogError("floatArray can not change to Vector3" + floatArray.ToString());
+            return Vector3.zero;
+        }
+        return new Vector3(floatArray[0], floatArray[1], floatArray[2]);
+    }
+
+
     public static string FormatKM(this float value)
     {
         return FormatKM((int)value);

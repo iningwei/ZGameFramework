@@ -5,7 +5,7 @@ using UnityEngine;
 using ZGame;
 
 public class IOAndroidLoader : Singleton<IOAndroidLoader>
-{ 
+{
     AndroidJavaClass readAsset = new AndroidJavaClass("com.zgame.sdk.ReadAsset");
     public IOAndroidLoader()
     {
@@ -38,7 +38,7 @@ public class IOAndroidLoader : Singleton<IOAndroidLoader>
         byte[] bytes = GetBytes(path);
         if (bytes == null)
         {
-            DebugExt.LogE("error,LoadAndroidFileText failed, path:" + path);
+            Debug.LogError("error,LoadAndroidFileText failed, path:" + path);
         }
         return System.Text.Encoding.UTF8.GetString(bytes);
     }

@@ -27,10 +27,10 @@ public class PackVisualizeTool : EditorWindow
 
     public static Vector2 gameDesignRatio;
 
-    public static List<ServerData> serverDataList = new List<ServerData>();
+    public static List<LoginData> loginDataList = new List<LoginData>();
     public static List<PackData> packDataList = new List<PackData>();
 
-
+    public static string loginType;
     public static string packType;
     public static bool isRealPurchase;
     public static bool isShowProtoMsgLog;
@@ -39,16 +39,17 @@ public class PackVisualizeTool : EditorWindow
     public static bool isEnableLogRealtimeWriteToLocal;
     public static bool isEnableLogUpdate2Server;
     public static bool isShowReporter;
-    public static bool isDIYScrip;
-    public bool[] DIYScrips;
-    public string[] ScripsNames = { "XLua", "OriginLuaFile", "HOTUPDATE", "UNITY_POST_PROCESSING_STACK_V2", "MOBILE_INPUT", "BAKERY_INCLUDED" };
 
+    public bool[] diyMacros;
+    public string[] macroNames = { "XLua", "OriginLuaFile", "HOTUPDATE", "UseTMP", "HybridCLR_HOTUPDATE", "HybridCLR_INSTALLED", "MOBILE_INPUT", };
 
+    public static bool isDIYMacros;
+    public static bool isProjectMacros;
 
     Vector2 scrollPos;
     bool configFoldOut = true;
     bool packFoldOut = true;
-    bool ScriptOut = true;
+    bool macrosFoldOut = true;
 
     [MenuItem("工具/打包/打包预览")]
     static void PackVisual()
@@ -78,10 +79,10 @@ public class PackVisualizeTool : EditorWindow
         firstOpenWindowName = Config.firstOpenWindowName;
         gameDesignRatio = Config.gameDesignRatio;
 
-
-        serverDataList = Config.serverDataList;
+        loginDataList = Config.loginDataList;
         packDataList = Config.packDataList;
 
+        loginType = Config.loginType;
         packType = Config.packType;
         isRealPurchase = Config.isRealPurchase;
         isShowProtoMsgLog = Config.isShowProtoMsgLog;
@@ -106,14 +107,15 @@ public class PackVisualizeTool : EditorWindow
             appBundleVersion = EditorGUILayout.TextField("AppBundleVersion:", appBundleVersion);
             resVersion = EditorGUILayout.TextField("ResVersion:", resVersion);
             GUILayout.BeginHorizontal();
-            packTimeStamp = EditorGUILayout.TextField("PackTimeStamp", packTimeStamp);
-            GUILayout.FlexibleSpace();
+            packTimeStamp = EditorGUILayout.TextField("PackTimeStamp", packTimeStamp, GUILayout.ExpandWidth(true));
+            //GUILayout.FlexibleSpace();
             if (GUILayout.Button("刷新时间戳"))
             {
-                packTimeStamp = TimeTool.GetyyyyMMddHHmm(DateTime.Now, "").Substring(2);
+                string stamp = TimeTool.GetyyyyMMddHHmm(DateTime.Now, "").Substring(2);
+                Debug.Log("refresh time stamp:" + stamp);
+                packTimeStamp = stamp;
             }
             GUILayout.EndHorizontal();
-
 
             GUILayout.Label("渠道信息：", EditorStyles.boldLabel);
             gameChannelId = EditorGUILayout.IntField("GameChannelId:", gameChannelId);
@@ -124,17 +126,13 @@ public class PackVisualizeTool : EditorWindow
             abResNameCryptoKey = EditorGUILayout.TextField("ABResNameCryptoKey:", abResNameCryptoKey);
             abResByteOffset = EditorGUILayout.IntField("ABResByteOffset:", abResByteOffset);
             GUILayout.Label("显示信息：", EditorStyles.boldLabel);
-            //string[] values = { "Landscape", "Portrait" };
-            //int index = EditorGUILayout.Popup(new GUIContent("ScreenOrientation"), Array.IndexOf(values, screenOrientation), new string[2] { "Landscape", "Portrait" });
-            //screenOrientation = values["01".Contains(index.ToString()) ? index : 0];
-
             screenOrientation = (ScreenOrientation)EditorGUILayout.EnumPopup("横屏or竖屏", screenOrientation);
 
             GUILayout.Label("操作类型，1：鼠键，2：触屏", EditorStyles.boldLabel);
             gameInputType = EditorGUILayout.IntField("GameInputType:", gameInputType);
             GUILayout.Space(10);
 
-            GUILayout.Label("资源加载类型，1：AB，2：Resources", EditorStyles.boldLabel);
+            GUILayout.Label("资源加载类型，0：AssetBundle，1：Resources", EditorStyles.boldLabel);
             resLoadType = EditorGUILayout.IntField("ResLoadType:", resLoadType);
             GUILayout.Space(10);
 
@@ -144,28 +142,26 @@ public class PackVisualizeTool : EditorWindow
             gameDesignRatio = EditorGUILayout.Vector2Field("GameDesignRatio", gameDesignRatio);
 
             GUILayout.Space(10);
-            GUILayout.Label("服务器信息：", EditorStyles.boldLabel);
-            if (serverDataList != null)
+            GUILayout.Label("登录服务器信息：", EditorStyles.boldLabel);
+            if (loginDataList != null)
             {
-                for (int i = 0; i < serverDataList.Count; i++)
+                for (int i = 0; i < loginDataList.Count; i++)
                 {
-                    var tmp = serverDataList[i];
-                    GUILayout.Label("服务器" + (i + 1) + " ----------->");
-                    tmp.serverType = EditorGUILayout.IntField("ServerType:", tmp.serverType);
-                    tmp.serverName = EditorGUILayout.TextField("ServerName:", tmp.serverName);
-                    tmp.isLogEventToSDK = bool.Parse(EditorGUILayout.TextField("IsLogEventToSDK:", tmp.isLogEventToSDK.ToString()));
+                    var tmp = loginDataList[i];
+                    GUILayout.Label("服务器 " + (i + 1) + " ----------->");
+                    tmp.loginType = EditorGUILayout.TextField("LoginType:", tmp.loginType);
+                    tmp.url = EditorGUILayout.TextField("URL:", tmp.url);
                 }
             }
 
             GUILayout.Space(10);
-            GUILayout.Label("打包信息：", EditorStyles.boldLabel);
-
+            GUILayout.Label("热更资源CDN信息：", EditorStyles.boldLabel);
             if (packDataList != null)
             {
                 for (int i = 0; i < packDataList.Count; i++)
                 {
                     var tmp = packDataList[i];
-                    GUILayout.Label("打包" + (i + 1) + " ----------->");
+                    GUILayout.Label("热更资源 " + (i + 1) + " ----------->");
                     tmp.packType = EditorGUILayout.TextField("PackType:", tmp.packType);
                     tmp.ftpTxtFileUrl = EditorGUILayout.TextField("FtpTxtFileUrl:", tmp.ftpTxtFileUrl);
                     tmp.ftpZipFileUrl = EditorGUILayout.TextField("FtpZipFileUrl:", tmp.ftpZipFileUrl);
@@ -173,9 +169,9 @@ public class PackVisualizeTool : EditorWindow
             }
             GUILayout.Space(10);
             GUILayout.Label("包体配置信息：", EditorStyles.boldLabel);
-            packType = EditorGUILayout.TextField("PackType(PUB、DEV):", packType);
+            loginType = EditorGUILayout.TextField("登录服务器(PUB、DEV):", loginType);
+            packType = EditorGUILayout.TextField("热更CDN(PUB、DEV、TEST):", packType);
             isRealPurchase = bool.Parse(EditorGUILayout.TextField("IsRealPurchase:", isRealPurchase.ToString()).ToString());
-
             isShowProtoMsgLog = bool.Parse(EditorGUILayout.TextField("IsShowProtoMsgLog:", isShowProtoMsgLog.ToString()).ToString());
             isShowDebugBtn = bool.Parse(EditorGUILayout.TextField("IsShowDebugBtn:", isShowDebugBtn.ToString()).ToString());
             isEnableLogTrace = bool.Parse(EditorGUILayout.TextField("IsEnableLogTrace:", isEnableLogTrace.ToString()).ToString());
@@ -187,79 +183,108 @@ public class PackVisualizeTool : EditorWindow
 
             if (GUILayout.Button("保存配置"))
             {
-                var jsonStr = Config.AssignConfigDataToJson(productName, appVersion, appBundleVersion, resVersion, packTimeStamp, gameChannelId, paymentChannelId, isABResNameCrypto, abResNameCryptoKey, abResByteOffset, (int)screenOrientation, gameInputType, resLoadType, firstOpenWindowName, gameDesignRatio,
-                    serverDataList, packDataList,
-                    packType, isRealPurchase, isShowProtoMsgLog, isShowDebugBtn, isEnableLogTrace, isEnableLogRealtimeWriteToLocal, isEnableLogUpdate2Server, isShowReporter);
+                var jsonStr = Config.AssignConfigDataToJson(productName, appVersion, appBundleVersion, resVersion, packTimeStamp, gameChannelId, paymentChannelId, isABResNameCrypto, abResNameCryptoKey, abResByteOffset, (int)screenOrientation, gameInputType, resLoadType, firstOpenWindowName, gameDesignRatio, loginDataList,
+                      packDataList,
+loginType, packType, isRealPurchase, isShowProtoMsgLog, isShowDebugBtn, isEnableLogTrace, isEnableLogRealtimeWriteToLocal, isEnableLogUpdate2Server, isShowReporter);
                 Config.WriteToResConfig(jsonStr);
-                DebugExt.Log("save success!");
+                Debug.Log("save success:--->" + jsonStr);
+                AssetDatabase.Refresh();//必须刷新一下，否则Config.RefreshData()中调用的Resources.Load读取的是缓存中的老数据
+                Config.RefreshData();
             }
-
 
             EditorGUILayout.EndScrollView();
         }
+
+        //获取当前是哪个平台
+        BuildTargetGroup buildTargetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
+        //获得当前平台已有的的宏定义
+        var curMacros = PlayerSettings.GetScriptingDefineSymbols(UnityEditor.Build.NamedBuildTarget.FromBuildTargetGroup(buildTargetGroup));
+
         EditorGUILayout.EndFoldoutHeaderGroup();
-        ScriptOut = EditorGUILayout.BeginFoldoutHeaderGroup(ScriptOut, "配置");
-        if (ScriptOut)
+        macrosFoldOut = EditorGUILayout.BeginFoldoutHeaderGroup(macrosFoldOut, "宏");
+        if (macrosFoldOut)
         {
-            //获取当前是哪个平台
-            BuildTargetGroup buildTargetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
-            //获得当前平台已有的的宏定义
-            var symbols = PlayerSettings.GetScriptingDefineSymbols(UnityEditor.Build.NamedBuildTarget.FromBuildTargetGroup(buildTargetGroup));
-
-            if (DIYScrips == null)
+            isDIYMacros = EditorGUILayout.BeginToggleGroup("自定义宏", isDIYMacros);
+            if (isDIYMacros)
             {
-                DIYScrips = new bool[ScripsNames.Length];
-                for (int i = 0; i < ScripsNames.Length; i++)
+                diyMacros = new bool[macroNames.Length];
+                for (int i = 0; i < macroNames.Length; i++)
                 {
-                    DIYScrips[i] = symbols.Contains(ScripsNames[i]);
+                    diyMacros[i] = EditorGUILayout.Toggle(macroNames[i], diyMacros[i]);
                 }
             }
 
-            isDIYScrip = EditorGUILayout.BeginToggleGroup("自定义宏定义", isDIYScrip);
-            if (isDIYScrip)
-            {
-                for (int i = 0; i < ScripsNames.Length; i++)
-                {
-                    DIYScrips[i] = EditorGUILayout.Toggle(ScripsNames[i], DIYScrips[i]);
-                }
-                if (GUILayout.Button("脚本配置保存"))
-                {
-                    string str = "";
-                    for (int i = 0; i < DIYScrips.Length; i++)
-                    {
-                        if (DIYScrips[i] == true)
-                        {
-                            str += ";" + ScripsNames[i];
-                        }
-                    }
-                    PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTargetGroup, str);
-                }
-            }
             EditorGUILayout.EndToggleGroup();
-            EditorPrefs.SetBool("isProjectScrips", EditorGUILayout.ToggleLeft("使用项目宏定义", EditorPrefs.GetBool("isProjectScrips", false)));
+
+            if (isDIYMacros)
+            {
+                isProjectMacros = false;
+            }
+            else
+            {
+                isProjectMacros = true;
+            }
+
+
+            isProjectMacros = EditorGUILayout.ToggleLeft("使用项目当前宏", isProjectMacros);
+            if (isProjectMacros)
+            {
+                EditorGUILayout.LabelField("------->宏：" + curMacros);
+                isDIYMacros = false;
+            }
+            else
+            {
+                isDIYMacros = true;
+            }
         }
         EditorGUILayout.EndFoldoutHeaderGroup();
-        //TODO:改客户端的productname版本号等
 
+        string targetMacros = "";
+        if (isDIYMacros)
+        {
+            for (int i = 0; i < diyMacros.Length; i++)
+            {
+                if (diyMacros[i] == true)
+                {
+                    targetMacros += (macroNames[i] + ";");
+                }
+            }
+            targetMacros.TrimEnd(';');
+        }
+        else
+        {
+            targetMacros = curMacros;
+        }
         packFoldOut = EditorGUILayout.BeginFoldoutHeaderGroup(packFoldOut, "打包");
         if (packFoldOut)
         {
-            if (GUILayout.Button(" 打全量APK包"))
+            if (GUILayout.Button("打APK包"))
             {
-                PackTool.BuildFullAPK();
+                if (EditorUtility.DisplayDialog("警告", "打APK, 目标宏为：" + targetMacros + "------->是否继续??？", "OK", "Cancel"))
+                {
+                    PackTool.BuildFullAPK(targetMacros);
+                }
             }
-            if (GUILayout.Button("打热更APK包"))
+            if (GUILayout.Button("整理热更代码和热更资源"))
             {
-                PackTool.BuildHotupdateAPK();
+                if (EditorUtility.DisplayDialog("警告", "整理热更代码和热更资源, appVersion:" + Config.appVersion + ",resVersion:" + Config.resVersion + ",channelId:" + Config.gameChannelId + "------->是否继续??？", "OK", "Cancel"))
+                {
+                    new HotResCollector().Build();
+                }
             }
-            if (GUILayout.Button("打全量Xcode包"))
-            {
-                PackTool.BuildFullXCodeProj();
-            }
-            if (GUILayout.Button("打热更Xcode包"))
-            {
-                PackTool.BuildHotXCodeProj();
-            }
+
+            //if (GUILayout.Button("打热更APK包"))
+            //{
+            //    PackTool.BuildHotupdateAPK();
+            //}
+            //if (GUILayout.Button("打全量Xcode包"))
+            //{
+            //    PackTool.BuildFullXCodeProj();
+            //}
+            //if (GUILayout.Button("打热更Xcode包"))
+            //{
+            //    PackTool.BuildHotXCodeProj();
+            //}
         }
 
         EditorGUILayout.EndFoldoutHeaderGroup();

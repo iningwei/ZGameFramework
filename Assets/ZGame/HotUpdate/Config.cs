@@ -4,6 +4,7 @@ using UnityEngine;
 using MiniJSON;
 using System.IO;
 using ZGame.Ress;
+using System;
 
 namespace ZGame
 {
@@ -16,15 +17,11 @@ namespace ZGame
         public bool install;
     }
 
-    //服务器相关信息
-    public class ServerData
-    {
-        public int serverType;
-        public string serverName;
-        public bool isLogEventToSDK;
-        public string uploadDebugFirleUrl;
 
-        public string postCmdUrl;
+    public class LoginData
+    {
+        public string loginType;
+        public string url;
     }
 
     //打包(热更)相关信息
@@ -86,6 +83,10 @@ namespace ZGame
         /// </summary>
         public static int abResByteOffset;
 
+        /// <summary>
+        /// 游戏设计分辨率
+        /// </summary>
+        public static Vector2 gameDesignRatio;
 
         /// <summary>
         /// Landscape:0; Portrait:1
@@ -107,20 +108,24 @@ namespace ZGame
 
         public static string firstOpenWindowName;
 
-        /// <summary>
-        /// 游戏设计分辨率
-        /// </summary>
-        public static Vector2 gameDesignRatio;
+        public static List<ProtobufMsgID> socketIgnoreLogMsgIds = new List<ProtobufMsgID>();
 
-        public static List<ServerData> serverDataList = new List<ServerData>();
+        public static List<LoginData> loginDataList = new List<LoginData>();
+
+
         public static List<PackData> packDataList = new List<PackData>();
 
-
-        //--------------->下面这几个参数，游戏内提供了机制进行修改，方便调试
         /// <summary>
-        /// 打包方式
+        /// 登录方式：PUB;DEV
+        /// </summary>
+        public static string loginType;
+
+        /// <summary>
+        /// 热更资源CDN地址类型：PUB;DEV;TEST
         /// </summary>
         public static string packType;
+        //--------------->下面这几个参数，游戏内提供了机制进行修改，方便调试
+
         /// <summary>
         /// 是否走真实购买流程
         /// </summary>
@@ -153,12 +158,17 @@ namespace ZGame
 
 
 
+        public static string cfgFileName;
         //内置Resources目录下cfg文件的全路径
-        static string resConfigFilePath;
-        static string cfgFileName;
+        public static string resConfigFilePath;
         //动态生成的cfg文件全路径
         static string dynamicConfigFilePath;
         static Config()
+        {
+            readCfgData();
+        }
+
+        static void readCfgData()
         {
             string configStr = "";
 
@@ -175,39 +185,36 @@ namespace ZGame
 #endif
             resConfigFilePath = Application.dataPath + "/ZGame/HotUpdate/Resources/Config/" + cfgFileName + ".bytes";
 
-            dynamicConfigFilePath = Application.persistentDataPath + "/dynamic_cfg.txt";
+            dynamicConfigFilePath = Application.persistentDataPath + "/dynamic_cfg_v" + Application.version + "/" + cfgFileName + ".txt";
             if (File.Exists(dynamicConfigFilePath))
             {
-                DebugExt.Log("get config from dynamic path");
+                Debug.Log("get config from dynamic path");
                 configStr = File.ReadAllText(dynamicConfigFilePath);
             }
             else
             {
-                DebugExt.Log("get config from res path");
+                Debug.Log("get config from Resources path");
                 configStr = Resources.Load<TextAsset>("Config/" + cfgFileName).text;
             }
 
-
-            if (configStr == "")
+            if (string.IsNullOrEmpty(configStr))
             {
-                DebugExt.LogE("error, configStr is empty!");
+                Debug.LogError("error, configStr is empty!");
             }
 
             var dic = Json.Deserialize(configStr) as Dictionary<string, object>;
             productName = (string)dic["ProductName"];
-
             appVersion = (string)dic["AppVersion"];
             appBundleVersion = (string)dic["AppBundleVersion"];
             resVersion = (string)dic["ResVersion"];
             packTimeStamp = (string)dic["PackTimeStamp"];
-            Debug.Log("packTimeStamp:" + packTimeStamp);
             gameChannelId = (int)(long)dic["GameChannelId"];
             paymentChannelId = (int)(long)dic["PaymentChannelId"];
 
             isABResNameCrypto = bool.Parse(dic["IsABResNameCrypto"].ToString());
             abResNameCryptoKey = (string)dic["ABResNameCryptoKey"];
             abResByteOffset = (int)(long)dic["ABResByteOffset"];
-             
+
             var ratioStrs = ((string)dic["GameDesignRatio"]).Split(',');
             gameDesignRatio = new Vector2(int.Parse(ratioStrs[0]), int.Parse(ratioStrs[1]));
             screenOrientation = (int)(long)dic["ScreenOrientation"];
@@ -216,22 +223,28 @@ namespace ZGame
             resLoadType = (int)(long)dic["ResLoadType"];
             firstOpenWindowName = (string)dic["FirstOpenWindowName"];
 
-            var serverDataArray = dic["ServerData"] as List<object>;
-            for (int i = 0; i < serverDataArray.Count; i++)
+            socketIgnoreLogMsgIds.Clear();
+            var ignoreIds = dic["SocketIgnoreLogMsgIds"] as List<object>;
+            for (int i = 0; i < ignoreIds.Count; i++)
             {
-                var serverDataDic = serverDataArray[i] as Dictionary<string, object>;
-                ServerData data = new ServerData();
-                data.serverType = (int)(long)serverDataDic["ServerType"];
-                data.serverName = (string)serverDataDic["ServerName"];
-
-                data.isLogEventToSDK = bool.Parse(serverDataDic["IsLogEventToSDK"].ToString());
-                data.uploadDebugFirleUrl = (string)serverDataDic["UploadDebugFileURL"];
-
-                data.postCmdUrl = (string)serverDataDic["PostCmdURL"];
-
-                serverDataList.Add(data);
+                var msgId = (ProtobufMsgID)Enum.Parse(typeof(ProtobufMsgID), (string)ignoreIds[i]);
+                socketIgnoreLogMsgIds.Add(msgId);
             }
 
+            loginDataList.Clear();
+            var loginDataArray = dic["LoginData"] as List<object>;
+            for (int i = 0; i < loginDataArray.Count; i++)
+            {
+                var loginDataDic = loginDataArray[i] as Dictionary<string, object>;
+                LoginData data = new LoginData();
+                data.loginType = (string)loginDataDic["LoginType"];
+                data.url = (string)loginDataDic["URL"];
+
+                loginDataList.Add(data);
+            }
+
+
+            packDataList.Clear();
             var packDataArray = dic["PackData"] as List<object>;
             for (int i = 0; i < packDataArray.Count; i++)
             {
@@ -243,9 +256,10 @@ namespace ZGame
 
                 packDataList.Add(data);
             }
-             
-            //------------------------>
+
+            loginType = (string)dic["LoginType"];
             packType = (string)dic["PackType"];
+            //------------------------> 
             isRealPurchase = bool.Parse(dic["IsRealPurchase"].ToString());
             isShowProtoMsgLog = bool.Parse(dic["IsShowProtoMsgLog"].ToString());
             isShowDebugBtn = bool.Parse(dic["IsShowDebugBtn"].ToString());
@@ -253,12 +267,15 @@ namespace ZGame
             isEnableLogRealtimeWriteToLocal = bool.Parse(dic["IsEnableLogRealtimeWriteToLocal"].ToString());
             isEnableLogUpdate2Server = bool.Parse(dic["IsEnableLogUpdate2Server"].ToString());
             isShowReporter = bool.Parse(dic["IsShowReporter"].ToString());
-
         }
 
+        public static void RefreshData()
+        {
+            readCfgData();
+            Debug.Log($"refresh cfg data, appVersion:{appVersion}, resVersion:{resVersion}, channelId:{gameChannelId}");
+        }
         public static string AssignConfigDataToJson(string productName, string appVersion, string appBundleVersion, string resVersion, string packTimeStamp, int gameChannelId,
-            int paymentChannelId, bool isABResNameCrypto, string abResNameCryptoKey, int abResByteOffset, int screenOrientation, int gameInputType, int resLoadType, string firstOpenWindowName, Vector2 gameDesignRatio,
-            List<ServerData> serverDataList, List<PackData> packDataList,
+            int paymentChannelId, bool isABResNameCrypto, string abResNameCryptoKey, int abResByteOffset, int screenOrientation, int gameInputType, int resLoadType, string firstOpenWindowName, Vector2 gameDesignRatio, List<LoginData> loginDataList, List<PackData> packDataList, string loginType,
             string packType, bool isRealPurchase, bool isShowProtoMsgLog, bool isShowDebugBtn,
             bool isEnableLogTrace, bool isEnableLogRealtimeWriteToLocal, bool isEnableLogUpdate2Server, bool isShowReporter)
         {
@@ -279,25 +296,24 @@ namespace ZGame
             configDic["GameInputType"] = gameInputType;
             configDic["ResLoadType"] = resLoadType;
             configDic["FirstOpenWindowName"] = firstOpenWindowName;
+            configDic["SocketIgnoreLogMsgIds"] = Config.socketIgnoreLogMsgIds;
 
-            //组装ServerData
-            List<object> serverList = new List<object>();
-            if (serverDataList != null)
+
+            //组装LoginData
+            List<object> loginList = new List<object>();
+            if (loginDataList != null)
             {
-                int count = serverDataList.Count;
+                int count = loginDataList.Count;
                 for (int i = 0; i < count; i++)
                 {
-                    var tmpData = serverDataList[i];
-                    Dictionary<string, object> serverDataDic = new Dictionary<string, object>();
-                    serverDataDic["ServerType"] = tmpData.serverType;
-                    serverDataDic["ServerName"] = tmpData.serverName;
-                    serverDataDic["IsLogEventToSDK"] = tmpData.isLogEventToSDK;
-                    serverDataDic["UploadDebugFileURL"] = tmpData.uploadDebugFirleUrl;
-                    serverDataDic["PostCmdURL"] = tmpData.postCmdUrl;
-                    serverList.Add(serverDataDic);
+                    var tmpData = loginDataList[i];
+                    Dictionary<string, object> loginDataDic = new Dictionary<string, object>();
+                    loginDataDic["LoginType"] = tmpData.loginType;
+                    loginDataDic["URL"] = tmpData.url;
+                    loginList.Add(loginDataDic);
                 }
             }
-            configDic["ServerData"] = serverList;
+            configDic["LoginData"] = loginList;
 
             //组装PackData
             List<object> packList = new List<object>();
@@ -316,8 +332,9 @@ namespace ZGame
             }
             configDic["PackData"] = packList;
 
-            //其它 
+            configDic["LoginType"] = loginType;
             configDic["PackType"] = packType;
+            //其它  
             configDic["IsRealPurchase"] = isRealPurchase;
             configDic["IsShowProtoMsgLog"] = isShowProtoMsgLog;
             configDic["IsShowDebugBtn"] = isShowDebugBtn;
@@ -329,7 +346,6 @@ namespace ZGame
 
             string jsonStr = Json.Serialize(configDic);
             return jsonStr;
-
         }
 
         public static void WriteToResConfig(string jsonStr)
@@ -342,7 +358,7 @@ namespace ZGame
             IOTools.WriteString(dynamicConfigFilePath, jsonStr);
         }
 
-        public static void SaveDynamicConfig(string packType
+        public static void SaveDynamicConfig(string loginType, string packType
             , string isRealPurchase
             , string isShowProtoMsgLog
             , string isShowDebugBtn
@@ -351,38 +367,13 @@ namespace ZGame
             , string isEnableLogUpdate2Server
             , string isShowReporter)
         {
-            var jsonStr = AssignConfigDataToJson(productName, appVersion, appBundleVersion, resVersion, packTimeStamp, gameChannelId, paymentChannelId, isABResNameCrypto, abResNameCryptoKey, abResByteOffset, screenOrientation, gameInputType, resLoadType, firstOpenWindowName, gameDesignRatio,
-                 serverDataList, packDataList,
-                 packType, bool.Parse(isRealPurchase), bool.Parse(isShowProtoMsgLog), bool.Parse(isShowDebugBtn), bool.Parse(isEnableLogTrace), bool.Parse(isEnableLogRealtimeWriteToLocal), bool.Parse(isEnableLogUpdate2Server), bool.Parse(isShowReporter)
+            var jsonStr = AssignConfigDataToJson(productName, appVersion, appBundleVersion, resVersion, packTimeStamp, gameChannelId, paymentChannelId, isABResNameCrypto, abResNameCryptoKey, abResByteOffset, screenOrientation, gameInputType, resLoadType, firstOpenWindowName, gameDesignRatio, loginDataList,
+                  packDataList,
+               loginType, packType, bool.Parse(isRealPurchase), bool.Parse(isShowProtoMsgLog), bool.Parse(isShowDebugBtn), bool.Parse(isEnableLogTrace), bool.Parse(isEnableLogRealtimeWriteToLocal), bool.Parse(isEnableLogUpdate2Server), bool.Parse(isShowReporter)
                   );
             WriteToDynamicConfig(jsonStr);
         }
 
-
-
-        public static ServerData GetServerData(int serverType)
-        {
-            for (int i = 0; i < serverDataList.Count; i++)
-            {
-                if (serverDataList[i].serverType == serverType)
-                {
-                    return serverDataList[i];
-                }
-            }
-
-            DebugExt.LogE("no ServerData with ServerType:" + serverType);
-            return null;
-        }
-
-        public static string GetUploadDebugFirleUrl(int serverType)
-        {
-            var serverData = GetServerData(serverType);
-            if (serverData != null)
-            {
-                return serverData.uploadDebugFirleUrl;
-            }
-            return "";
-        }
 
         public static PackData GetPackData(string packType)
         {
@@ -393,7 +384,7 @@ namespace ZGame
                     return packDataList[i];
                 }
             }
-            DebugExt.LogE("no PackData with PackType:" + packType);
+            Debug.LogError("no PackData with PackType:" + packType);
             return null;
         }
     }

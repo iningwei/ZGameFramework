@@ -1,65 +1,57 @@
 {
-  "ProductName": "HomeAlert",
-  "AppVersion": "1.0.1",
-  "AppBundleVersion": "1",
-  "ResVersion": "0",
-  "PackTimeStamp": "2211071403",
-  "GameChannelId": 100,
-  "PaymentChannelId": 2,
-  "IsABResNameCrypto": true,
-  "ABResNameCryptoKey": "hijack88",
-  "ABResByteOffset": 3,
-  "GameDesignRatio": "1080,1920",
-  "ScreenOrientation": 0,
-  "GameInputType": 1,
-  "ResLoadType": 0,
-  "FirstOpenWindowName": "LoginWindow",
-  "ServerData": [
-    {
-      "ServerType": 1,
-      "ServerName": "DaiDev",
-      "IsLogEventToSDK": false,
-      "UploadDebugFileURL": "http://54.215.104.194:8001/file",
-      "PostCmdURL": "http://192.168.1.9:58010/ucmd"
-    },
-    {
-      "ServerType": 10,
-      "ServerName": "Test",
-      "IsLogEventToSDK": true,
-      "UploadDebugFileURL": "http://54.215.104.194:8001/file",
-      "PostCmdURL": "https://sgametest.trillionjoy.com/ucmd"
-    },
-    {
-      "ServerType": 7,
-      "ServerName": "Pub",
-      "IsLogEventToSDK": true,
-      "UploadDebugFileURL": "http://54.215.104.194:8001/file",
-      "PostCmdURL": "https://sgame.trillionjoy.com/ucmd"
-    }
-  ],
-  "PackData": [
-    {
-      "PackType": "PUB",
-      "FtpTxtFileURL": "http://log.qiyoogame.com/hot/garfield/pub",
-      "FtpZipFileURL": "http://log.qiyoogame.com/hot/garfield/pub"
-    },
-    {
-      "PackType": "DEV",
-      "FtpTxtFileURL": "http://log.qiyoogame.com/hot/garfield/dev",
-      "FtpZipFileURL": "http://log.qiyoogame.com/hot/garfield/dev"
-    },
-    {
-      "PackType": "TEST",
-      "FtpTxtFileURL": "https://sgame.trillionjoy.com/sgame/clires/test",
-      "FtpZipFileURL": "https://sgamecdn.trillionjoy.com/sgame/clires/test"
-    }
-  ],
-  "PackType": "PUB",
-  "IsRealPurchase": true,
-  "IsShowProtoMsgLog": true,
-  "IsShowDebugBtn": false,
-  "IsEnableLogTrace": false,
-  "IsEnableLogRealtimeWriteToLocal": false,
-  "IsEnableLogUpdate2Server": true,
-  "IsShowReporter": true
+	"ProductName": "meta",
+	"AppVersion": "1.0.1",
+	"AppBundleVersion": "1",
+	"ResVersion": "0",
+	"PackTimeStamp": "2401301059",
+	"GameChannelId": 100,
+	"PaymentChannelId": 2,
+	"IsABResNameCrypto": true,
+	"ABResNameCryptoKey": "hijack88",
+	"ABResByteOffset": 3,
+	"GameDesignRatio": "1080,1920",
+	"ScreenOrientation": 0,
+	"GameInputType": 1,
+	"ResLoadType": 0,
+	"FirstOpenWindowName": "LoginWindow",
+	"SocketIgnoreLogMsgIds": [
+		"C2SPing",
+		"S2CPing"
+	],
+	"LoginData": [
+		{
+			"LoginType": "PUB",
+			"URL": "http://47.108.170.236:18000/login"
+		},
+		{
+			"LoginType": "DEV",
+			"URL": "http://172.16.10.45:18000/login"
+		}
+	],
+	"PackData": [
+		{
+			"PackType": "PUB",
+			"FtpTxtFileURL": "http://log.qiyoogame.com/hot/meta_v2/pub",
+			"FtpZipFileURL": "http://log.qiyoogame.com/hot/meta_v2/pub"
+		},
+		{
+			"PackType": "DEV",
+			"FtpTxtFileURL": "http://log.qiyoogame.com/hot/meta_v2/dev",
+			"FtpZipFileURL": "http://log.qiyoogame.com/hot/meta_v2/dev"
+		},
+		{
+			"PackType": "TEST",
+			"FtpTxtFileURL": "http://log.qiyoogame.com/hot/meta_v2/test",
+			"FtpZipFileURL": "http://log.qiyoogame.com/hot/meta_v2/test"
+		}
+	],
+	"LoginType": "DEV",
+	"PackType": "PUB",
+	"IsRealPurchase": true,
+	"IsShowProtoMsgLog": true,
+	"IsShowDebugBtn": false,
+	"IsEnableLogTrace": false,
+	"IsEnableLogRealtimeWriteToLocal": false,
+	"IsEnableLogUpdate2Server": true,
+	"IsShowReporter": false
 }

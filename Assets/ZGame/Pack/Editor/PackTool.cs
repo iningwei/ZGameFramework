@@ -8,190 +8,175 @@ using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 using ZGame;
-
+#if HybridCLR_INSTALLED
+using HybridCLR.Editor.Commands;
+using HybridCLR.Editor.Settings;
+#endif
 
 public class PackTool
 {
 
+    static string isPackKey = "isPack";//是否在打包
+    static string curMacrosKey = "curMacros";//当前编辑器设置的宏
+    static string targetMacrosKey = "targetMacros";//打包需要设置的目标宏
+    static string buildFuncNameKey = "buildFuncName";//打包函数名
+
     [MenuItem("工具/打包/IOS/打全量XCode工程")]
     public static void BuildFullXCodeProj()
     {
-        string macros = PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.iOS);
-        if (EditorUtility.DisplayDialog("警告", "打全量XCode工程  当前宏为：" + macros + "------->是否继续??？", "OK", "Cancel"))
-        {
-            BuildLuaBundle.build();
+        //////string macros = PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.iOS);
+        //////if (EditorUtility.DisplayDialog("警告", "打全量XCode工程  当前宏为：" + macros + "------->是否继续??？", "OK", "Cancel"))
+        //////{
+        //////    BuildLuaBundle.build();
 
-            Debug.LogError("copyResFilesToStreamingAssets");
-            copyAllResFilesToStreamingAssets();
+        //////    Debug.LogError("copyResFilesToStreamingAssets");
+        //////    copyAllResFilesToStreamingAssets();
 
-            Debug.LogError("build XCode");
-            // buildXCode("f");
-            EditorPrefs.SetInt("isPack", 1);
-            MacroCodeDetection("buildXCode", "f");
+        //////    Debug.LogError("build XCode");
+        //////    // buildXCode("f");
+        //////    EditorPrefs.SetInt("isPack", 1);
+        //////    MacroCodeDetection("buildXCode", "f");
 
-            Debug.Log("全量 XCode 工程输出完毕！");
-            AssetDatabase.Refresh();
-        }
-        else
-        {
-            Debug.LogError("取消打包");
-        }
+        //////    Debug.Log("全量 XCode 工程输出完毕！");
+        //////    AssetDatabase.Refresh();
+        //////}
+        //////else
+        //////{
+        //////    Debug.LogError("取消打包");
+        //////}
     }
     [MenuItem("工具/打包/IOS/打 热更 XCode工程")]
     public static void BuildHotXCodeProj()
     {
-        string macros = PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.iOS);
-        if (EditorUtility.DisplayDialog("警告", "打 热更 XCode工程  当前宏为：" + macros + "------->是否继续??？", "OK", "Cancel"))
-        {
-            BuildLuaBundle.build();
+        //////string macros = PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.iOS);
+        //////if (EditorUtility.DisplayDialog("警告", "打 热更 XCode工程  当前宏为：" + macros + "------->是否继续??？", "OK", "Cancel"))
+        //////{
+        //////    BuildLuaBundle.build();
 
-            Debug.LogError("copyHotUpdateInitResFilesToStreamingAssets");
-            bool cr = copyHotUpdateInitResFilesToStreamingAssets();
-            if (cr == false)
-            {
-                return;
-            }
+        //////    Debug.LogError("copyHotUpdateInitResFilesToStreamingAssets");
+        //////    bool cr = copyHotUpdateInitResFilesToStreamingAssets();
+        //////    if (cr == false)
+        //////    {
+        //////        return;
+        //////    }
 
 
-            Debug.LogError("build XCode");
-            // buildXCode("h");
-            EditorPrefs.SetInt("isPack", 1);
-            MacroCodeDetection("buildXCode", "h");
-            Debug.Log("热更 XCode 工程输出完毕！");
-            AssetDatabase.Refresh();
+        //////    Debug.LogError("build XCode");
+        //////    // buildXCode("h");
+        //////    EditorPrefs.SetInt("isPack", 1);
+        //////    MacroCodeDetection("buildXCode", "h");
+        //////    Debug.Log("热更 XCode 工程输出完毕！");
+        //////    AssetDatabase.Refresh();
 
-        }
-        else
-        {
-            Debug.LogError("取消打包");
-        }
+        //////}
+        //////else
+        //////{
+        //////    Debug.LogError("取消打包");
+        //////}
     }
 
 
 
 
-
-
-    [MenuItem("工具/打包/安卓/打全量apk")]
-    public static void BuildFullAPK()
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="macros">;分割各个宏</param>
+    [MenuItem("工具/打包/安卓/打apk")]
+    public static void BuildFullAPK(string targetMacros)
     {
-        string macros = PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android);
+        string curMacros = PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android);
+        Debug.Log("cur macros:" + curMacros);
 
-        if (EditorUtility.DisplayDialog("警告", "打全量apk 当前宏为：" + macros + "------->是否继续??？", "OK", "Cancel"))
-        {
+#if HybridCLR_HOTUPDATE
+        SetHybridCLRHotUpdateAssemblies();
 
-            BuildLuaBundle.build();
+        Debug.Log("begin-> HybridCLR Generate All");
+        PrebuildCommand.GenerateAll();
+
+        Debug.Log("begin->热更DLL移动到ResEx目录");
+        HybridCLRResUpdateTool.MoveDll2ResEx();
+        AssetDatabase.Refresh();
+#else
+        ClearHybridCLRHotUpdateAssemblies();
+#endif
 
 
-            Debug.LogError("copyResFilesToStreamingAssets");
-            copyAllResFilesToStreamingAssets();
+#if XLua
+        Debug.Log("begin-> build lua bundle");
+        BuildLuaBundle.build(); 
+#endif
 
-
-            // buildAndroid("f");
-            EditorPrefs.SetInt("isPack", 1);
-            MacroCodeDetection("buildAndroid", "f");
-            Debug.Log("安卓 一键打全量包完毕!");
-            AssetDatabase.Refresh();
-        }
-        else
-        {
-            Debug.LogError("取消打包");
-        }
+        Debug.Log("begin-> copyResFilesToStreamingAssets");
+        copyAllResFilesToStreamingAssets();
+        buildWithTargetMacros("buildAndroid", curMacros, targetMacros);
+        AssetDatabase.Refresh();
     }
 
+
+    /// <summary>
+    /// 打apk热更资源
+    /// </summary>
+    public static void BuildHotupdateAPKRes()
+    {
+        //TODO：
+    }
 
     [MenuItem("工具/打包/安卓/打热更apk")]
     public static void BuildHotupdateAPK()
     {
-        string macros = PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android);
-        if (EditorUtility.DisplayDialog("警告", "打热更apk 当前宏为：" + macros + "------->是否继续??？", "OK", "Cancel"))
-        {
-            //打lua ab
-            //BuildLuaBundle.build();
-            //不用打了，否则就是最新的lua脚本了
+        //////string macros = PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android);
+        //////if (EditorUtility.DisplayDialog("警告", "打热更apk 当前宏为：" + macros + "------->是否继续??？", "OK", "Cancel"))
+        //////{
+        //////    //打lua ab
+        //////    //BuildLuaBundle.build();
+        //////    //不用打了，否则就是最新的lua脚本了
 
-            //从热更目录中 拷贝初始资源到StreamingAssets目录
-            bool cr = copyHotUpdateInitResFilesToStreamingAssets();
-            if (cr == false)
-            {
-                return;
-            }
+        //////    //从热更目录中 拷贝初始资源到StreamingAssets目录
+        //////    bool cr = copyHotUpdateInitResFilesToStreamingAssets();
+        //////    if (cr == false)
+        //////    {
+        //////        return;
+        //////    }
 
-            // buildAndroid("h");
-            EditorPrefs.SetInt("isPack", 1);
-            MacroCodeDetection("buildAndroid", "h");
+        //////    // buildAndroid("h");
+        //////    EditorPrefs.SetInt("isPack", 1);
+        //////    MacroCodeDetection("buildAndroid", "h");
 
-            Debug.Log("安卓  一键打热更包完毕！");
-            AssetDatabase.Refresh();
-        }
-        else
-        {
-            Debug.LogError("取消打包");
-        }
+        //////    Debug.Log("安卓  一键打热更包完毕！");
+        //////    AssetDatabase.Refresh();
+        //////}
+        //////else
+        //////{
+        //////    Debug.LogError("取消打包");
+        //////}
     }
-    public static void MacroCodeDetection(string action, string suffix)
+    static void buildWithTargetMacros(string buildFuncName, string curMacros, string targetMacros)
     {
+        EditorPrefs.SetInt(isPackKey, 1);
+        EditorPrefs.SetString(buildFuncNameKey, buildFuncName);
+        EditorPrefs.SetString(targetMacrosKey, targetMacros);
+        EditorPrefs.SetString(curMacrosKey, curMacros);
+
+
         BuildTargetGroup buildTargetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
-        string symbols = PlayerSettings.GetScriptingDefineSymbols(UnityEditor.Build.NamedBuildTarget.FromBuildTargetGroup(buildTargetGroup));
-        if (EditorPrefs.GetInt("isPack", -1) != 1)
-            return;
-        if (!EditorPrefs.GetBool("isProjectScrips"))
-        {
-            if (EditorPrefs.GetString("ScripsArray", "") == "")
-            {
-                EditorPrefs.SetString("ScripsArray", symbols);
-            }
-            if (symbols.Contains("OriginLuaFile"))
-            {
-                Regex pattern = new Regex("OriginLuaFile(.*?;)?");
-                symbols = pattern.Replace(symbols, "");
-            }
-            if (suffix == "f")
-            {
-                if (!symbols.Contains("XLua"))
-                {
-                    symbols += "XLua;";
-                }
-                if (symbols.Contains("HOTUPDATE"))
-                {
-                    Regex pattern = new Regex("HOTUPDATE(.*?;)?");
-                    symbols = pattern.Replace(symbols, "");
-                }
-            }
-            else if (suffix == "h")
-            {
-                if (!symbols.Contains("XLua"))
-                {
-                    symbols += "XLua;";
-                }
-                if (!symbols.Contains("HOTUPDATE"))
-                {
-                    symbols += "HOTUPDATE;";
-                }
-                Debug.LogError("增加XLua和HOTUPDATE后的宏列表：" + symbols);
-            }
-            Debug.LogError("最终宏列表：" + symbols);
-            EditorPrefs.SetString("suffix", suffix);
-            EditorPrefs.SetString("PackAction", action);
-            PlayerSettings.SetScriptingDefineSymbols(UnityEditor.Build.NamedBuildTarget.FromBuildTargetGroup(buildTargetGroup), symbols);
-        }
+        PlayerSettings.SetScriptingDefineSymbols(UnityEditor.Build.NamedBuildTarget.FromBuildTargetGroup(buildTargetGroup), targetMacros);
         try
         {
             Type type = typeof(PackTool);//获取类名
-            MethodInfo mt = type.GetMethod(action, System.Reflection.BindingFlags.IgnoreCase
+            MethodInfo mt = type.GetMethod(buildFuncName, System.Reflection.BindingFlags.IgnoreCase
                     | System.Reflection.BindingFlags.NonPublic
                     | System.Reflection.BindingFlags.Static);//获取方法信息
             object obj = System.Activator.CreateInstance(type);
-            Debug.LogError($"action:{action} ---- suffix:{suffix}");
-            mt.Invoke(obj, new string[] { suffix });
-            ClearCache();
+            Debug.Log($"call buildFuncName:{buildFuncName}");
+            mt.Invoke(obj, null);
+            reset();
         }
         catch (NullReferenceException e)
         {
-            Debug.LogError(e);
-            ClearCache();
+            Debug.LogError("error while buildWithTargetMacros:" + e);
+            reset();
         }
-
     }
 
 
@@ -204,28 +189,38 @@ public class PackTool
 
         AssetDatabase.SaveAssets();
 
-        //BuildPipeline.BuildPlayer(scenes, Application.dataPath + "/../SGame-XCodeProj-v" + PlayerSettings.bundleVersion + "-" + PlayerSettings.iOS.buildNumber + "-" + suffix, BuildTarget.iOS, BuildOptions.None);
         string locatePathName = $"{Application.dataPath}/../{Config.productName}-XCodeProj-v{Config.appVersion}-{Config.appBundleVersion}-{suffix}";
 
         BuildPipeline.BuildPlayer(scenes, locatePathName, BuildTarget.iOS, BuildOptions.None);
     }
 
-    static void buildAndroid(string suffix)
+    static void buildAndroid()
     {
         var scenes = getBuildScenes();
         setKeystore();
-
         setVersion();
         setProductName();
-
-
-
         AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
 
-        //BuildPipeline.BuildPlayer(scenes, Application.dataPath + "/../CrazyPets-v" + PlayerSettings.bundleVersion + "-" + PlayerSettings.Android.bundleVersionCode + "-" + suffix + ".apk", BuildTarget.Android, BuildOptions.None);
-        string locatePathName = $"{Application.dataPath}/../{Config.productName}-v{Config.appVersion}-{Config.appBundleVersion}-{TimeTool.GetyyyyMMddHHmm(DateTime.Now, "")}-{suffix}.apk";
+        string targetFolder = $"{Application.dataPath}/../output_apk/{Config.productName}_v{Config.appVersion}_{Config.resVersion}_{TimeTool.GetyyyyMMddHHmm(DateTime.Now, "")}";
+        if (IOTools.CreateDirectorySafe(targetFolder))
+        {
+            string locatePathName = $"{targetFolder}/{Config.productName}_v{Config.appVersion}_{Config.resVersion}.apk";
+            BuildPipeline.BuildPlayer(scenes, locatePathName, BuildTarget.Android, BuildOptions.None);
+            Debug.Log("build android success:" + locatePathName);
 
-        BuildPipeline.BuildPlayer(scenes, locatePathName, BuildTarget.Android, BuildOptions.None);
+            //--------------->output build details
+            //copy cfg file
+            string cfgPath = $"{targetFolder}/{Config.cfgFileName}.bytes";
+            IOTools.CopyCfgFile(cfgPath);
+            //log buildMsg
+            string buildMsgPath = $"{targetFolder}/buildMsg.txt";
+            string buildMsg = "macros:" + EditorPrefs.GetString(targetMacrosKey) + "\r\n";
+            buildMsg += "buildScenes:" + getBuildScenesStr() + "\r\n";
+            IOTools.WriteString(buildMsgPath, buildMsg);
+            Debug.Log("output build details finished");
+        }
     }
     static string[] getBuildScenes()
     {
@@ -238,13 +233,25 @@ public class PackTool
         }
         return names.ToArray();
     }
+    static string getBuildScenesStr()
+    {
+        var scenes = getBuildScenes();
+        string scenesStr = "";
+        for (int i = 0; i < scenes.Length; i++)
+        {
+            scenesStr += scenes[i] + ";";
+            scenesStr += ";";
+        }
+        scenesStr = scenesStr.TrimEnd(';');
+        return scenesStr;
+    }
     static void setVersion()
     {
         PlayerSettings.bundleVersion = Config.appVersion;
-        Debug.LogError("set app version:" + Config.appVersion);
+        Debug.Log("set app version（bundleVersion）:" + Config.appVersion);
 #if UNITY_ANDROID
         PlayerSettings.Android.bundleVersionCode = int.Parse(Config.appBundleVersion);
-        Debug.LogError("set bundleVersionCode:" + PlayerSettings.Android.bundleVersionCode);
+        Debug.Log("set bundleVersionCode:" + PlayerSettings.Android.bundleVersionCode);
 #elif UNITY_IOS
         PlayerSettings.iOS.buildNumber =Config.appBundleVersion;
         Debug.LogError("set buildNumber:" + PlayerSettings.iOS.buildNumber);
@@ -252,17 +259,36 @@ public class PackTool
     }
     static void setKeystore()
     {
-        string bundleId = "com.candy.slot.casino.coin.master.crazy.pet";
-        PlayerSettings.Android.keystoreName = Application.dataPath + "/../keystore/" + bundleId + "/user.keystore";
-        PlayerSettings.Android.keystorePass = bundleId;
-        PlayerSettings.Android.keyaliasName = bundleId;
-        PlayerSettings.Android.keyaliasPass = bundleId;
-        PlayerSettings.Android.useCustomKeystore = true;
-
+        //string bundleId = "com.candy.slot.casino.coin.master.crazy.pet";
+        //PlayerSettings.Android.keystoreName = Application.dataPath + "/../keystore/" + bundleId + "/user.keystore";
+        //PlayerSettings.Android.keystorePass = bundleId;
+        //PlayerSettings.Android.keyaliasName = bundleId;
+        //PlayerSettings.Android.keyaliasPass = bundleId;
+        //PlayerSettings.Android.useCustomKeystore = true; 
     }
     static void setProductName()
     {
         PlayerSettings.productName = Config.productName;
+    }
+
+
+    public static void SetHybridCLRHotUpdateAssemblies()
+    {
+#if HybridCLR_INSTALLED
+        //TODO:后面改成通过配置表配置
+        HybridCLRSettings.Instance.hotUpdateAssemblies = new string[] { "Assembly-CSharp" };
+        Debug.Log("set hotUpdateAssemblies:Assembly-CSharp");
+        HybridCLRSettings.Save();
+#endif
+    }
+
+    public static void ClearHybridCLRHotUpdateAssemblies()
+    {
+#if HybridCLR_INSTALLED
+        HybridCLRSettings.Instance.hotUpdateAssemblies = null;
+        Debug.Log("clear hotUpdateAssemblies");
+#endif 
+        AssetDatabase.SaveAssets();
     }
 
 
@@ -297,35 +323,37 @@ public class PackTool
     {
         if (EditorApplication.isCompiling || EditorApplication.isUpdating)
         {
-            Debug.Log("isCompiling or updating");
-            EditorApplication.delayCall += TODO2;
+            EditorApplication.delayCall = null;
+            EditorApplication.delayCall += delayCall;
             return;
         }
-        Debug.Log("DidReloadScripts");
-        EditorApplication.delayCall += TODO2;
+        EditorApplication.delayCall = null;
+        EditorApplication.delayCall += delayCall;
     }
-    static void TODO2()
+    static void delayCall()
     {
-        var suffix = EditorPrefs.GetString("suffix");
-        var action = EditorPrefs.GetString("PackAction");
-        var isPsck = EditorPrefs.GetInt("isPack", -1);
-        if (isPsck == 1)
+        var isPack = EditorPrefs.GetInt(isPackKey, -1);
+        if (isPack == 1)
         {
-            Debug.LogError($"suffix={suffix},action={action}");
-            MacroCodeDetection(action, suffix);
+            var buildFuncName = EditorPrefs.GetString(buildFuncNameKey);
+            var curMacros = EditorPrefs.GetString(curMacrosKey);
+            var targetMacros = EditorPrefs.GetString(targetMacrosKey);
+            buildWithTargetMacros(buildFuncName, curMacros, targetMacros);
         }
     }
-    static void ClearCache()
+    static void reset()
     {
         BuildTargetGroup buildTargetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
-        var ScripsArray = EditorPrefs.GetString("ScripsArray");
-        EditorPrefs.DeleteKey("ScripState");
-        EditorPrefs.DeleteKey("suffix");
-        EditorPrefs.DeleteKey("PackAction");
-        EditorPrefs.DeleteKey("ScripsArray");
-        EditorPrefs.DeleteKey("isPack");
-        Debug.LogError($"还原的宏定义：{ScripsArray}");
-        PlayerSettings.SetScriptingDefineSymbols(UnityEditor.Build.NamedBuildTarget.FromBuildTargetGroup(buildTargetGroup), ScripsArray);
-    }
+        var curMacros = EditorPrefs.GetString(curMacrosKey);
 
+        //delete before reset symbols,in case of onScriptDefineSymbolsReset trigger!
+        EditorPrefs.DeleteKey(buildFuncNameKey);
+        EditorPrefs.DeleteKey(curMacrosKey);
+        EditorPrefs.DeleteKey(targetMacrosKey);
+        EditorPrefs.DeleteKey(isPackKey);
+
+
+        PlayerSettings.SetScriptingDefineSymbols(UnityEditor.Build.NamedBuildTarget.FromBuildTargetGroup(buildTargetGroup), curMacros);
+        Debug.Log($"revert macros with：{curMacros}");
+    }
 }

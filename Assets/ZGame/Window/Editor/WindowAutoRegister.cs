@@ -69,6 +69,7 @@ public class WindowAutoRegister
 
         return flag;
     }
+
     static void gatherWindowName()
     {
         Debug.Log("GatherWindowName--->");
@@ -100,9 +101,8 @@ public class WindowAutoRegister
             File.Create(writePath).Dispose();
         }
         File.WriteAllText(writePath, str);
-
-
     }
+
     static void registerWindow()
     {
         Debug.Log("RegisterWindow--->");
@@ -118,14 +118,14 @@ public class WindowAutoRegister
         var assembly = Assembly.Load(buffer);
         foreach (var t in assembly.GetTypes())
         {
-            if (t.IsClass && t.BaseType != null && isChildOfTargetClass(t, typeof(Window)) && t.Name.EndsWith("Window") && isIgnoreRegister(t) == false  )
+            if (t.IsClass && t.BaseType != null && isChildOfTargetClass(t, typeof(Window)) && t.Name.EndsWith("Window") && isIgnoreRegister(t) == false)
             {
                 str += $"\t\twinManager.RegisterWindowType(WindowNames.{t.Name},typeof({t.Name}).ToString(),\"{t.Name}\");\n";
                 Debug.Log(t.Name);
             }
         }
         str += "\t}\n";
-        str += "}"; 
+        str += "}";
 
         string writePath = Application.dataPath + "/Scripts/Window/WindowRegister.cs";
         string d = writePath.Substring(0, writePath.LastIndexOf('/'));

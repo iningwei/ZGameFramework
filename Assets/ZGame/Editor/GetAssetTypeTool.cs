@@ -8,7 +8,6 @@ using UnityEngine.UI;
 public class GetAssetTypeTool
 {
     [MenuItem("Assets/获得资源类型")]
-
     static void LogAssetType()
     {
         UnityEngine.Object[] selectedAssets = Selection.GetFiltered(typeof(UnityEngine.Object), SelectionMode.DeepAssets) as UnityEngine.Object[];

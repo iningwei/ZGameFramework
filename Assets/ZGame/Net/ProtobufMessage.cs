@@ -16,7 +16,6 @@ public class ProtobufMsgIDDes : Attribute
     {
         this.name = name;
         this.msgId = msgId;
-
     }
 }
 
@@ -79,7 +78,6 @@ public class ProtobufMsgIDDesUtils
                     return des.name;
                 }
             }
-
         }
         Debug.LogError($"No Such field, with msgId:{msgId} ");
         return null;
@@ -91,11 +89,7 @@ public class ProtobufMessage
 {
     static Dictionary<string, Action<byte[]>> eventHandlers = new Dictionary<string, Action<byte[]>>();
 
-    //不打印的消息ID
-    //TODO:后续通过cfg配置，cfg表改成可热更，这样可以动态调
-    static List<ProtobufMsgID> ignoreLogMsgIds = new List<ProtobufMsgID>() {
  
-    };
 
     public static void AddListener(ProtobufMsgID msgId, Action<byte[]> handler)
     {
@@ -157,7 +151,7 @@ public class ProtobufMessage
 
     public static void PrintMessage(ProtobufMsgID msgId, IMessage msg)
     {
-        if (ignoreLogMsgIds.Contains(msgId))
+        if (Config.socketIgnoreLogMsgIds.Contains(msgId))
         {
             return;
         }

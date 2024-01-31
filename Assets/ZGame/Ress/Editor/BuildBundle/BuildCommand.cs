@@ -449,12 +449,12 @@ namespace ZGame.RessEditor
             //fontPathList.Add("Assets/ArtResources/Font/PangMenZhengDao2.0.ttf");
             //fontPathList.Add("Assets/ArtResources/Font/SourceHanSansSC-Medium.otf");
             //fontPathList.Add("Assets/ArtResources/Font/DroidSansFallback.ttf");
-            fontPathList.Add(BuildConfig.defaultTextFontPath);
+            //fontPathList.Add(BuildConfig.defaultTextFontPath);
 
             //Textmesh pro sdf 文件
             //fontPathList.Add("Assets/ArtResources/Font/arial SDF.asset");
             //fontPathList.Add("Assets/ArtResources/Font/PangMenZhengDao2.0 SDF.asset");
-            //fontPathList.Add("Assets/ArtResources/Font/SourceHanSansSC-Medium SDF.asset");
+            fontPathList.Add("Assets/ArtResources/Font/SourceHanSansSC-Medium SDF.asset");
 
 
             for (int i = 0; i < fontPathList.Count; i++)

@@ -8,18 +8,37 @@ using ZGame.Obfuscation;
 
 public class HybridCLRResUpdateTool
 {
-    [MenuItem("HybridCLRHotUpdate/移动待更新DLL到ResEX目录")]
-    static void MoveDll2ResEx()
+    public static string hybridCLRPlatformFolderName
     {
-        //TODO:针对其它平台的处理
+        get
+        {
+            string name = "";
+#if UNITY_ANDROID
+            name = "Android";
+#elif UNITY_IOS
+             Debug.LogError("TODO:set name!!");
+#elif UNITY_STANDALONE_WIN
+        name = "StandaloneWindows64";
+#elif UNITY_STANDALONE_OSX
+            Debug.LogError("TODO:set name!!");
+#else
+       Debug.LogError("TODO:set name!!");     
+#endif
+            return name;
+        }
 
+    }
+    [MenuItem("HybridCLRHotUpdate/移动待更新DLL到ResEX目录")]
+    public static void MoveDll2ResEx()
+    {
         string fileName = "Assembly-CSharp.dll";
         string fileNameFinal = DES.EncryptStrToHex(fileName, Config.abResNameCryptoKey);
-        string sourcePath = Application.dataPath + "/../HybridCLRData/HotUpdateDlls/StandaloneWindows64/" + fileName;
+        string sourcePath = Application.dataPath + string.Format("/../HybridCLRData/HotUpdateDlls/{0}/", hybridCLRPlatformFolderName) + fileName;
 
-        string destPath = Application.dataPath + "/../ResEx/pc_win/" + fileNameFinal + ".bytes";
+        string destPath = Application.dataPath + string.Format("/../ResEx/{0}/", IOTools.PlatformFolderName) + fileNameFinal + ".bytes";
         File.Copy(sourcePath, destPath, true);
         Debug.Log($"copy {sourcePath} to {destPath}");
+        AssetDatabase.Refresh();
     }
 
     [MenuItem("HybridCLRHotUpdate/移动内置DLL到StreamingAssets目录")]
@@ -29,9 +48,9 @@ public class HybridCLRResUpdateTool
         //System.dll
         //System.Core.dll
         List<string> sourcePaths = new List<string>();
-        sourcePaths.Add(Application.dataPath + "/../HybridCLRData/AssembliesPostIl2CppStrip/StandaloneWindows64/mscorlib.dll");
-        sourcePaths.Add(Application.dataPath + "/../HybridCLRData/AssembliesPostIl2CppStrip/StandaloneWindows64/System.dll");
-        sourcePaths.Add(Application.dataPath + "/../HybridCLRData/AssembliesPostIl2CppStrip/StandaloneWindows64/System.Core.dll");
+        sourcePaths.Add(string.Format(Application.dataPath + "/../HybridCLRData/AssembliesPostIl2CppStrip/{0}/mscorlib.dll", hybridCLRPlatformFolderName));
+        sourcePaths.Add(string.Format(Application.dataPath + "/../HybridCLRData/AssembliesPostIl2CppStrip/{0}/System.dll", hybridCLRPlatformFolderName));
+        sourcePaths.Add(string.Format(Application.dataPath + "/../HybridCLRData/AssembliesPostIl2CppStrip/{0}/System.Core.dll", hybridCLRPlatformFolderName));
 
         List<string> desPaths = new List<string>();
         desPaths.Add(Application.streamingAssetsPath + "/mscorlib.dll.bytes");
@@ -42,6 +61,7 @@ public class HybridCLRResUpdateTool
             File.Copy(sourcePaths[i], desPaths[i], true);
             Debug.Log($"copy {sourcePaths[i]} to {desPaths[i]}");
         }
+        AssetDatabase.Refresh();
     }
 
 }

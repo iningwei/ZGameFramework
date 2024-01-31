@@ -1,4 +1,4 @@
- 
+
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -23,6 +23,7 @@ namespace ZGame.Ress.AB
         {
             if (!isInit)
             {
+                Debug.Log("load common ab");
                 AB.Load("common", ABType.Null, (objs) =>
                 {
 
@@ -40,14 +41,12 @@ namespace ZGame.Ress.AB
                     EventDispatcher.Instance.AddListener(EventID.OnRootCompInfoHolderObjDestroy, onRootCompObjDestroy);
                     EventDispatcher.Instance.AddListener(EventID.OnCompInfoHolderChildObjDestroy, onCompInfoHolderChildObjDestroy);
 
-
                     EventDispatcher.Instance.AddListener(EventID.OnDynamicCompInfoHolderObjInstantiate, onDynamicCompInfoHolderObjInstantiate);
+                    Debug.Log("ABManger init finished");
                     isInit = true;
-
                 }, true, true);// load common ab,we can not call ab.Unload(false) , otherwise shader will miss on mobile/PC devices!so set keep AB status is true.
             }
         }
-
 
 
         public void RemoveCachedRes(ABType abType, Res res)

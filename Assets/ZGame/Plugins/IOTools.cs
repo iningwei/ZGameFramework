@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using ZGame;
 using ZGame.Obfuscation;
-using Unity.VisualScripting;
 
 public class IOTools
 {
@@ -110,7 +109,7 @@ public class IOTools
             //resStreamingPath = Application.dataPath + "!assets/ResEx";
         }
         else if (Application.platform == RuntimePlatform.IPhonePlayer)
-        { 
+        {
 #if UNITY_IOS
             //设置iOS沙盒不备份该路径
             //iOS上可能会因为这个原因审核不通过
@@ -302,7 +301,9 @@ public class IOTools
         string d = path.Substring(0, path.LastIndexOf('/'));
         CreateDirectorySafe(d);
         CreateFileSafe(path);
-        File.WriteAllText(path, content);
+
+        using StreamWriter writer = new StreamWriter(path);
+        writer.Write(content);
     }
 
     public static bool CreateDirectorySafe(string folderPath)
@@ -413,5 +414,11 @@ public class IOTools
         }
 
         return path;
+    }
+
+    public static void CopyCfgFile(string targetPath)
+    {
+        string originPath = Config.resConfigFilePath;
+        File.Copy(originPath, targetPath, true);
     }
 }

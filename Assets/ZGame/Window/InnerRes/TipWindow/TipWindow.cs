@@ -1,5 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+#if UseTMP
+using TMPro;
+#endif
 using UnityEngine;
 using UnityEngine.UI;
 using ZGame;
@@ -16,7 +19,12 @@ public enum TipLevel
 public class TipWindow : Window
 {
     public Transform ui_TipTran;
+#if UseTMP
+    public TextMeshProUGUI ui_TipTxt;
+#else
     public Text ui_TipTxt;
+#endif
+
 
     Timer delayHideTimer;
     long delayHideTimerId;
@@ -25,7 +33,9 @@ public class TipWindow : Window
         TimerTween.Cancel(this.delayHideTimer, delayHideTimerId);
 
         this.ui_TipTran.gameObject.SetActive(true);
-        this.ui_TipTxt.text = tip.ToString();
+        this.ui_TipTxt.text = tip;
+
+
         this.delayHideTimer = TimerTween.Delay(5f, () =>
         {
             this.ui_TipTran.gameObject.SetActive(false);
@@ -60,15 +70,15 @@ public class TipWindow : Window
 
             if (tipLevel == TipLevel.Msg)
             {
-                DebugExt.Log("tip:" + tipContent);
+                Debug.Log("show tip:" + tipContent);
             }
             else if (tipLevel == TipLevel.Warnning)
             {
-                DebugExt.LogW("tip:" + tipContent);
+                Debug.LogWarning("show tip:" + tipContent);
             }
             else if (tipLevel == TipLevel.Error)
             {
-                DebugExt.LogE("tip:" + tipContent);
+                Debug.LogError("show tip:" + tipContent);
             }
         }
     }
