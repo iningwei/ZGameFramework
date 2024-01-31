@@ -1,0 +1,18 @@
+{
+    "name": "GameEntry",
+    "rootNamespace": "",
+    "references": [
+        "GUID:13ba8ce62aa80c74598530029cb2d649",
+        "GUID:d485dcfe3d8800c40837c7e1b9a87d42",
+        "GUID:9ee92159e2c36b24e97eebc5dbfbcf6c"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
