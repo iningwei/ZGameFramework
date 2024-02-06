@@ -156,8 +156,6 @@ namespace ZGame
         public static bool isShowReporter;
 
 
-
-
         public static string cfgFileName;
         //内置Resources目录下cfg文件的全路径
         public static string resConfigFilePath;

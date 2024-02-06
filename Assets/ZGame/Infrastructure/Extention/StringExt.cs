@@ -46,7 +46,7 @@ public static class StringExt
     /// <returns></returns>
     public static bool IsResNameValid(this string resNameWithoutExt)
     {
-       
+
         if (Regex.Match(resNameWithoutExt, @"^[0-9a-zA-Z][a-zA-Z0-9 _\-]+[0-9a-zA-Z]$").Success)
         {
             return true;
@@ -115,6 +115,21 @@ public static class StringExt
     }
 
 
+    public static Vector2 ToVector2(this string str, char splitChar)
+    {
+        try
+        {
+            var datas = str.Split(splitChar);
+            return new Vector2(float.Parse(datas[0]), float.Parse(datas[1]));
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError("ToVector2 Error, input str:" + str + ", splitChar:" + splitChar + ", ex:" + ex.ToString());
+
+            return Vector2.zero;
+        }
+
+    }
 
 
     public static string ToBase64(this string str)

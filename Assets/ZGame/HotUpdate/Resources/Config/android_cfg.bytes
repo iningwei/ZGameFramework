@@ -3,7 +3,7 @@
 	"AppVersion": "1.0.1",
 	"AppBundleVersion": "1",
 	"ResVersion": "0",
-	"PackTimeStamp": "2401301059",
+	"PackTimeStamp": "2402061240",
 	"GameChannelId": 100,
 	"PaymentChannelId": 2,
 	"IsABResNameCrypto": true,
@@ -45,7 +45,7 @@
 			"FtpZipFileURL": "http://log.qiyoogame.com/hot/meta_v2/test"
 		}
 	],
-	"LoginType": "DEV",
+	"LoginType": "PUB",
 	"PackType": "PUB",
 	"IsRealPurchase": true,
 	"IsShowProtoMsgLog": true,

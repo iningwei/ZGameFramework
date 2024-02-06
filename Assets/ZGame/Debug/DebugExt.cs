@@ -50,7 +50,6 @@ namespace ZGame
             Debug.LogError(TimeTool.GetyyyyMMddHHmmssfff(DateTime.Now, true) + ":" + message, content);
             TraceDebug(TimeTool.GetyyyyMMddHHmmssfff(DateTime.Now, true) + ":" + message);
         }
-
         public static void UploadDebugToServer(string url, string fileNameExt, Action onSuccess, Action onFail)
         {
             string contents = "";

@@ -116,9 +116,7 @@ public class IOTools
             UnityEngine.iOS.Device.SetNoBackupFlag(Application.persistentDataPath);
 #endif
         }
-
     }
-
 
     public static string GetResStreamingPath(string resName)
     {
@@ -178,8 +176,6 @@ public class IOTools
         return null;
     }
 
-
-
     public static void WriteFileToUpdateDir(string name, byte[] data)
     {
         if (data != null && data.Length > 0)
@@ -212,7 +208,6 @@ public class IOTools
             Debug.LogWarning("warning, DeleteAllFiles dir not exist：" + dir);
             return;
         }
-
         DirectoryInfo di = new DirectoryInfo(dir);
         FileSystemInfo[] fsi = di.GetFileSystemInfos();
         foreach (var item in fsi)
@@ -224,7 +219,6 @@ public class IOTools
                     DirectoryInfo subDir = new DirectoryInfo(item.FullName);
                     subDir.Delete(true);//删除该目录以及目录下的文件                    
                 }
-
             }
             else
             {
@@ -233,10 +227,13 @@ public class IOTools
         }
     }
 
-
-
-
-
+    public static void DeleteFolder(string folderName)
+    {
+        if (Directory.Exists(folderName))
+        {
+            Directory.Delete(folderName, true);
+        }
+    }
 
     /// <summary>
     /// 把文件从源文件夹下拷贝到目标文件夹下
@@ -260,9 +257,41 @@ public class IOTools
         {
             File.Copy(files[i], desDic + "/" + Path.GetFileName(files[i]));
         }
-
     }
 
+
+
+
+    public static void CopyDirectory(string sourceDir, string targetDir)
+    {
+        DirectoryInfo dir = new DirectoryInfo(sourceDir);
+        DirectoryInfo[] dirs = dir.GetDirectories();
+
+
+        if (!dir.Exists)
+        {
+            throw new DirectoryNotFoundException($"Source directory does not exist or could not be found: {sourceDir}");
+        }
+
+        if (!Directory.Exists(targetDir))
+        {
+            Directory.CreateDirectory(targetDir);
+        }
+
+
+        FileInfo[] files = dir.GetFiles();
+        foreach (FileInfo file in files)
+        {
+            string tempPath = Path.Combine(targetDir, file.Name);
+            file.CopyTo(tempPath, true);
+        }
+
+        foreach (DirectoryInfo subdir in dirs)
+        {
+            string tempPath = Path.Combine(targetDir, subdir.Name);
+            CopyDirectory(subdir.FullName, tempPath);
+        }
+    }
 
 
     public static string GetFileString(string filePath)

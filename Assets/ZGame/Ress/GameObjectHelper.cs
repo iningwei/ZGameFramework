@@ -1,6 +1,5 @@
 
 using System;
-using Unity.VisualScripting;
 using UnityEngine;
 using ZGame.Event;
 using ZGame.Ress.AB;
@@ -91,10 +90,18 @@ namespace ZGame.Ress
         {
             var childs = target.GetComponentsInChildren<Transform>(true);
 
-            for (int i = 0; i < childs.Length; i++)
+            try
             {
-                EventDispatcher.Instance.DispatchEvent(EventID.OnCompInfoHolderChildObjDestroy, childs[i].gameObject);
+                for (int i = 0; i < childs.Length; i++)
+                {
+                    EventDispatcher.Instance.DispatchEvent(EventID.OnCompInfoHolderChildObjDestroy, childs[i].gameObject);
+                }
             }
+            catch (Exception ex)
+            {
+                Debug.LogError("error, ex:" + ex.ToString());
+            }
+
         }
     }
 }

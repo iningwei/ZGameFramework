@@ -36,7 +36,7 @@ public class TipWindow : Window
         this.ui_TipTxt.text = tip;
 
 
-        this.delayHideTimer = TimerTween.Delay(5f, () =>
+        this.delayHideTimer = TimerTween.Delay(2f, () =>
         {
             this.ui_TipTran.gameObject.SetActive(false);
         }).SetTag("DelayHideTip");

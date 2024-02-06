@@ -199,6 +199,5 @@ namespace ZGame.Event
             mEventLuaHandlers.Clear();
             mEventLuaOnceHandlers.Clear();
         }
-
     }
 }

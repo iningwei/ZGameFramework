@@ -21,6 +21,9 @@ public class PackTool
     static string targetMacrosKey = "targetMacros";//打包需要设置的目标宏
     static string buildFuncNameKey = "buildFuncName";//打包函数名
 
+    static string remoteShareDiskPath = @"\\172.16.10.128\share\GamePakg\元宇宙";
+
+
     [MenuItem("工具/打包/IOS/打全量XCode工程")]
     public static void BuildFullXCodeProj()
     {
@@ -60,7 +63,6 @@ public class PackTool
         //////        return;
         //////    }
 
-
         //////    Debug.LogError("build XCode");
         //////    // buildXCode("h");
         //////    EditorPrefs.SetInt("isPack", 1);
@@ -74,7 +76,6 @@ public class PackTool
         //////    Debug.LogError("取消打包");
         //////}
     }
-
 
 
 
@@ -98,29 +99,32 @@ public class PackTool
         HybridCLRResUpdateTool.MoveDll2ResEx();
         AssetDatabase.Refresh();
 #else
-        ClearHybridCLRHotUpdateAssemblies();
+                        ClearHybridCLRHotUpdateAssemblies();
+        AssetDatabase.Refresh();
 #endif
 
 
 #if XLua
-        Debug.Log("begin-> build lua bundle");
-        BuildLuaBundle.build(); 
+                        Debug.Log("begin-> build lua bundle");
+                        BuildLuaBundle.build(); 
 #endif
 
         Debug.Log("begin-> copyResFilesToStreamingAssets");
         copyAllResFilesToStreamingAssets();
-        buildWithTargetMacros("buildAndroid", curMacros, targetMacros);
+        string outputFolderPath = buildWithTargetMacros("buildAndroid", curMacros, targetMacros);
+
+        string outputFolderName = Path.GetFileName(outputFolderPath);
+
+        //删除安卓打包后生成的无用文件夹：
+        string outputAPKName = outputFolderName.Substring(0, outputFolderName.LastIndexOf('_'));
+        IOTools.DeleteFolder($"{outputFolderPath}\\{outputAPKName}_BackUpThisFolder_ButDontShipItWithYourGame");
+        IOTools.DeleteFolder($"{outputFolderPath}\\{outputAPKName}_BurstDebugInformation_DoNotShip");
+
         AssetDatabase.Refresh();
+        CopyToShareDisk.DoCopy2SMB(outputFolderPath, remoteShareDiskPath + "\\" + IOTools.PlatformFolderName + "\\" + outputFolderName);
     }
 
 
-    /// <summary>
-    /// 打apk热更资源
-    /// </summary>
-    public static void BuildHotupdateAPKRes()
-    {
-        //TODO：
-    }
 
     [MenuItem("工具/打包/安卓/打热更apk")]
     public static void BuildHotupdateAPK()
@@ -151,7 +155,7 @@ public class PackTool
         //////    Debug.LogError("取消打包");
         //////}
     }
-    static void buildWithTargetMacros(string buildFuncName, string curMacros, string targetMacros)
+    static string buildWithTargetMacros(string buildFuncName, string curMacros, string targetMacros)
     {
         EditorPrefs.SetInt(isPackKey, 1);
         EditorPrefs.SetString(buildFuncNameKey, buildFuncName);
@@ -161,6 +165,8 @@ public class PackTool
 
         BuildTargetGroup buildTargetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
         PlayerSettings.SetScriptingDefineSymbols(UnityEditor.Build.NamedBuildTarget.FromBuildTargetGroup(buildTargetGroup), targetMacros);
+
+        string outputName = "";
         try
         {
             Type type = typeof(PackTool);//获取类名
@@ -169,7 +175,7 @@ public class PackTool
                     | System.Reflection.BindingFlags.Static);//获取方法信息
             object obj = System.Activator.CreateInstance(type);
             Debug.Log($"call buildFuncName:{buildFuncName}");
-            mt.Invoke(obj, null);
+            outputName = (string)mt.Invoke(obj, null);
             reset();
         }
         catch (NullReferenceException e)
@@ -177,6 +183,7 @@ public class PackTool
             Debug.LogError("error while buildWithTargetMacros:" + e);
             reset();
         }
+        return outputName;
     }
 
 
@@ -194,7 +201,7 @@ public class PackTool
         BuildPipeline.BuildPlayer(scenes, locatePathName, BuildTarget.iOS, BuildOptions.None);
     }
 
-    static void buildAndroid()
+    static string buildAndroid()
     {
         var scenes = getBuildScenes();
         setKeystore();
@@ -202,11 +209,12 @@ public class PackTool
         setProductName();
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
+        string apkName = $"{Config.productName}_v{Config.appVersion}_{Config.resVersion}";
 
-        string targetFolder = $"{Application.dataPath}/../output_apk/{Config.productName}_v{Config.appVersion}_{Config.resVersion}_{TimeTool.GetyyyyMMddHHmm(DateTime.Now, "")}";
+        string targetFolder = $"{Application.dataPath}/../output_apk/{apkName}_{TimeTool.GetyyyyMMddHHmm(DateTime.Now, "")}";
         if (IOTools.CreateDirectorySafe(targetFolder))
         {
-            string locatePathName = $"{targetFolder}/{Config.productName}_v{Config.appVersion}_{Config.resVersion}.apk";
+            string locatePathName = $"{targetFolder}/{apkName}.apk";
             BuildPipeline.BuildPlayer(scenes, locatePathName, BuildTarget.Android, BuildOptions.None);
             Debug.Log("build android success:" + locatePathName);
 
@@ -219,8 +227,11 @@ public class PackTool
             string buildMsg = "macros:" + EditorPrefs.GetString(targetMacrosKey) + "\r\n";
             buildMsg += "buildScenes:" + getBuildScenesStr() + "\r\n";
             IOTools.WriteString(buildMsgPath, buildMsg);
-            Debug.Log("output build details finished");
+            Debug.Log("output build details finished：" + targetFolder);
+            return targetFolder;
         }
+        Debug.LogError("build android failed!!!");
+        return "";
     }
     static string[] getBuildScenes()
     {
@@ -287,8 +298,9 @@ public class PackTool
 #if HybridCLR_INSTALLED
         HybridCLRSettings.Instance.hotUpdateAssemblies = null;
         Debug.Log("clear hotUpdateAssemblies");
+        HybridCLRSettings.Save();
 #endif 
-        AssetDatabase.SaveAssets();
+  
     }
 
 

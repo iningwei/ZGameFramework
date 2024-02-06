@@ -89,7 +89,7 @@ public class ProtobufMessage
 {
     static Dictionary<string, Action<byte[]>> eventHandlers = new Dictionary<string, Action<byte[]>>();
 
- 
+
 
     public static void AddListener(ProtobufMsgID msgId, Action<byte[]> handler)
     {
@@ -146,8 +146,6 @@ public class ProtobufMessage
             }
         }
     }
-
-
 
     public static void PrintMessage(ProtobufMsgID msgId, IMessage msg)
     {

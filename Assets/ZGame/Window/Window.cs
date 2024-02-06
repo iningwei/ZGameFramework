@@ -213,7 +213,7 @@ namespace ZGame.Window
         }
         public virtual void Destroy(bool destroyImmediate)
         {
-            Debug.Log("destroy window:" + name);
+            Debug.Log("destroy window:" + name+ ", destroyImmediate:"+ destroyImmediate);
 
             RemoveEventListener();
             if (callbackOnWindowDestroy != null)

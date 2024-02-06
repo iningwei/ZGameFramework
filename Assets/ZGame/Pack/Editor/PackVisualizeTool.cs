@@ -40,8 +40,8 @@ public class PackVisualizeTool : EditorWindow
     public static bool isEnableLogUpdate2Server;
     public static bool isShowReporter;
 
-    public bool[] diyMacros;
-    public string[] macroNames = { "XLua", "OriginLuaFile", "HOTUPDATE", "UseTMP", "HybridCLR_HOTUPDATE", "HybridCLR_INSTALLED", "MOBILE_INPUT", };
+    public static bool[] diyMacros;
+    public static string[] macroNames = { "XLua", "OriginLuaFile", "HOTUPDATE", "UseTMP", "HybridCLR_HOTUPDATE", "HybridCLR_INSTALLED", "MOBILE_INPUT", };
 
     public static bool isDIYMacros;
     public static bool isProjectMacros;
@@ -91,6 +91,9 @@ public class PackVisualizeTool : EditorWindow
         isEnableLogRealtimeWriteToLocal = Config.isEnableLogRealtimeWriteToLocal;
         isEnableLogUpdate2Server = Config.isEnableLogUpdate2Server;
         isShowReporter = Config.isShowReporter;
+
+
+        diyMacros = new bool[macroNames.Length];
     }
 
     private void OnGUI()
@@ -207,7 +210,6 @@ loginType, packType, isRealPurchase, isShowProtoMsgLog, isShowDebugBtn, isEnable
             isDIYMacros = EditorGUILayout.BeginToggleGroup("自定义宏", isDIYMacros);
             if (isDIYMacros)
             {
-                diyMacros = new bool[macroNames.Length];
                 for (int i = 0; i < macroNames.Length; i++)
                 {
                     diyMacros[i] = EditorGUILayout.Toggle(macroNames[i], diyMacros[i]);
@@ -286,7 +288,10 @@ loginType, packType, isRealPurchase, isShowProtoMsgLog, isShowDebugBtn, isEnable
             //    PackTool.BuildHotXCodeProj();
             //}
         }
-
+        EditorGUILayout.Space(10);
+        GUILayout.Label("---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------",
+            GUILayout.ExpandWidth(true)
+            );
         EditorGUILayout.EndFoldoutHeaderGroup();
     }
 

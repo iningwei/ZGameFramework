@@ -1,39 +1,36 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using UnityEditor;
-using System.IO;
-using System;
-using MiniJSON;
+using UnityEngine;
 using ZGame;
-using ZGame.Obfuscation;
 
-public class ResUpdateTool : ScriptableWizard
+public class ResUpdateTool : EditorWindow
 {
-     
+    static BuildTargetGroup buildTargetGroup;
+    static string macros;
     [MenuItem("HotUpdate/游戏热更/一键整理热更代码和资源")]
     public static void GenUpdateResList()
     {
-        ScriptableWizard.DisplayWizard("一键整理热更代码和资源", typeof(ResUpdateTool), "确定", "取消");
-
+        ResUpdateTool resTool = EditorWindow.GetWindow(typeof(ResUpdateTool)) as ResUpdateTool;
+        buildTargetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
+        macros = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargetGroup);
     }
 
-    void OnWizardUpdate()
+    void OnGUI()
     {
+        EditorGUILayout.LabelField("version:" + Config.appVersion);
+        EditorGUILayout.LabelField("resVersion:" + Config.resVersion);
+        EditorGUILayout.LabelField("channelId:" + Config.gameChannelId);
+        GUILayout.Space(10);
+        EditorGUILayout.LabelField("macros:" + macros);
+        GUILayout.Space(10);
 
-    }
-
-    //点击 确认 按钮
-    void OnWizardCreate()
-    {
-        Debug.Log("ResUpdateTool OnWizardCreate!");
-        new HotResCollector().Build();
-    }
-
-
-    //点击取消按钮
-    void OnWizardOtherButton()
-    {
-        Close();
+        if (GUILayout.Button("Confirm"))
+        {
+            new HotResCollector().Build();
+            this.Close();
+        }
+        if (GUILayout.Button("Cancel"))
+        {
+            this.Close();
+        }
     }
 }
