@@ -19,6 +19,10 @@ public class WindowUtil
         WindowManager.Instance.SendWindowMessage(WindowNames.NetMaskWindow, 0);
     }
 
+    public static void ShowTip(string tipContent)
+    {
+        ShowTip(tipContent, TipLevel.Msg);
+    }
     public static void ShowTip(string tipContent, TipLevel tipLevel)
     {
         WindowManager.Instance.SendWindowMessage(WindowNames.TipWindow, 1, tipContent, tipLevel);

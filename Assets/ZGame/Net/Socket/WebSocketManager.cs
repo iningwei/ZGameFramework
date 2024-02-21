@@ -161,7 +161,9 @@ public class WebSocketManager : SingletonMonoBehaviour<WebSocketManager>
 
         curMainCmdId = NetConfig.useNetworkOrder ? IPAddress.NetworkToHostOrder(curMainCmdId) : curMainCmdId;
 
-        if (len > 2)
+
+
+        if (len >= 2)//curBodySize是可能为0的，即空消息体
         {
             curBodySize = (len - 2);
             isHandHeader = false;
@@ -266,6 +268,7 @@ public class WebSocketManager : SingletonMonoBehaviour<WebSocketManager>
     }
     void OnOpen(WebSocket ws)
     {
+        WindowUtil.HideNetMask();
         status = WebSocketStatus.Connected;
         Debug.Log("连接ws成功");
         reconnectCount = 0;
@@ -340,6 +343,7 @@ public class WebSocketManager : SingletonMonoBehaviour<WebSocketManager>
     int reconnectCount = 0;
     public void Reconnect()
     {
+        WindowUtil.ShowNetMask();
         TimerTween.Cancel(delayReconnectTimer, delayReconnectTimerId);
 
         //重连加个延迟，避免服务器或者网络通道还没有清理干净导致的重连不上

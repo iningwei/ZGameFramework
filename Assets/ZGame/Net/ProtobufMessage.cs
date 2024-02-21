@@ -154,6 +154,6 @@ public class ProtobufMessage
             return;
         }
         var des = ProtobufMsgIDDesUtils.GetIDDes(msgId);
-        Debug.Log($"{des.name}, {des.msgId} :{msg.ToString()};frame:" + Time.frameCount + ", stamp(ms):" + TimeTool.GetNowStamp());
+        Debug.Log($"{des.name}, {des.msgId} :    {msg.ToString()}    ;frame:" + Time.frameCount + ", stamp(ms):" + TimeTool.GetNowStamp());
     }
 }

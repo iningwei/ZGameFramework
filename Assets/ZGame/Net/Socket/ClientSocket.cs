@@ -277,7 +277,7 @@ namespace ZGame.Net.Tcp
 
             curMainCmdId = useNetworkOrder ? IPAddress.NetworkToHostOrder(curMainCmdId) : curMainCmdId;
 
-            if (len > 2)
+            if (len >= 2)//curBodySize是可能为0的，即空消息体
             {
                 curBodySize = (len - 2);
                 isHandHeader = false;

@@ -127,6 +127,8 @@ public class TcpIpSocketManager : SingletonMonoBehaviour<TcpIpSocketManager>
     int reconnectCount = 0;
     public void Reconnect(float timeOut = 5)
     {
+        WindowUtil.ShowNetMask();
+
         TimerTween.Cancel(delayReconnectTimer, delayReconnectTimerId);
 
         //重连加个延迟，避免服务器或者网络通道还没有清理干净导致的重连不上
@@ -158,6 +160,7 @@ public class TcpIpSocketManager : SingletonMonoBehaviour<TcpIpSocketManager>
     }
     void connectedCallback()
     {
+        WindowUtil.HideNetMask();
         Debug.LogError("连上了，设置 reconnectCount 为0");
         this.reconnectCount = 0;
     }

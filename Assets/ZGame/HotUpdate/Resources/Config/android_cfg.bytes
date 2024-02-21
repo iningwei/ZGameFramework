@@ -45,7 +45,7 @@
 			"FtpZipFileURL": "http://log.qiyoogame.com/hot/meta_v2/test"
 		}
 	],
-	"LoginType": "PUB",
+	"LoginType": "DEV",
 	"PackType": "PUB",
 	"IsRealPurchase": true,
 	"IsShowProtoMsgLog": true,

@@ -1,3 +1,4 @@
+using Codice.Client.Common;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -122,7 +123,7 @@ public class TimeTool
 
     /// <summary>
     /// 格式化秒数量
-    /// 1 day 24h 36m 43s
+    /// 1d 24h 36m 43s
     /// </summary>
     /// <returns></returns>
     public static string FormatSeconds(int seconds)
@@ -159,19 +160,12 @@ public class TimeTool
     /// </summary>
     /// <param name="seconds"></param>
     /// <returns></returns>
-    public static string FormatSeconds2(int seconds)
+    public static string FormatSeconds2(long seconds)
     {
-        int day = 0;
-        int h = 0;
-        int m = 0;
-        int s = 0;
-
-        day = seconds / (3600 * 24);
-        seconds = seconds - (day * 3600 * 24);
-        h = seconds / 3600;
-        seconds = seconds - h * 3600;
-        m = seconds / 60;
-        s = seconds - m * 60;
+        long day = seconds / (3600 * 24);
+        long h = seconds % (3600 * 24) / 3600;
+        long m = seconds % 3600 / 60;
+        long s = seconds % 60;
         if (day > 0)
         {
             return $"{day}:{h}:{m}:{s}";
@@ -186,6 +180,7 @@ public class TimeTool
             return $"{m,2:00}:{s,2:00}";
         }
     }
+
 
     /// <summary>
     /// 单位毫秒
@@ -250,20 +245,35 @@ public class TimeTool
     }
 
     /// <summary>
-    /// 获得年月日数值存在int[]数组内
+    /// 获得：年 月 日 小时 分钟 秒 毫秒 数值存在int[]数组内
     /// [0]是年，[1]是月，[2]是日
     /// </summary>
     /// <param name="date"></param>
     /// <returns></returns>
-    public static int[] GetYMD(DateTime date)
+    public static int[] GetYMDHMSMs(DateTime date)
     {
-        int[] ymd = new int[3];
-        ymd[0] = date.Year;
-        ymd[1] = date.Month;
-        ymd[2] = date.Day;
-        return ymd;
+        int[] resultArray = new int[7];
+        resultArray[0] = date.Year;
+        resultArray[1] = date.Month;
+        resultArray[2] = date.Day;
+        resultArray[3] = date.Hour;
+        resultArray[4] = date.Minute;
+        resultArray[5] = date.Second;
+        resultArray[6] = date.Millisecond;
+        return resultArray;
     }
 
+    public static int[] GetYMDHMS(long seconds) {
+        DateTime dateTime = DateTimeOffset.FromUnixTimeSeconds(seconds).LocalDateTime;
+        int[] resultArray = new int[6]; 
+        resultArray[0]= dateTime.Year;
+        resultArray[1]= dateTime.Month;
+        resultArray[2]= dateTime.Day;
+        resultArray[3] = dateTime.Hour;
+        resultArray[4] = dateTime.Minute;
+        resultArray[5] = dateTime.Second;
+        return resultArray;
+    }
 
     /// <summary>
     /// 比较 旧的年月日 和 新的年月日
@@ -351,14 +361,6 @@ public class TimeTool
     {
         return System.TimeZone.CurrentTimeZone.GetUtcOffset(System.DateTime.Now).Hours;
     }
-
-
-
-
-
-
-
-
 
     //ref:http://t.zoukankan.com/jietian331-p-7717548.html
     public enum Constellation

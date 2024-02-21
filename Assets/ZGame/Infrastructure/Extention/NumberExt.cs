@@ -49,6 +49,23 @@ public static class NumberExt
         return formatStr;
     }
 
+    public static void ExtractDHMS(this long seconds,out long d,out long h,out long m,out long s)
+    {
+          d = seconds / (3600 * 24);
+          h = seconds % (3600 * 24) / 3600;
+          m = seconds % 3600 / 60;
+          s = seconds % 60;
+    }
+
+    public static void ExtractDHMS(this int seconds, out int d, out int h, out int m, out int s)
+    {
+        d = seconds / (3600 * 24);
+        h = seconds % (3600 * 24) / 3600;
+        m = seconds % 3600 / 60;
+        s = seconds % 60;
+    }
+
+
     public static string FormatHHMMSS(this int seconds)
     {
         string hms = "00:00:00";

@@ -104,7 +104,7 @@ public class AutoGenServiceFetch
         {
             if (t.IsClass && t.BaseType != null && t.BaseType.Name == typeof(NetService).Name && t.Name.EndsWith("Service"))
             {
-                classDes.Add("\tpublic static " + t.Name + " _" + t.Name.FirstCharToLower() + ";");
+                classDes.Add("\tprivate static " + t.Name + " _" + t.Name.FirstCharToLower() + ";");
                 initFunc.Add("\t\t"+t.Name.FirstCharacterToLower() + ".Init();");
                 //属性拼接
                 string propertyStr = "\tpublic static " + t.Name + " " + t.Name.FirstCharacterToLower() + "\n";
