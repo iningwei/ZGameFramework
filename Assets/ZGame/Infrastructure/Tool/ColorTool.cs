@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -78,6 +78,21 @@ namespace ZGame
             finalColor.r = red;
             finalColor.g = green;
             finalColor.b = blue;
+            return finalColor;
+
+        }
+        public static Color HexToRGBA(this string hexStr)
+        {
+            char[] color = hexStr.ToCharArray();
+            float red = (HexToInt(color[1]) + HexToInt(color[0]) * 16f) / 255f;
+            float green = (HexToInt(color[3]) + HexToInt(color[2]) * 16f) / 255f;
+            float blue = (HexToInt(color[5]) + HexToInt(color[4]) * 16f) / 255f;
+            float alpha = (HexToInt(color[7]) + HexToInt(color[6]) * 16f) / 255f;
+            var finalColor = new Color();
+            finalColor.r = red;
+            finalColor.g = green;
+            finalColor.b = blue;
+            finalColor.a = alpha;
             return finalColor;
 
         }

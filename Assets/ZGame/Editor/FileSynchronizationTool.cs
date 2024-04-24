@@ -1,6 +1,7 @@
 
 using System;
 using System.IO;
+using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEditor;
 using UnityEngine;
 
@@ -23,13 +24,8 @@ namespace ZGame.RessEditor
             {
                 for (int i = 0; i < assets.Length; i++)
                 {
-                    string fileDir = Environment.CurrentDirectory;
-                    string path = AssetDatabase.GetAssetPath(assets[i]);
-                    fileDir = fileDir + "/" + path;
-                    fileDir = fileDir.Replace("\\", "/");
-                    fileDir = fileDir.Replace("AssetsAssets", "Assets");
-                    Debug.Log("选择文件路径：" + fileDir);
-
+                    string fileDir = Application.dataPath.Substring(0, Application.dataPath.IndexOf("Assets")) + AssetDatabase.GetAssetPath(assets[i]);
+                    Debug.Log(fileDir);
                     if (Directory.Exists(fileDir))
                     {
                         LsFolder(fileDir);

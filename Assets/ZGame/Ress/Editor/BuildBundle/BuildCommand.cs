@@ -53,16 +53,7 @@ namespace ZGame.RessEditor
                     string allPath = Application.dataPath + path.Replace("Assets", "");
                     string fileName = Path.GetFileNameWithoutExtension(allPath);
 
-                    //过滤出一些暂时不需要打ab的
-                    if (fileName == "role_hud_4vboss"
 
-                        || fileName == "scene_0009"
-
-                      || fileName == "TaskHintWindow"
-                      || fileName == "TaskWindow")
-                    {
-                        continue;
-                    }
                     GameObject asset = AssetDatabase.LoadAssetAtPath(path, typeof(GameObject)) as GameObject;
                     if (asset != null)
                     {
@@ -138,7 +129,80 @@ namespace ZGame.RessEditor
 
         }
 
+        [MenuItem("工具/打包/打ab包/对所有窗体打AB包")]
+        public static void BuildAllWindow()
+        {
+            var prefabGuids = AssetDatabase.FindAssets("t:Prefab", new[] { "Assets" });
+            for (int i = 0; i < prefabGuids.Length; i++)
+            {
+                string guid = prefabGuids[i];
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                if (path.Contains("temp_for_prefab"))
+                {
+                    continue;
+                }
+                if (path.EndsWith("Window.prefab") == false)
+                {
+                    continue;
+                }
 
+                string fullPath = Application.dataPath + path.Replace("Assets", "");
+                string fileName = Path.GetFileNameWithoutExtension(fullPath);
+
+
+                GameObject asset = AssetDatabase.LoadAssetAtPath(path, typeof(GameObject)) as GameObject;
+                if (asset != null)
+                {
+                    var holder = asset.GetComponent<RootCompInfoHolder>();
+                    if (holder != null)
+                    {
+                        Debug.LogError("begin build ab for:" + fullPath);
+                        BuildConfig.getBuildFunc(path, asset)(asset);
+                    }
+                }
+            }
+
+
+            // 完成后要删除一些无用的文件
+            var files = Directory.GetFileSystemEntries(BuildConfig.outputPath);
+            foreach (var v in files)
+            {
+                if (!v.EndsWith(IOTools.abSuffix))
+                {
+                    File.Delete(v);
+                }
+            }
+            Debug.Log("打所有窗体AB包完毕");
+        }
+
+        [MenuItem("工具/打包/打ab包/对所有Texture打AB包")]
+        public static void BuildAllTexture()
+        {
+            var textureGuids = AssetDatabase.FindAssets("t:Texture", new[] { "Assets/ArtResources/Texture" });
+            for (int i = 0; i < textureGuids.Length; i++)
+            {
+                string guid = textureGuids[i];
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+
+                string allPath = Application.dataPath + path.Replace("Assets", "");
+                string fileName = Path.GetFileNameWithoutExtension(allPath);
+
+                Texture asset = AssetDatabase.LoadAssetAtPath<Texture>(path);
+                BuildConfig.getBuildFunc(path, asset)(asset);
+            }
+
+
+            // 完成后要删除一些无用的文件
+            var files = Directory.GetFileSystemEntries(BuildConfig.outputPath);
+            foreach (var v in files)
+            {
+                if (!v.EndsWith(IOTools.abSuffix))
+                {
+                    File.Delete(v);
+                }
+            }
+            Debug.Log("对所有texture打ab完成");
+        }
 
         [MenuItem("Assets/对选择项打AB包")]
         public static void Build()

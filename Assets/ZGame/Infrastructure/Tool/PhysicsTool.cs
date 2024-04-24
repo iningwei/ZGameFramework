@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -63,10 +63,10 @@ namespace ZGame
             Vector3 center = targetBoxArea.transform.position + targetBoxArea.center.MultiplyVector3(targetBoxArea.transform.lossyScale);
             Vector3 halfExtents = targetBoxArea.size.MultiplyVector3(targetBoxArea.transform.lossyScale) * 0.5f;
             Quaternion oritation = targetBoxArea.transform.rotation;
-            return Physics.CheckBox(center, halfExtents, oritation, layerMask); 
+            return Physics.CheckBox(center, halfExtents, oritation, layerMask);
         }
 
- 
+
 
 
 
@@ -77,11 +77,11 @@ namespace ZGame
         /// 本函数判断依据：鼠标按下和松开都不能在UI上，否则返回null；鼠标按下和松开是同一个物体，否则返回null
         /// </summary>
         /// <returns></returns>
-        public static GameObject GetClickedTargetExcludeUIInterference(Func<bool> conditionFun, Camera cam, float dis, int layerMask,ref GameObject mouseDownTarget,ref GameObject mouseUpTarget)
+        public static GameObject GetClickedTargetExcludeUIInterference(Func<bool> conditionFun, Camera cam, float dis, int layerMask, ref GameObject mouseDownTarget, ref GameObject mouseUpTarget)
         {
             bool isPassedCondition = (conditionFun == null || conditionFun() == true);
             if (isPassedCondition)
-            { 
+            {
                 #region 获得鼠标按下时的目标
 #if UNITY_STANDALONE || UNITY_EDITOR
                 if (Input.GetMouseButtonDown(0))
@@ -92,9 +92,9 @@ namespace ZGame
                     if (EventSystem.current.IsPointerOverGameObject() == false)
                     {
                         mouseDownTarget = getMouseTarget(cam, dis, layerMask);
-                        
+
                     }
-                   
+
                 }
 #else
     if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
@@ -119,7 +119,7 @@ namespace ZGame
                     {
                         mouseUpTarget = getMouseTarget(cam, dis, layerMask);
                     }
-                  
+
 
                     if (mouseDownTarget != null && mouseUpTarget != null && mouseDownTarget.Equals(mouseUpTarget))
                     {

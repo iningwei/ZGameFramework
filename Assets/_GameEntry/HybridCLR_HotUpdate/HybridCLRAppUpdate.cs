@@ -27,6 +27,7 @@ public class HybridCLRAppUpdate : HybridCLRSingleton<HybridCLRAppUpdate>
         if (result1 == -1)
         {
             Debug.LogError($"error, serverCurMaxVer<localVer, serverCurMaxVer:{serverCurMaxVer}, localVer:{localVer}");
+            this.gameEntry.ShowErrorTip("当前版本错误，local:" + localVer + ", serverMax:" + serverCurMaxVer);
             return;
         }
         else
@@ -37,8 +38,9 @@ public class HybridCLRAppUpdate : HybridCLRSingleton<HybridCLRAppUpdate>
 
                 ////大版本更新，重新下载软件
                 //WindowManager.Instance.SendWindowMessage("HotUpdateWindow", 10, null);
-
-                this.gameEntry.ShowErrorTip("当前版本错误，local:" + localVer + ", canRunMin:" + serverCanRunMinVer + ", curMax:" + serverCurMaxVer);
+                //TODO:
+                //this.gameEntry.ShowErrorTip("当前版本错误，local:" + localVer + ", serverCanRunMin:" + serverCanRunMinVer + ", serverCurMax:" + serverCurMaxVer);
+                this.gameEntry.ShowBigUpdate();
             }
             else
             {

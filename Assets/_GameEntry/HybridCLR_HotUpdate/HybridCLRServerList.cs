@@ -8,10 +8,12 @@ using MiniJSON;
 public class HybridCLRAppMsgData
 {
     public string CurMaxResVersion;
+    public string WhitelistCurMaxResVersion;
     public bool IsPassed;
-    public HybridCLRAppMsgData(string curMaxResVersion, bool isPassed)
+    public HybridCLRAppMsgData(string curMaxResVersion, string whitelistCurMaxResVersion, bool isPassed)
     {
         this.CurMaxResVersion = curMaxResVersion;
+        this.WhitelistCurMaxResVersion = whitelistCurMaxResVersion;
         this.IsPassed = isPassed;
     }
 }
@@ -24,7 +26,8 @@ public class HybridCLRServerList : HybridCLRSingleton<HybridCLRServerList>
     public string CurMaxAppVersion;
     public string CanRunMinAppVersion;
 
-    public string JumpStoreKey;       //大版本更新对应的打开商店的地址 
+    public string IOSJumpStoreKey;       //大版本更新对应的打开商店的地址 
+    public string AndroidJumpStoreKey;//
 
     public Dictionary<string, HybridCLRAppMsgData> AppMsgDic = new Dictionary<string, HybridCLRAppMsgData>();//具体某个版本app信息
 
@@ -36,12 +39,10 @@ public class HybridCLRServerList : HybridCLRSingleton<HybridCLRServerList>
         this.CurMaxAppVersion = dic["CurMaxAppVersion"].ToString();
         this.CanRunMinAppVersion = dic["CanRunMinAppVersion"].ToString();
 
-        this.JumpStoreKey = dic["JumpStoreKey"].ToString();
+        this.IOSJumpStoreKey = dic["IOSJumpStoreKey"].ToString();
+        this.AndroidJumpStoreKey = dic["AndroidJumpStoreKey"].ToString();
 
-
-
-
-
+        Debug.LogError("IOSJumpStoreKey:" + IOSJumpStoreKey);
         var list = dic["AppMsg"] as List<object>;
 
         for (int i = 0; i < list.Count; i++)
@@ -49,13 +50,9 @@ public class HybridCLRServerList : HybridCLRSingleton<HybridCLRServerList>
             var appDic = list[i] as Dictionary<string, object>;
             var appVersion = appDic["AppVersion"].ToString();
             var curMaxResVersion = appDic["CurMaxResVersion"].ToString();
-            var isPassed = true;
-            if (appDic.ContainsKey("IsPassed"))
-            {
-                isPassed = Boolean.Parse(appDic["IsPassed"].ToString());
-            }
-
-            AppMsgDic.Add(appVersion, new HybridCLRAppMsgData(curMaxResVersion, isPassed));
+            var whitelistCurMaxResVersion = appDic["WhitelistCurMaxResVersion"].ToString();
+            var isPassed = Boolean.Parse(appDic["IsPassed"].ToString());
+            AppMsgDic.Add(appVersion, new HybridCLRAppMsgData(curMaxResVersion, whitelistCurMaxResVersion, isPassed));
         }
 
     }
@@ -65,6 +62,10 @@ public class HybridCLRServerList : HybridCLRSingleton<HybridCLRServerList>
     {
         if (AppMsgDic.ContainsKey(appVersion))
         {
+            if (PlayerPrefs.GetInt("IsWhitelist", 0) == 1)//白名单客户
+            {
+                return AppMsgDic[appVersion].WhitelistCurMaxResVersion;
+            }
             return AppMsgDic[appVersion].CurMaxResVersion;
         }
         else
@@ -74,23 +75,16 @@ public class HybridCLRServerList : HybridCLRSingleton<HybridCLRServerList>
         }
     }
 
-    /// <summary>
-    /// 审核通过状态
-    /// </summary>
-    /// <returns></returns>
-    public bool GetAuditPassStatus()
+    public bool IsPassed(string appVersion)
     {
-        if (AppMsgDic.ContainsKey(HybridCLRConfig.appVersion))
+        if (AppMsgDic.ContainsKey(appVersion))
         {
-            bool isPassed = AppMsgDic[HybridCLRConfig.appVersion].IsPassed;
-            Debug.Log("appVersion:" + HybridCLRConfig.appVersion + ", isPassed:" + isPassed);
-            return isPassed;
+            return AppMsgDic[appVersion].IsPassed;
         }
         else
         {
-            Debug.LogWarning($"GetPassStatus error, no appVersion:{HybridCLRConfig.appVersion} in serverlist, so we set true default");
-            return true;
+            Debug.LogError($"IsPassed error, no appVersion:{appVersion} in serverlist");
+            return false;
         }
     }
-
 }

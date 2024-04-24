@@ -78,7 +78,10 @@ namespace ZGame.SDK
 
             //////AnalyticsSdkManager.Instance.Init();
             //////AdSdkManager.Instance.Init();
+            ///
+            SDKExt.InitMQSDK(BeanManager.Instance.GetConfigStr(100));
         }
+
 
 
 
@@ -101,36 +104,33 @@ namespace ZGame.SDK
             return "unknown";
         }
 
-#if !UNITY_EDITOR && (UNITY_IOS)
-        [DllImport("__Internal")]
-        private static extern string DeviceUniqueId();
-#endif
+
         public static string GetDeviceId()
         {
 #if UNITY_EDITOR
             return getMacAddress() + getDeviceUniqueIdentifier();
 #elif UNITY_STANDALONE
-            return getMacAddress() + getDeviceUniqueIdentifier();
+                                    return getMacAddress() + getDeviceUniqueIdentifier();
 #elif UNITY_ANDROID
-            var uniqueID = new AndroidJavaClass("com.zgame.sdk.DeviceID");
-            string id;
-            using (AndroidJavaClass jc = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
-            {
-                object jo = jc.GetStatic<AndroidJavaObject>("currentActivity");
-                id = uniqueID.CallStatic<string>("Get", jo, false);
-            }
-            id = "1_" + id;
-            DebugExt.Log("get device ID：" + id);
-            return id;
+                                    var uniqueID = new AndroidJavaClass("com.zgame.sdk.DeviceID");
+                                    string id;
+                                    using (AndroidJavaClass jc = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
+                                    {
+                                        object jo = jc.GetStatic<AndroidJavaObject>("currentActivity");
+                                        id = uniqueID.CallStatic<string>("Get", jo, false);
+                                    }
+                                    id = "1_" + id;
+                                    Debug.Log("get device ID：" + id);
+                                    return id;
 #elif UNITY_IOS
-         string sid = DeviceUniqueId();
-          sid = sid.Replace("-", "");
-                sid = sid.Substring(0, 32);
-        sid="2_"+sid;
-        DebugExt.Log("get device ID：" + sid);
-                return sid;
+            string sid = SDKExt.GetiOSDeviceUniqueId();
+            sid = sid.Replace("-", "");
+            sid = sid.Substring(0, 32);
+            sid = "2_" + sid;
+            Debug.Log("get device ID：" + sid);
+            return sid;
 #endif
-            return "NONE";
+            return "";
         }
 
         public static void SetAppScreenBrightness(int value)
@@ -211,7 +211,7 @@ namespace ZGame.SDK
             foreach (NetworkInterface adaper in nice)
             {
 
-                DebugExt.Log(adaper.Description);
+                Debug.Log(adaper.Description);
 
                 if (adaper.Description == "en0")
                 {
@@ -231,8 +231,6 @@ namespace ZGame.SDK
 
             return physicalAddress.ToLower();
         }
-
-
 
 
 
@@ -282,17 +280,24 @@ namespace ZGame.SDK
 
             if (data != null)
             {
-                DebugExt.Log("get lost order data, inner_order_id:" + data.inner_order_id);
+                Debug.Log("get lost order data, inner_order_id:" + data.inner_order_id);
             }
             else
             {
-                DebugExt.Log("no lost order data！！");
+                Debug.Log("no lost order data！！");
             }
             return data;
         }
 #endif
 
         #endregion
+
+
+
+
+
+
+
     }
 
 

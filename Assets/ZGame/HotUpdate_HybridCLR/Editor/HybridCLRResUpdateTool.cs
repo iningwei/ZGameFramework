@@ -16,7 +16,7 @@ public class HybridCLRResUpdateTool
 #if UNITY_ANDROID
             name = "Android";
 #elif UNITY_IOS
-             Debug.LogError("TODO:set name!!");
+             name = "iOS";
 #elif UNITY_STANDALONE_WIN
         name = "StandaloneWindows64";
 #elif UNITY_STANDALONE_OSX
@@ -41,7 +41,7 @@ public class HybridCLRResUpdateTool
         AssetDatabase.Refresh();
     }
 
-    [MenuItem("HybridCLRHotUpdate/移动内置DLL到StreamingAssets目录")]
+    [MenuItem("HybridCLRHotUpdate/移动内置匹配当前平台的DLL到StreamingAssets目录")]
     static void MoveInnerDll2StreamingAssets()
     {
         //mscorlib.dll

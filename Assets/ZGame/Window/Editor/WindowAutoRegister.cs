@@ -72,7 +72,7 @@ public class WindowAutoRegister
 
     static void gatherWindowName()
     {
-        Debug.Log("GatherWindowName--->");
+        //Debug.Log("GatherWindowName--->");
         string str = "public class WindowNames:WindowBaseNames\n{\n";
 
         string path = "./Library/ScriptAssemblies/Assembly-CSharp.dll";
@@ -84,7 +84,7 @@ public class WindowAutoRegister
             {
 
                 str += "\tpublic static string " + t.Name + " = \"" + t.Name + "\";\n";
-                Debug.Log(t.Name);
+                //Debug.Log(t.Name);
             }
         }
         str += "}";
@@ -105,7 +105,7 @@ public class WindowAutoRegister
 
     static void registerWindow()
     {
-        Debug.Log("RegisterWindow--->");
+        //Debug.Log("RegisterWindow--------------------->");
         string str = "using ZGame.Window;\npublic class WindowRegister\n{\n";
         str += "\tpublic static void Register()\n\t{\n";
         str += "\t\tvar winManager=WindowManager.Instance;\n";
@@ -121,7 +121,7 @@ public class WindowAutoRegister
             if (t.IsClass && t.BaseType != null && isChildOfTargetClass(t, typeof(Window)) && t.Name.EndsWith("Window") && isIgnoreRegister(t) == false)
             {
                 str += $"\t\twinManager.RegisterWindowType(WindowNames.{t.Name},typeof({t.Name}).ToString(),\"{t.Name}\");\n";
-                Debug.Log(t.Name);
+                //Debug.Log(t.Name);
             }
         }
         str += "\t}\n";

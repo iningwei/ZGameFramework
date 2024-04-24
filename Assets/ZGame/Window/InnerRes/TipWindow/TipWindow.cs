@@ -61,7 +61,7 @@ public class TipWindow : Window
 
     public override void HandleMessage(int msgId, params object[] paras)
     {
-        if (msgId == 1)
+        if (msgId == WindowMsgID.OnAddTip)
         {
             var tipContent = paras[0].ToString();
             var tipLevel = (TipLevel)paras[1];

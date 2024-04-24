@@ -10,10 +10,11 @@ public class TableOutput : Editor
     static void Output()
     {
         string path = Application.dataPath + "/../table_tools/导表.bat";
+        UnityEngine.Debug.Log("process path:" + path);
         Process.Start(path);
 
     }
-    
+
     [MenuItem("工具/打开Excel配置表文件夹")]
     private static void OpenExcelFolder()
     {

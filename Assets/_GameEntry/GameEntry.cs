@@ -14,7 +14,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-
+using System.Runtime.InteropServices;
 
 
 public class GameEntry : MonoBehaviour
@@ -27,175 +27,69 @@ public class GameEntry : MonoBehaviour
     public Text errorTipTxt;
 
     public Transform progressTran;
+    public Image progressImg;
     public Text progressTxt;
 
-    string dyStartToken = "";
-    string dyScreenFullScreen = "0";
-    string dyScreenWidth = "1080";
-    string dyScreenHeight = "1920";
-    string dyCloudGame = "0";
-    string dyMobile = "0";
+    public Transform bigUpdateTran;
 
-    string dyStartTokenHeader = "-token=";
-    string dyFullScreenHeader = "-screen-fullscreen";
-    string dyScreenHeightHeader = "-screen-height";
-    string dyScreenWidthHeader = "-screen-width";
-    string dyScreenCloudGameHeader = "-cloud-game";
-    string dyPlatformMobileHeader = "-mobile";
     void Start()
     {
-        var param = System.Environment.GetCommandLineArgs();
-
-
-
-
-        var argsDic = this.collectArgs();
-        argsDic.TryGetValue(dyStartTokenHeader, out dyStartToken);
-        argsDic.TryGetValue(dyFullScreenHeader, out dyScreenFullScreen);
-        argsDic.TryGetValue(dyScreenWidthHeader, out dyScreenWidth);
-        argsDic.TryGetValue(dyScreenHeightHeader, out dyScreenHeight);
-        argsDic.TryGetValue(dyScreenCloudGameHeader, out dyCloudGame);
-        argsDic.TryGetValue(dyPlatformMobileHeader, out dyMobile);
-
-
-        PlayerPrefs.SetString("dyStartToken", dyStartToken);
-        PlayerPrefs.SetString("dyCloudGame", dyCloudGame);
-        PlayerPrefs.SetString("dyMobile", dyMobile);
-        PlayerPrefs.Save();
-        Debug.Log("set dyStartToken:" + dyStartToken);
-        Debug.Log("set dyCloudGame:" + dyCloudGame);
-        Debug.Log("set dyMobile:" + dyMobile);
-        if (dyCloudGame == "1")//云游戏
-        {
-            //////移动端启动
-            ////if (dyMobie == "1")//移动端启动
-            ////{
-
-            ////}
-            ////else//伴侣启动
-            ////{ 
-            ////}
-
-            int realWidth;
-            if (int.TryParse(dyScreenWidth, out realWidth) == false)
-            {
-                realWidth = 1080;
-            }
-
-            int realHeight;
-            if (int.TryParse(dyScreenHeight, out realHeight) == false)
-            {
-                realHeight = 1920;
-            }
-
-            bool isFullScreen = dyScreenFullScreen == "1" ? true : false;
-
-            Screen.SetResolution(realWidth, realHeight, isFullScreen);
-            Debug.Log($"GameEntry dyCloudGame, setResolution, width:{realWidth},height:{realHeight},isFullScreen:{isFullScreen}");
-        }
-        else
-        {
-            //int width = PlayerPrefs.GetInt("DefaultWidth", 1080);
-            //int height = PlayerPrefs.GetInt("DefaultHeight", 1920);
-
-            //Screen.SetResolution(width, height, false);
-            //Debug.Log($"GameEntry, setResolution, width:{width},height:{height}");
-
-        }
-
         normalTipTran.gameObject.SetActive(false);
         errorTipTran.gameObject.SetActive(false);
         progressTran.gameObject.SetActive(false);
+        bigUpdateTran.gameObject.SetActive(false);
 
-#if HybridCLR_HOTUPDATE 
+        SDKExt.TryWebRequest();
+    }
+
+
+    bool isCheckingNetwork = true;
+    int checkedCount = 0;
+    private void Update()
+    {
+        if (checkedCount > 200)
+        {
+            return;
+        }
+        if (isCheckingNetwork && IsNetworkReachability())
+        {
+            isCheckingNetwork = false;
+            startWork();
+        }
+    }
+
+    void startWork()
+    {
+#if HybridCLR_HOTUPDATE
         HybridCLRServerListDownload.Instance.Download(this);
 #else
         this.EnterGame();
 #endif 
     }
 
-
     /// <summary>
-    /// 收集启动参数
+    /// 网络可达性
     /// </summary>
-    /// <returns>启动参数的键值表</returns>
-    private Dictionary<string, string> collectArgs()
+    /// <returns></returns>
+    public bool IsNetworkReachability()
     {
-        Dictionary<string, string> keyValues = new();
-
-        HashSet<string> argKeys = new();
-        argKeys.Add("-token=");
-        argKeys.Add("-screen-fullscreen");
-        argKeys.Add("-screen-height");
-        argKeys.Add("-screen-width");
-        argKeys.Add("-cloud-game");
-        argKeys.Add("-mobile");
-
-        //
-        Debug.Log("-------------->");
-        string[] args = System.Environment.GetCommandLineArgs();
-        foreach (string arg in args)
+        checkedCount++;
+        switch (Application.internetReachability)
         {
-            Debug.Log("arg:" + arg);
+            case NetworkReachability.ReachableViaLocalAreaNetwork:
+                Debug.Log("当前使用的是：WiFi ");
+                return true;
+            case NetworkReachability.ReachableViaCarrierDataNetwork:
+                Debug.Log("当前使用的是移动网络 ");
+                return true;
+            default:
+                Debug.LogError("当前没有联网 ");
+                return false;
         }
-        Debug.Log("<--------------");
-
-
-        for (int i = 0; i < args.Length; i++)
-        {
-            //token
-            if (args[i].Contains(dyStartTokenHeader))
-            {
-                dyStartToken = args[i].Substring(dyStartTokenHeader.Length);
-                keyValues[dyStartTokenHeader] = dyStartToken;
-            }
-
-
-            //云游戏全屏分辨率
-            if (args[i].Contains(dyFullScreenHeader))
-            {
-                dyScreenFullScreen = args[i + 1];
-                if (dyScreenFullScreen == "1")
-                {
-                    dyScreenWidth = "1080";
-                    dyScreenHeight = "1920";
-                }
-                keyValues[dyFullScreenHeader] = dyScreenFullScreen;
-                keyValues[dyScreenWidthHeader] = dyScreenWidth;
-                keyValues[dyScreenHeightHeader] = dyScreenHeight;
-            }
-
-            //云游戏分辨率高度
-            if (args[i].Contains(dyScreenHeightHeader))
-            {
-                dyScreenHeight = args[i + 1];
-                keyValues[dyScreenHeightHeader] = dyScreenHeight;
-            }
-
-            //云游戏分辨率宽度
-            if (args[i].Contains(dyScreenWidthHeader))
-            {
-                dyScreenWidth = args[i + 1];
-                keyValues[dyScreenWidthHeader] = dyScreenWidth;
-            }
-
-            //云游戏屏蔽分辨率UI
-            if (args[i].Contains(dyScreenCloudGameHeader))
-            {
-                dyCloudGame = args[i + 1];
-                keyValues[dyScreenCloudGameHeader] = dyCloudGame;
-            }
-
-            //云游戏Mobile平台
-            if (args[i].Contains(dyPlatformMobileHeader))
-            {
-                dyMobile = args[i + 1];
-                keyValues[dyPlatformMobileHeader] = dyMobile;
-            }
-        }
-
-        return keyValues;
     }
+
+
+
 
     public void ShowNormalTip(string tip)
     {
@@ -208,7 +102,29 @@ public class GameEntry : MonoBehaviour
     {
         errorTipTran.gameObject.SetActive(true);
         errorTipTxt.text = tip;
+    }
+ 
+    public void ShowBigUpdate()
+    {
+        this.bigUpdateTran.gameObject.SetActive(true);
+        Button confirmBtn = this.bigUpdateTran.Find("bg/ConfirmBtn").GetComponent<Button>();
+        confirmBtn.onClick.RemoveAllListeners();
+        confirmBtn.onClick.AddListener(this.onBigUpdateConfirmBtnClicked);
 
+    }
+
+    private void onBigUpdateConfirmBtnClicked()
+    {
+#if !UNITY_EDITOR
+#if UNITY_IOS
+        SDKExt.openAppStore(HybridCLRServerList.Instance.IOSJumpStoreKey);
+#endif
+
+ 
+#if UNITY_ANDROID
+        SDKExt.openAndroidDownloadPage(HybridCLRServerList.Instance.AndroidJumpStoreKey);
+#endif
+#endif 
     }
 
     public void ShowProgress(float ratio)
@@ -217,25 +133,10 @@ public class GameEntry : MonoBehaviour
         {
             progressTran.gameObject.SetActive(true);
         }
-        progressTxt.text = "解压资源:" + (ratio * 100).ToString("0.0") + "%";
+        progressImg.fillAmount = ratio;
+        progressTxt.text = (ratio * 100).ToString("0.0") + "%";
     }
 
-
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.U))
-        {
-            WinPCLogUpload.UploadToServer("http://log.qiyoogame.com/Gm/save-file/auto", () =>
-            {
-
-                this.ShowNormalTip("日志上传成功");
-
-            }, () =>
-            {
-                this.ShowNormalTip("日志上传失败");
-            });
-        }
-    }
 
 
     public void EnterGame()

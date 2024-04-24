@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -21,7 +21,7 @@ public class AutoTextureSetting : AssetPostprocessor
         importer.npotScale = TextureImporterNPOTScale.None;
 
         TextureImporterPlatformSettings androidSettings = new TextureImporterPlatformSettings();
-        androidSettings.maxTextureSize = 1024;
+        //androidSettings.maxTextureSize = 1024;
         androidSettings.format = TextureImporterFormat.ASTC_6x6;
 
 
@@ -43,7 +43,7 @@ public class AutoTextureSetting : AssetPostprocessor
 
         //ASTC 在ios上有通道问题
         TextureImporterPlatformSettings iosSettings = new TextureImporterPlatformSettings();
-        iosSettings.maxTextureSize = 1024;
+        //iosSettings.maxTextureSize = 1024;
         iosSettings.format = TextureImporterFormat.ASTC_6x6;
         if (assetPath.Contains("newbie_guide.png"))
         {

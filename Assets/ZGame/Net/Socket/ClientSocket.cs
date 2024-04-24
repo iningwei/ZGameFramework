@@ -71,20 +71,7 @@ namespace ZGame.Net.Tcp
             recvBytes = new byte[1024];
         }
 
-#if UNITY_IOS && !UNITY_EDITOR
-    [DllImport("__Internal")]
-    private static extern string getIPv6(string mHost, string mPort);
-#endif
 
-        private static string getIPv6ByCS(string mHost, string mPort)
-        {
-#if UNITY_IOS && !UNITY_EDITOR
-		string mIPv6 = getIPv6(mHost, mPort);
-		return mIPv6;
-#else
-            return mHost + "&&ipv4";
-#endif
-        }
 
         void getIPType(string serverIp, string serverPorts, out string newServerIp, out AddressFamily mIPType)
         {
@@ -92,7 +79,7 @@ namespace ZGame.Net.Tcp
             newServerIp = serverIp;
             try
             {
-                string mIPv6 = getIPv6ByCS(serverIp, serverPorts);
+                string mIPv6 = SDKExt.GetIPv6ByCS(serverIp, serverPorts);
                 //DebugExt.LogE("mIPv6:" + mIPv6);
                 if (!string.IsNullOrEmpty(mIPv6))
                 {

@@ -19,14 +19,30 @@ public class NetMaskWindow : Window
     {
 
     }
+
+    public override void Show(string layerName, params object[] datas)
+    {
+        base.Show(layerName, datas);
+        this.ui_bgTran.gameObject.SetActive(false);
+        this.ui_rollTran.gameObject.SetActive(false);
+
+    }
     public override void Init(string windowName, GameObject obj)
     {
         base.Init(windowName, obj);
         this.hideRoll();
     }
-    void showRoll()
+    void showBg()
     {
         this.ui_bgTran.gameObject.SetActive(true);
+    }
+    void hideBg()
+    {
+        this.ui_bgTran.gameObject.SetActive(false);
+    }
+    void showRoll()
+    {
+        ui_rollTran.gameObject.SetActive(true);
 
         TimerTween.Cancel(rollTimer, rollTimerId);
 
@@ -36,7 +52,7 @@ public class NetMaskWindow : Window
             {
                 eulerZ += 360f;
             }
-            eulerZ -= 0.03f;
+            eulerZ -= 2f;
 
             ui_rollTran.localEulerAngles = new Vector3(0, 0, eulerZ);
             return true;
@@ -47,24 +63,29 @@ public class NetMaskWindow : Window
     void hideRoll()
     {
         TimerTween.Cancel(rollTimer, rollTimerId);
-
-        this.ui_bgTran.gameObject.SetActive(false);
+        ui_rollTran.gameObject.SetActive(false);
     }
 
     public override void HandleMessage(int msgId, params object[] paras)
     {
-        if (msgId == 1)
+        if (msgId == WindowMsgID.OnShowNetMask)
         {
-            this.showRoll();
+            this.showBg();
         }
-        else if (msgId == 0)
+        else if (msgId == WindowMsgID.OnHideNetMask)
         {
+            this.hideBg();
             this.hideRoll();
         }
+        else if (msgId == WindowMsgID.OnShowNetMaskWithRoll)
+        {
+            this.showBg();
+            this.showRoll();
+        }
     }
-    public override void Destroy(bool destroyImmediate)
+    public override void Destroy()
     {
-        base.Destroy(destroyImmediate);
+        base.Destroy();
         TimerTween.Cancel(rollTimer, rollTimerId);
     }
 }

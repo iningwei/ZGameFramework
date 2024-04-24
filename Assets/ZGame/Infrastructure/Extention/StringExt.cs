@@ -205,4 +205,48 @@ public static class StringExt
         string str = input.First().ToString().ToUpper() + input.Substring(1);
         return str;
     }
+
+    /// <summary>
+    /// 向下取整指定位数
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="decimalLength"></param>
+    /// <returns></returns>
+    public static string FormatNumberToString(this double value, int decimalLength, bool removeZero)
+    {
+        double d = Math.Pow(10, decimalLength);
+        double v = ((int)Math.Floor(value * d)) / d;
+        if (removeZero)
+        {
+            return v.ToString();
+        }
+        else
+        {
+            return v.ToString($"F{decimalLength}");
+        }
+    }
+    /// <summary>
+    /// 向下取整指定位数
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="decimalLength"></param>
+    /// <returns></returns>
+    public static string FormatNumberToString(this float value, int decimalLength, bool removeZero)
+    {
+        var d = (double)value;
+        return d.FormatNumberToString(decimalLength, removeZero);
+    }
+
+
+    public static bool VerifyIsValidPhoneNum(this string phoneNumStr)
+    {
+        string pattern = @"^1[3456789]\d{9}$";
+        return System.Text.RegularExpressions.Regex.IsMatch(phoneNumStr, pattern);
+    }
+
+    public static bool VerifyIsValidIdentityCardNum(this string idCardStr)
+    {
+        string pattern = @"^[1-9]\d{5}(18|19|20|21|22)?\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}(\d|[Xx])$";
+        return System.Text.RegularExpressions.Regex.IsMatch(idCardStr, pattern);
+    }
 }

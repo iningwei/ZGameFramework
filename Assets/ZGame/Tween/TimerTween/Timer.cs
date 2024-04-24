@@ -8,6 +8,18 @@ using UnityEngine.Rendering;
 
 namespace ZGame.TimerTween
 {
+    public class TimerIdPair
+    {
+        public Timer timer;
+        public long id;
+        public TimerIdPair(Timer timer, long id)
+        {
+            this.timer = timer;
+            this.id = id;
+        }
+    }
+
+
 
     [Serializable]
     public class Timer

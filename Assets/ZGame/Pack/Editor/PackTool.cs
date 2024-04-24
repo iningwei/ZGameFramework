@@ -99,15 +99,12 @@ public class PackTool
         HybridCLRResUpdateTool.MoveDll2ResEx();
         AssetDatabase.Refresh();
 #else
-                        ClearHybridCLRHotUpdateAssemblies();
+        ClearHybridCLRHotUpdateAssemblies();
         AssetDatabase.Refresh();
 #endif
 
 
-#if XLua
-                        Debug.Log("begin-> build lua bundle");
-                        BuildLuaBundle.build(); 
-#endif
+
 
         Debug.Log("begin-> copyResFilesToStreamingAssets");
         copyAllResFilesToStreamingAssets();
@@ -201,10 +198,14 @@ public class PackTool
         BuildPipeline.BuildPlayer(scenes, locatePathName, BuildTarget.iOS, BuildOptions.None);
     }
 
+    static void outputAndroidStudio()
+    {
+
+    }
     static string buildAndroid()
     {
         var scenes = getBuildScenes();
-        setKeystore();
+        SetKeystore();
         setVersion();
         setProductName();
         AssetDatabase.SaveAssets();
@@ -215,6 +216,7 @@ public class PackTool
         if (IOTools.CreateDirectorySafe(targetFolder))
         {
             string locatePathName = $"{targetFolder}/{apkName}.apk";
+
             BuildPipeline.BuildPlayer(scenes, locatePathName, BuildTarget.Android, BuildOptions.None);
             Debug.Log("build android success:" + locatePathName);
 
@@ -268,14 +270,17 @@ public class PackTool
         Debug.LogError("set buildNumber:" + PlayerSettings.iOS.buildNumber);
 #endif
     }
-    static void setKeystore()
+
+    [MenuItem("工具/打包/安卓/设置keystore")]
+    public static void SetKeystore()
     {
-        //string bundleId = "com.candy.slot.casino.coin.master.crazy.pet";
-        //PlayerSettings.Android.keystoreName = Application.dataPath + "/../keystore/" + bundleId + "/user.keystore";
-        //PlayerSettings.Android.keystorePass = bundleId;
-        //PlayerSettings.Android.keyaliasName = bundleId;
-        //PlayerSettings.Android.keyaliasPass = bundleId;
-        //PlayerSettings.Android.useCustomKeystore = true; 
+        string bundleId = "com.xingqimetaverse.an";
+        PlayerSettings.Android.keystoreName = Application.dataPath + "/../keystore/" + bundleId + "/user.keystore";
+        PlayerSettings.Android.keystorePass = bundleId;
+        PlayerSettings.Android.keyaliasName = bundleId;
+        PlayerSettings.Android.keyaliasPass = bundleId;
+        PlayerSettings.Android.useCustomKeystore = true;
+        Debug.Log("keystore设置完成");
     }
     static void setProductName()
     {
@@ -299,8 +304,8 @@ public class PackTool
         HybridCLRSettings.Instance.hotUpdateAssemblies = null;
         Debug.Log("clear hotUpdateAssemblies");
         HybridCLRSettings.Save();
-#endif 
-  
+#endif
+
     }
 
 
@@ -310,6 +315,8 @@ public class PackTool
         string sourcePath = Application.dataPath + "/../ResEx/" + IOTools.PlatformFolderName;
         string targetPath = Application.dataPath + "/StreamingAssets/ResEx";
         IOTools.CreateDirectorySafe(targetPath);
+        Debug.Log("先删除StreamingAssets/ResEx下所有文件");
+        IOTools.DeleteAllFiles(targetPath, true);
         IOTools.MoveFiles(sourcePath, targetPath, true);
         Debug.Log("copy finished");
         AssetDatabase.Refresh();

@@ -66,6 +66,12 @@ public static class NumberExt
     }
 
 
+    public static string FormatHHMMSS(this long seconds)
+    {
+        string hms = "00:00:00";
+        hms = $"{seconds / 3600:00}:{seconds % 3600 / 60:00}:{seconds % 60:00}";
+        return hms;
+    }
     public static string FormatHHMMSS(this int seconds)
     {
         string hms = "00:00:00";

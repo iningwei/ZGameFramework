@@ -6,7 +6,8 @@ Shader "My/UI/Default"
     {
         [PerRendererData] _MainTex ("Sprite Texture", 2D) = "white" {}
         _Color ("Tint", Color) = (1,1,1,1)
-
+		_GrayScale ("Gray Scale", Range(0,1)) = 0
+		
         _StencilComp ("Stencil Comparison", Float) = 8
         _Stencil ("Stencil ID", Float) = 0
         _StencilOp ("Stencil Operation", Float) = 0
@@ -79,6 +80,7 @@ Shader "My/UI/Default"
 
             sampler2D _MainTex;
             fixed4 _Color;
+			float _GrayScale;
             fixed4 _TextureSampleAdd;
             float4 _ClipRect;
             float4 _MainTex_ST;
@@ -119,6 +121,9 @@ Shader "My/UI/Default"
                 clip (color.a - 0.001);
                 #endif
 
+				if (_GrayScale > 0.5) {
+					color.rgb=dot(color.rgb,fixed3(0.299, 0.587, 0.114));
+				}
                 color.rgb *= color.a;
                 return color;
             }

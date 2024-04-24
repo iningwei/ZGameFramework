@@ -27,6 +27,8 @@ public class IdAssginer
 
         Window = 10,
         Area = 11,
+        NodeHolder=12,
+        Node=13,
 
         Game=100,
     }

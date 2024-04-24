@@ -10,7 +10,6 @@ using System.Collections.Generic;
 [RequireComponent(typeof(ParticleSystem))]
 public class UIParticleSystem : MaskableGraphic
 {
-
     public Texture particleTexture;
     public Sprite particleSprite;
 
@@ -83,7 +82,7 @@ public class UIParticleSystem : MaskableGraphic
 
             // automatically set scaling
             _particleSystem.scalingMode = ParticleSystemScalingMode.Hierarchy;
-            
+
 
             _particles = null;
         }

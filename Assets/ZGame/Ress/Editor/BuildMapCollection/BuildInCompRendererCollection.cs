@@ -69,7 +69,7 @@ public class BuildInCompRendererCollection : CompResCollection, IRefResCollectio
             //////}
 
             //暂时先不把fbx剥离了，问题挺多的（比如avatar也是在fbx里面的fbx剥离后avatar也会丢失）
-            if ((meshPath.EndsWith(".fbx") || meshPath.EndsWith(".FBX")))
+            if ((meshPath.EndsWith(".fbx") || meshPath.EndsWith(".FBX") || meshPath.EndsWith(".obj") || meshPath.EndsWith(".OBJ")))
             {
                 meshName = "";//这里要把meshName置空
             }
@@ -200,7 +200,8 @@ public class BuildInCompRendererCollection : CompResCollection, IRefResCollectio
 
             //Debug.Log("meshName:" + meshName + ", path:" + meshPath);
             //暂时先不把fbx剥离了，问题挺多的（比如avatar也是在fbx里面的fbx剥离后avatar也会丢失）
-            if ((meshPath.EndsWith(".fbx") || meshPath.EndsWith(".FBX")))
+            //有些资源是obj格式
+            if ((meshPath.EndsWith(".fbx") || meshPath.EndsWith(".FBX") || meshPath.EndsWith(".obj") || meshPath.EndsWith(".OBJ")))
             {
                 meshName = "";//这里要把meshName置空
             }
@@ -230,7 +231,7 @@ public class BuildInCompRendererCollection : CompResCollection, IRefResCollectio
 
             if (meshName != "")
             {
-                if (meshPath.EndsWith(".mesh"))
+                if (meshPath.EndsWith(".mesh")|| meshPath.EndsWith(".asset"))//.asset是使用MantisLODEditor生成的mesh资源的后缀
                 {
                     Debug.Log($"meshName:{meshName},meshPath:{meshPath}");
                     this.AddBundleBuildData(meshName, meshPath, ABType.Mesh, ref buildMap);

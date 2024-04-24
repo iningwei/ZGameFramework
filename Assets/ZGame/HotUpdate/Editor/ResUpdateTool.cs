@@ -6,7 +6,7 @@ public class ResUpdateTool : EditorWindow
 {
     static BuildTargetGroup buildTargetGroup;
     static string macros;
-    [MenuItem("HotUpdate/游戏热更/一键整理热更代码和资源")]
+    [MenuItem("HotUpdate/游戏热更/整理热更代码和资源")]
     public static void GenUpdateResList()
     {
         ResUpdateTool resTool = EditorWindow.GetWindow(typeof(ResUpdateTool)) as ResUpdateTool;
@@ -23,9 +23,15 @@ public class ResUpdateTool : EditorWindow
         EditorGUILayout.LabelField("macros:" + macros);
         GUILayout.Space(10);
 
-        if (GUILayout.Button("Confirm"))
+
+        if (GUILayout.Button("打热更代码并整理热更资源"))
         {
             new HotResCollector().Build();
+            this.Close();
+        }
+        if (GUILayout.Button("整理热更资源"))
+        {
+            new HotResCollector().ProcessHotUpdateRes();
             this.Close();
         }
         if (GUILayout.Button("Cancel"))

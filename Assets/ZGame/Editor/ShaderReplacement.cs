@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
@@ -98,9 +99,20 @@ public class ShaderReplacement : ScriptableWizard
     static void ReplaceTargetRootShader()
     {
         InitShaderDic();
+        //GameObject root = Selection.activeObject as GameObject;
+        var objects = Selection.objects;
+        for (int i = 0; i < objects.Length; i++)
+        {
+            var obj = objects[i] as GameObject;
+            if (obj != null)
+            {
+                replaceTargetShader(obj);
+            }
+        }
+    }
 
-
-        GameObject root = Selection.activeObject as GameObject;
+    static void replaceTargetShader(GameObject root)
+    {
         if (root != null)
         {
             Transform[] all = root.GetComponentsInChildren<Transform>(true);
@@ -139,6 +151,6 @@ public class ShaderReplacement : ScriptableWizard
             }
         }
 
-        Debug.LogError("替换完成！");
+        Debug.LogError(root.name + " 替换完成！");
     }
 }

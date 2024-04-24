@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using ZGame;
 
@@ -7,10 +8,6 @@ using ZGame;
 /// </summary>
 public static class TransformExt
 {
-
-
-
-
     public static void HideAllChilds(this Transform transform)
     {
         int count = transform.childCount;
@@ -52,6 +49,106 @@ public static class TransformExt
         return hierarchyStr;
     }
 
+    // Breadth First Search
+    public static T BFS<T>(this Transform root, string targetName) where T : Component
+    {
+        Queue<Transform> queue = new Queue<Transform>();
+        queue.Enqueue(root);
+
+        while (queue.Count > 0)
+        {
+            Transform current = queue.Dequeue();
+            T t = current.GetComponent<T>();
+            if (t && current.name == targetName)
+            {
+                return t;
+            }
+            for (int i = 0; i < current.childCount; i++)
+            {
+                Transform child = current.GetChild(i);
+                queue.Enqueue(child);
+            }
+        }
+        return null;
+    }
+
+    // Depth First Search
+    // unity节点搜索一般建议使用DFS
+    // 也可以使用递归的方式实现DFS
+    public static T DFS<T>(this Transform root, string targetName) where T : Component
+    {
+        Stack<Transform> stack = new Stack<Transform>();
+        stack.Push(root);
+
+        while (stack.Count > 0)
+        {
+            Transform current = stack.Pop();
+            T t = current.GetComponent<T>();
+            if (t && current.name == targetName)
+            {
+                return t;
+            }
+
+            for (int i = current.childCount - 1; i >= 0; i--)
+            {
+                Transform child = current.GetChild(i);
+                stack.Push(child);
+            }
+        }
+
+        return null;
+    }
+
+    public static T DFS<T>(this Transform root, string targetName, Func<Transform, bool> condition) where T : Component
+    {
+        Stack<Transform> stack = new Stack<Transform>();
+        stack.Push(root);
+
+        while (stack.Count > 0)
+        {
+            Transform current = stack.Pop();
+            T t = current.GetComponent<T>();
+            if (t && current.name == targetName)
+            {
+                return t;
+            }
+
+            if (condition(current) == false)
+                continue;
+            for (int i = current.childCount - 1; i >= 0; i--)
+            {
+                Transform child = current.GetChild(i);
+                stack.Push(child);
+            }
+        }
+
+        return null;
+    }
+    public static Component DFS(this Transform root, Type type, string targetName, Func<Transform, bool> condition)
+    {
+        Stack<Transform> stack = new Stack<Transform>();
+        stack.Push(root);
+
+        while (stack.Count > 0)
+        {
+            Transform current = stack.Pop();
+            Component c = current.GetComponent(type);
+            if (c && current.name == targetName)
+            {
+                return c;
+            }
+
+            if (condition(current) == false)
+                continue;
+            for (int i = current.childCount - 1; i >= 0; i--)
+            {
+                Transform child = current.GetChild(i);
+                stack.Push(child);
+            }
+        }
+
+        return null;
+    }
 
     public static Component FindComponent(this Transform transform, Type type, string name, bool includeInactive)
     {
@@ -84,6 +181,8 @@ public static class TransformExt
         }
         return t;
     }
+
+
 
 
     /// <summary>

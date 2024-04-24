@@ -41,7 +41,7 @@ public class PackVisualizeTool : EditorWindow
     public static bool isShowReporter;
 
     public static bool[] diyMacros;
-    public static string[] macroNames = { "XLua", "OriginLuaFile", "HOTUPDATE", "UseTMP", "HybridCLR_HOTUPDATE", "HybridCLR_INSTALLED", "MOBILE_INPUT", };
+    public static string[] macroNames = {   "UseTMP", "HybridCLR_HOTUPDATE", "HybridCLR_INSTALLED", "MOBILE_INPUT", };
 
     public static bool isDIYMacros;
     public static bool isProjectMacros;
@@ -153,7 +153,7 @@ public class PackVisualizeTool : EditorWindow
                     var tmp = loginDataList[i];
                     GUILayout.Label("服务器 " + (i + 1) + " ----------->");
                     tmp.loginType = EditorGUILayout.TextField("LoginType:", tmp.loginType);
-                    tmp.url = EditorGUILayout.TextField("URL:", tmp.url);
+                    tmp.postURL = EditorGUILayout.TextField("URL:", tmp.postURL);
                 }
             }
 

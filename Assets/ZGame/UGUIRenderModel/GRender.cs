@@ -48,12 +48,30 @@ public class GRender : MonoBehaviour
 
         blackCam.targetTexture = blackRT;
         whiteCam.targetTexture = whiteRT;
-
-
-
+         
         AddImage(rawImg);
     }
 
+    public void ResetRawImg(RawImage rawImg)
+    {
+        this.rawImg = rawImg;
+        this.AddImage(rawImg);
+    }
+    public void ResetCamPRS(Transform refTran)
+    {
+        if (blackCam != null)
+        {
+            blackCam.transform.localPosition = refTran.localPosition;
+            blackCam.transform.localScale = refTran.localScale;
+            blackCam.transform.localRotation = refTran.localRotation;
+        }
+        if (whiteCam != null)
+        {
+            whiteCam.transform.localPosition = refTran.localPosition;
+            whiteCam.transform.localScale = refTran.localScale;
+            whiteCam.transform.localRotation = refTran.localRotation;
+        }
+    }
     public RenderTexture StartRenderRT(Vector2 rtSize, Transform refCamTran)
     {
         this.rtSize = rtSize;
@@ -162,13 +180,15 @@ public class GRender : MonoBehaviour
         obj.transform.SetParent(transform);
         obj.transform.localPosition = refCamTran.localPosition;
         obj.transform.localScale = refCamTran.localScale;
-        obj.transform.rotation = refCamTran.localRotation;
+        obj.transform.localRotation = refCamTran.localRotation;
 
 
         //相机的参数调整成和refCam一致
         var refCam = refCamTran.GetComponent<Camera>();
         var camera = obj.AddComponent<Camera>();
         camera.backgroundColor = bgColor;
+        camera.orthographic = refCam.orthographic;
+        camera.orthographicSize = refCam.orthographicSize;
 
         camera.allowMSAA = false;
         camera.allowHDR = false;
@@ -179,6 +199,10 @@ public class GRender : MonoBehaviour
         camera.depth = refCam.depth;
         camera.cullingMask = refCam.cullingMask;
 
+        if (refCam.clearFlags == CameraClearFlags.Skybox)
+        {
+            camera.clearFlags = CameraClearFlags.Skybox;
+        }
 
         return camera;
     }

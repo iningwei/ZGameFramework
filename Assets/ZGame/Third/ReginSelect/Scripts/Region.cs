@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 #region 地区
 /// <summary>
@@ -23,7 +23,7 @@ public class Province
 public class City
 {
     public string name;
-    public string[] area;// 县（区）
+    public List<string> area;// 县（区）
     /// <summary>
     /// 经度
     /// </summary>

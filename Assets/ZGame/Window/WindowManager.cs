@@ -1,3 +1,5 @@
+using AYellowpaper.SerializedCollections;
+using Microsoft.Cci;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -14,7 +16,6 @@ namespace ZGame.Window
     public class WindowInfo
     {
         public string scriptName;
-        public bool isLuaWindow;
 
         /// <summary>
         /// resource name,without suffix
@@ -27,7 +28,7 @@ namespace ZGame.Window
             this.scriptName = scriptName;
 
             this.resName = resName;
-            this.isLuaWindow = isLuaWindow;
+
         }
     }
 
@@ -80,84 +81,16 @@ namespace ZGame.Window
 
 
         //Cached windows, all of them's active is false
-        Dictionary<string, Window> cachedWindows = new Dictionary<string, Window>();
-
-        //All opened window
-        Dictionary<string, Window> openedWindows = new Dictionary<string, Window>();
-
-
+        public Dictionary<string, Window> cachedWindows = new Dictionary<string, Window>();
+        //All opened windows
+        public Dictionary<string, Window> openedWindows = new Dictionary<string, Window>();
         //used for visual in editor
         public List<string> visualCachedList = new List<string>();
         public List<string> visualOpenedList = new List<string>();
 
-
-        //linkedWindows存储双向链式窗体名称，主要用于窗体回退功能使用
-        //比如有这样的需求依次打开窗体：A->B->C->D，但是要求关闭D时再打开C，关闭C再打开B
-        //因此本框架这样设计：对于链式窗体，关闭时不销毁、且不设置Active=false，而是通过设置缩放为0。
-        //若关闭时销毁， 重新实例化加载后，则会再一次播放窗体中的程序类动画、美术类动画，这些往往是不需要的
-        //若设置Active=false，由于本框架窗体Active设置为false时会把窗体移到Hidden节点下，因此再次显示时还要设置其层级，造成额外的复杂度
-        //因此对于需要处于链式窗体列表中的窗体，关闭时：设置其缩放为0，不改变窗体层级，且依旧保持其在opened列表内
-        LinkedList<string> linkedWindows = new LinkedList<string>();
-        //used for visual in editor
-        public List<string> visualLinkedWindowsList = new List<string>();
-        public void AddToLinkWindow(string windowName)
-        {
-            if (linkedWindows.Contains(windowName))
-            {
-                DebugExt.LogE($"already exist {windowName} in linkedWindows");
-            }
-            else
-            {
-                linkedWindows.AddLast(windowName);
-                visualLinkedWindowsList.Add(windowName);
-            }
-        }
-
-        public void RemoveFromLinkWindow(string windowName)
-        {
-            if (linkedWindows.Contains(windowName))
-            {
-                linkedWindows.Remove(windowName);
-
-                visualLinkedWindowsList.Clear();
-                foreach (var item in linkedWindows)
-                {
-                    visualLinkedWindowsList.Add(item);
-                }
-            }
-        }
-
-        public void ClearLinkWindow()
-        {
-            linkedWindows.Clear();
-        }
-        public string GetPreviousFromLinkWindow(string targetWindowName)
-        {
-            string previousWindowName = null;
-            if (linkedWindows.Contains(targetWindowName))
-            {
-                var previous = linkedWindows.Find(targetWindowName).Previous;
-                if (previous != null)
-                {
-                    previousWindowName = previous.Value;
-                }
-            }
-            return previousWindowName;
-        }
-        public string GetNextFromLinkWindow(string targetWindowName)
-        {
-            string nextWindowName = null;
-            if (linkedWindows.Contains(targetWindowName))
-            {
-                var next = linkedWindows.Find(targetWindowName).Next;
-                if (next != null)
-                {
-                    nextWindowName = next.Value;
-                }
-            }
-            return nextWindowName;
-        }
-
+        //key为layer名，value为该layer下link的窗体堆栈
+        //stack在inspector不可见，故用List，方便调试
+        public List<string> linkWindows = new List<string>();
 
         public WindowInfo GetWindowInfo(string windowName)
         {
@@ -223,7 +156,7 @@ namespace ZGame.Window
             {
                 float suitWidth = gapRatio * screenHeight;
                 float offsetX = (screenWidth - suitWidth) / 2;
-                DebugExt.LogE($"do vertical fit pad, screenWidth:{screenWidth},screenHeight:{screenHeight},gapRatio:{gapRatio}, suitWidth:{suitWidth},offsetX:{offsetX}", this);
+                Debug.LogError($"do vertical fit pad, screenWidth:{screenWidth},screenHeight:{screenHeight},gapRatio:{gapRatio}, suitWidth:{suitWidth},offsetX:{offsetX}", this);
                 //设置内置Layer层的左右偏移
                 for (int i = 0; i < WindowLayer.LayerList.Count; i++)
                 {
@@ -280,7 +213,7 @@ namespace ZGame.Window
             }
             else
             {
-                DebugExt.Log("not do vertical fit pad");
+                Debug.Log("not do vertical fit pad");
             }
 
         }
@@ -304,29 +237,30 @@ namespace ZGame.Window
         /// </summary>
         public void UIVerticalFitSafeArea()
         {
-            ////////顶部偏移
-            //////int topOffset = GetVerticalAppSafeAreaTopOffset();
-            ////////底部偏移
-            //////int bottomOffset = GetVerticalAppSafeAreaBottomOffset();
+            return;//不需要对层节点设置offset，通过对各个window的unsafeBg来进行偏移实现自适应
+            //顶部偏移
+            int topOffset = GetVerticalAppSafeAreaTopOffset();
+            //底部偏移
+            int bottomOffset = GetVerticalAppSafeAreaBottomOffset();
 
 
-            //////DebugExt.Log("safe area, topOffset:" + topOffset + ", bottomOffset:" + bottomOffset);
-            //////if (topOffset > 0 || bottomOffset > 0)
-            //////{
-            //////    //设置内置Layer层的上下偏移
-            //////    for (int i = 0; i < WindowLayer.LayerList.Count; i++)
-            //////    {
-            //////        var layerName = WindowLayer.LayerList[i];
-            //////        var layerTran = LayerDic[layerName];
-            //////        var rectTran = layerTran.GetComponent<RectTransform>();
-            //////        rectTran.offsetMin = new Vector2(rectTran.offsetMin.x, rectTran.offsetMin.y + bottomOffset);
-            //////        rectTran.offsetMax = new Vector2(rectTran.offsetMax.x, rectTran.offsetMax.y - topOffset);
-            //////    }
-            //////}
-            //////else
-            //////{
-            //////    DebugExt.Log("no need set safe area！！");
-            //////}
+            Debug.Log("safe area, topOffset:" + topOffset + ", bottomOffset:" + bottomOffset);
+            if (topOffset > 0 || bottomOffset > 0)
+            {
+                //设置内置Layer层的上下偏移
+                for (int i = 0; i < WindowLayer.LayerList.Count; i++)
+                {
+                    var layerName = WindowLayer.LayerList[i];
+                    var layerTran = LayerDic[layerName];
+                    var rectTran = layerTran.GetComponent<RectTransform>();
+                    rectTran.offsetMin = new Vector2(rectTran.offsetMin.x, rectTran.offsetMin.y + bottomOffset);
+                    rectTran.offsetMax = new Vector2(rectTran.offsetMax.x, rectTran.offsetMax.y - topOffset);
+                }
+            }
+            else
+            {
+                Debug.Log("no need set safe area！！");
+            }
         }
 
 
@@ -398,11 +332,7 @@ namespace ZGame.Window
         {
             if (openedWindows.Count > 0)
             {
-                //////List<string> keys = new List<string>(openedWindows.Keys);
-                //////for (int i = 0; i < keys.Count; i++)
-                //////{
-                //////    openedWindows[keys[i]].FixedUpdate();
-                //////}
+
                 foreach (var item in openedWindows)
                 {
                     item.Value.FixedUpdate();
@@ -413,12 +343,7 @@ namespace ZGame.Window
         {
             if (openedWindows.Count > 0)
             {
-                //////List<string> keys = new List<string>(openedWindows.Keys);
-                //////for (int i = 0; i < keys.Count; i++)
-                //////{
-                //////    openedWindows[keys[i]].LateUpdate();
-                //////}
-                ///
+
                 foreach (var item in openedWindows)
                 {
                     item.Value.LateUpdate();
@@ -453,33 +378,9 @@ namespace ZGame.Window
             }
             else
             {
-                DebugExt.LogE("error,already registed C# WindowType:" + scriptName);
+                Debug.LogError("error,already registed C# WindowType:" + scriptName);
             }
         }
-
-
-
-        public void RegisterLuaWindowType(string name, string resName)
-        {
-            WindowInfos.TryGetValue(name, out WindowInfo info);
-            if (info == null)
-            {
-                //DebugExt.Log("RegisterLuaWindowType:" + name);
-                info = new WindowInfo(name, resName, true);
-                WindowInfos[name] = info;
-            }
-            else
-            {
-                //一种情况是C#侧已经注册了该窗体
-                //一种情况是LUA侧已经注册了该窗体
-                //DebugExt.Log("Force RegisterLuaWindowType:" + name);
-                info = new WindowInfo(name, resName, true);
-                WindowInfos[name] = info;
-            }
-        }
-
-
-
 
         /// <summary>
         /// Update opened windows
@@ -587,7 +488,7 @@ namespace ZGame.Window
             {
                 return window.windowLayer;
             }
-            DebugExt.LogE("can not get layer of window:" + windowName);
+            Debug.LogError("can not get layer of window:" + windowName);
             return "";
         }
         /// <summary>
@@ -601,14 +502,14 @@ namespace ZGame.Window
             WindowInfos.TryGetValue(windowName, out info);
             if (info == null)
             {
-                DebugExt.LogE("error, " + windowName + " is not registed");
+                Debug.LogError("error, " + windowName + " is not registed");
                 return null;
             }
 
             Window target = null;
             if (openedWindows.ContainsKey(windowName))
             {
-                DebugExt.LogE("window: " + windowName + ", has already opened!");
+                Debug.LogError("window: " + windowName + ", has already opened!");
                 source = WindowResSource.Opened;
                 target = openedWindows[windowName];
             }
@@ -629,7 +530,6 @@ namespace ZGame.Window
             var window = getWindowOpened(windowName);
             if (window != null)
             {
-                //DebugExt.LogE("handleWindowMessage,windowName:" + windowName + " msgId:" + msgId);
                 window.HandleMessage(msgId, datas);
             }
 
@@ -643,7 +543,7 @@ namespace ZGame.Window
         }
 
 
-        public void CloseAllWindow(bool forceDestroy = false, bool immediate = false)
+        public void CloseAllWindow()
         {
             List<Window> windows = new List<Window>(this.openedWindows.Values);
             for (int i = windows.Count - 1; i >= 0; i--)
@@ -653,27 +553,16 @@ namespace ZGame.Window
                     continue;
                 }
 
-                //DebugExt.LogE("close window:" + windows[i].name);
-                CloseWindow(windows[i].name, forceDestroy, immediate);
+                CloseWindow(windows[i].name);
             }
         }
 
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="layerName">layer to host this window</param>
-        /// <param name="neverClose">can the window be close</param>
-        /// <param name="isCache">whether cache, if not,after window close,we will destroy it</param>
-        /// <param name="onWindowShowed"></param>
-        /// <param name="datas"></param>
-        /// <returns></returns>
-        public void ShowWindow(string name, string layerName, bool inLinkWindow, bool neverClose, bool isCache, bool sync, Action<GameObject> onWindowShowed, params object[] datas)
+        public void ShowWindow(string name, string layerName, bool isLinkWindow, bool neverClose, bool sync, Action<GameObject> onWindowShowed, params object[] datas)
         {
-            if (layerName == null || layerName == "")
+            if (string.IsNullOrEmpty(layerName))
             {
-                DebugExt.LogE("error, layerName is null");
+                Debug.LogError("error, layerName is null");
             }
 
             WindowResSource source = WindowResSource.Unknown;
@@ -687,21 +576,26 @@ namespace ZGame.Window
                     {
                         window = createWindow(name, obj as GameObject, info);
                         source = WindowResSource.Newborn;
+                        updateOpenedWindows(window, true);
 
-                        if (source == WindowResSource.Cache)
-                        {
-                            updateCachedWindows(window, false);
-                            updateOpenedWindows(window, true);
-                        }
-                        else if (source == WindowResSource.Newborn)
-                        {
-                            updateOpenedWindows(window, true);
-                        }
 
-                        showWindow(window, layerName, inLinkWindow, neverClose, isCache, onWindowShowed, datas);
+                        showWindow(window, layerName, isLinkWindow, neverClose, onWindowShowed, datas);
                         window.RegisterCallbackOnWindowClose(() =>
                         {
                             this.closeWindow(window);
+                        });
+                        window.RegisterCallbackOnWindowHide(() =>
+                        {
+                            this.hideWindow(window);
+                        });
+
+                        window.RegisterCallbackOnWindowHideForLink(() =>
+                        {
+                            this.hideForLinkWindow(window);
+                        });
+                        window.RegisterCallbackOnWindowBack(() =>
+                        {
+                            this.backWindow(window);
                         });
                     },
                     sync
@@ -713,10 +607,22 @@ namespace ZGame.Window
                     window = createWindow(name, obj, info);
                     source = WindowResSource.Newborn;
                     updateOpenedWindows(window, true);
-                    showWindow(window, layerName, inLinkWindow, neverClose, isCache, onWindowShowed, datas);
+                    showWindow(window, layerName, isLinkWindow, neverClose, onWindowShowed, datas);
                     window.RegisterCallbackOnWindowClose(() =>
                     {
                         this.closeWindow(window);
+                    });
+                    window.RegisterCallbackOnWindowHide(() =>
+                    {
+                        this.hideWindow(window);
+                    });
+                    window.RegisterCallbackOnWindowHideForLink(() =>
+                    {
+                        this.hideForLinkWindow(window);
+                    });
+                    window.RegisterCallbackOnWindowBack(() =>
+                    {
+                        this.backWindow(window);
                     });
                 }
                 else
@@ -732,16 +638,16 @@ namespace ZGame.Window
                 }
                 if (cachedWindows.ContainsKey(window.name))
                 {
-                    this.ReShowHiddenWindow(window.name, layerName, true);
+                    this.ReShowCachedWindow(window.name, layerName, true);
                 }
             }
         }
 
 
 
-        private void showWindow(Window window, string layerName, bool inLinkWindow, bool neverClose, bool isCache, Action<GameObject> onWindowShowed, params object[] datas)
+        private void showWindow(Window window, string layerName, bool inLinkWindow, bool neverClose, Action<GameObject> onWindowShowed, params object[] datas)
         {
-            window.isCache = isCache;
+            window.isLinkWindow = inLinkWindow;
             window.neverClose = neverClose;
 
             //set parent layer
@@ -749,132 +655,126 @@ namespace ZGame.Window
             windowObj.transform.SetParent(LayerDic[layerName]);
 
             window.Show(layerName, datas);
-            if (inLinkWindow)
-            {
-                AddToLinkWindow(name);
-            }
+
             onWindowShowed?.Invoke(windowObj);
 
         }
+
+        private void addToLinkWindow(string name)
+        {
+            this.linkWindows.Add(name);
+        }
+
         private Window createWindow(string windowName, GameObject uiObj, WindowInfo info)
         {
             Window target = null;
-
-            if (info.isLuaWindow)
-            {
-                target = new LuaBridgeWindow(uiObj, windowName);
-            }
-            else
-            {
-                Type t = Type.GetType(windowName);
-                target = Activator.CreateInstance(t, new object[] { uiObj, windowName }) as Window;
-            }
+            Type t = Type.GetType(windowName);
+            target = Activator.CreateInstance(t, new object[] { uiObj, windowName }) as Window;
 
             return target;
         }
 
 
-        public void CloseWindow(string windowName, bool forceDestroy = false, bool destroyImmediate = false, bool autoOpenPreviousLinkWindow = false)
+        public void CloseWindow(string windowName)
         {
             Window window = getWindowOpened(windowName);
             if (window != null)
             {
-                if (linkedWindows.Contains(windowName))
-                {
-                    if (autoOpenPreviousLinkWindow)
-                    {
-                        var previousName = GetPreviousFromLinkWindow(windowName);
-
-                        RemoveFromLinkWindow(windowName);
-                        closeWindow(window, forceDestroy, destroyImmediate);
-
-                        if (previousName != null)
-                        {
-                            var previousWindow = getWindowOpened(previousName);
-                            previousWindow.ReShowForLink();
-                        }
-
-                    }
-                    else
-                    {
-                        var nextName = GetNextFromLinkWindow(windowName);
-                        if (nextName != null)
-                        {
-                            window.ScaleZeroForLink();
-                        }
-                        else
-                        {
-                            RemoveFromLinkWindow(windowName);
-                            closeWindow(window, forceDestroy, destroyImmediate);
-                        }
-
-                    }
-                }
-                else
-                {
-                    closeWindow(window, forceDestroy, destroyImmediate);
-                }
+                closeWindow(window);
             }
             else
             {
                 window = getWindowCached(windowName);
                 if (window != null)
                 {
-                    closeWindow(window, forceDestroy, destroyImmediate);
+                    closeWindow(window);
                 }
             }
         }
 
-
-        void closeWindow(Window window, bool forceDestroy = false, bool destroyImmediate = false)
+        public void ClearLinkedWindows()
         {
-            if (window.isCache)
+            while (linkWindows.Count > 0)
             {
-                if (!forceDestroy)
+                string winName = linkWindows[linkWindows.Count - 1];
+                linkWindows.RemoveAt(linkWindows.Count - 1);
+
+                Window w = getWindowOpened(winName);
+                this.closeWindow(w);
+            }
+        }
+        void reshowLinkedWindow()
+        {
+            if (linkWindows.Count > 0)
+            {
+                string previousName = linkWindows[linkWindows.Count - 1];
+                linkWindows.RemoveAt(linkWindows.Count - 1);
+
+                Window w = getWindowOpened(previousName);
+                if (w != null)
                 {
-                    hideWindow(window);
-                }
-                else
-                {
-                    destroyWindow(window, destroyImmediate);
+                    w.rootObj.transform.localScale = Vector3.one;
                 }
             }
-            else
-            {
-                destroyWindow(window, destroyImmediate);
-            }
+        }
+        void closeWindow(Window window)
+        {
+            updateCachedWindows(window, false);
+            updateOpenedWindows(window, false);
+
+            window.Destroy();
         }
 
 
-        void hideWindow(Window window, bool unableAni = false)
+        void hideWindow(Window window)
         {
-            //DebugExt.Log("hideWindow:" + window.name);
             updateCachedWindows(window, true);
             updateOpenedWindows(window, false);
             //set parent layer hidden
             GameObject windowObj = window.rootObj;
             windowObj.transform.SetParent(LayerDic[WindowLayer.Hidden]);
-            if (unableAni)
-            {
-                var anis = windowObj.transform.GetComponentsInChildren<Animator>();
-                foreach (var item in anis)
-                {
-                    item.enabled = false;
-                }
-            }
-            window.Hide();
+            windowObj.SetActive(false);
         }
 
-        public Window HideWindow(string windowName, bool unableAni = false)
+        public Window HideWindow(string windowName)
         {
             Window window = getWindowOpened(windowName);
             if (window != null)
             {
-                this.hideWindow(window, unableAni);
+                this.hideWindow(window);
             }
             return window;
         }
-        public void ReShowHiddenWindow(string windowName, string layerName, bool isForbidAnimatorReplay = true)
+        public Window HideForLinkWindow(string windowName)
+        {
+            Window window = getWindowOpened(windowName);
+            if (window != null)
+            {
+                this.hideForLinkWindow(window);
+            }
+            return window;
+        }
+        void hideForLinkWindow(Window window)
+        {
+            this.addToLinkWindow(window.name);
+
+            GameObject windowObj = window.rootObj;
+            windowObj.transform.localScale = Vector3.zero;
+        }
+
+        public void backWindow(Window window)
+        {
+            if (window.isLinkWindow)
+            {
+                this.closeWindow(window);
+                this.reshowLinkedWindow();
+            }
+            else
+            {
+                Debug.LogError(window.name + " not link window,can not call Back");
+            }
+        }
+        public void ReShowCachedWindow(string windowName, string layerName, bool isForbidAnimatorReplay = true)
         {
             var window = getWindowCached(windowName);
             if (window != null)
@@ -907,90 +807,6 @@ namespace ZGame.Window
             }
         }
 
-        public void ReShowUpperWindow(string curWindowName, string upperWindowLayerName, bool isForbidAnimatorReplay = true)
-        {
-            var curWindow = getWindowOpened(curWindowName);
-            if (curWindow != null)
-            {
-                var upperWindow = curWindow.GetUpperWindow();
-                if (upperWindow != null && cachedWindows.ContainsKey(upperWindow.name))
-                {
-                    GameObject windowObj = upperWindow.rootObj;
-                    windowObj.transform.SetParent(LayerDic[upperWindowLayerName]);
-                    if (isForbidAnimatorReplay)
-                    {
-                        var animators = windowObj.GetComponentsInChildren<Animator>();
-                        if (animators != null)
-                        {
-                            var count = animators.Length;
-                            for (int i = 0; i < count; i++)
-                            {
-                                animators[i].enabled = false;
-                            }
-                        }
-                    }
-                    windowObj.SetActive(true);
-
-                    updateOpenedWindows(upperWindow, true);
-                    updateCachedWindows(upperWindow, false);
-
-                }
-            }
-        }
-
-        public Window GetUpperWindow(string curWindowName)
-        {
-            var curWindow = getWindowOpened(curWindowName);
-            if (curWindow == null)
-            {
-                curWindow = getWindowCached(curWindowName);
-            }
-
-            if (curWindow != null)
-            {
-                return curWindow.GetUpperWindow();
-            }
-            return null;
-        }
-
-        public void DestroyAllRelativeUpperWindow(string curWindowName)
-        {
-            Stack<Window> allWindows = new Stack<Window>();
-
-            while (curWindowName != "")
-            {
-
-                var window = GetUpperWindow(curWindowName);
-                if (window != null)
-                {
-                    allWindows.Push(window);
-                    curWindowName = window.name;
-
-                }
-                else
-                {
-
-                    curWindowName = "";
-                }
-            }
-
-            while (allWindows.Count > 0)
-            {
-                var window = allWindows.Pop();
-
-                destroyWindow(window, true);
-            }
-
-
-        }
-        void destroyWindow(Window window, bool destroyImmediate)
-        {
-            updateCachedWindows(window, false);
-            updateOpenedWindows(window, false);
-
-
-            window.Destroy(destroyImmediate);
-        }
 
 
         public Transform GetRootCanvasTran()

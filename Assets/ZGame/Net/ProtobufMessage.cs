@@ -90,6 +90,19 @@ public class ProtobufMessage
     static Dictionary<string, Action<byte[]>> eventHandlers = new Dictionary<string, Action<byte[]>>();
 
 
+    static List<ProtobufMsgID> socketIgnoreLogMsgIds = null;
+    public static List<ProtobufMsgID> SocketIgnoreLogMsgIds
+    {
+        get
+        {
+            if (socketIgnoreLogMsgIds == null)
+            {
+                socketIgnoreLogMsgIds = BeanManager.Instance.GetSocketIgnoreLogMsgIds();
+            }
+            return socketIgnoreLogMsgIds;
+
+        }
+    }
 
     public static void AddListener(ProtobufMsgID msgId, Action<byte[]> handler)
     {
@@ -149,7 +162,7 @@ public class ProtobufMessage
 
     public static void PrintMessage(ProtobufMsgID msgId, IMessage msg)
     {
-        if (Config.socketIgnoreLogMsgIds.Contains(msgId))
+        if (SocketIgnoreLogMsgIds.Contains(msgId))
         {
             return;
         }

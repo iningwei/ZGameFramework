@@ -23,7 +23,7 @@ public class IOAndroidLoader : Singleton<IOAndroidLoader>
 
     public byte[] GetBytes(string path)
     {
-        Debug.Log("begin call android LoadFile, path:" + path);
+        //Debug.Log("begin call android LoadFile, path:" + path);
         return readAsset.CallStatic<byte[]>("readFile", path);
     }
 

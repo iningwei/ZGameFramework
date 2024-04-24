@@ -288,26 +288,8 @@ public class HotResCollector
     }
 
 
-    public void Build()
+    public void ProcessHotUpdateRes()
     {
-#if HybridCLR_HOTUPDATE
-        PackTool.SetHybridCLRHotUpdateAssemblies();
-
-        Debug.Log("begin-> HybridCLR Generate All");
-        PrebuildCommand.GenerateAll();
-
-        Debug.Log("begin->热更DLL移动到ResEx目录");
-        HybridCLRResUpdateTool.MoveDll2ResEx();
-        AssetDatabase.Refresh();
-#else
-        PackTool.ClearHybridCLRHotUpdateAssemblies();
-#endif
-
-#if XLua
-        Debug.Log("begin-> build lua bundle");
-        BuildLuaBundle.build();
-#endif
-
         bool r = initDir();
         if (r == false)
         {
@@ -339,6 +321,24 @@ public class HotResCollector
 
         //把需要更新的zip资源拷贝到最终目录下
         IOTools.MoveFiles(needUpdateZipDir, outputResDir, false);
+    }
+    public void Build()
+    {
+#if HybridCLR_HOTUPDATE
+        PackTool.SetHybridCLRHotUpdateAssemblies();
+
+        Debug.Log("begin-> HybridCLR Generate All");
+        PrebuildCommand.GenerateAll();
+
+        Debug.Log("begin->热更DLL移动到ResEx目录");
+        HybridCLRResUpdateTool.MoveDll2ResEx();
+        AssetDatabase.Refresh();
+#else
+        PackTool.ClearHybridCLRHotUpdateAssemblies();
+#endif
+
+
+        this.ProcessHotUpdateRes();
     }
     public HotResCollector()
     {

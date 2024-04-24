@@ -18,7 +18,6 @@ namespace ZGame
         public int curUsedServerType = 0;
         [HideInInspector]
         public bool isLogEventToSDK = false;
-        public LuaSocketManager luaSocketManager = new LuaSocketManager();
 
 
 
@@ -33,23 +32,18 @@ namespace ZGame
         };
 
 
-        //使用原始Lua脚本的方式
-        //当且仅当在Editor和开启OriginLuaFile宏的情况下才使用
-        public bool UseOriginLuaScript = false;
-
+        public Transform launcherRootNode;
         public void Init(Transform launcherRootNode)
         {
+            this.launcherRootNode = launcherRootNode;
             SDK.SDKTools.Init();
 
 
             //Physics.autoSimulation = false;//若项目中未用到物理模拟，可关闭。避免无谓的物理模拟开销, https://answer.uwa4d.com/question/5cf22493d27511377098274b
 
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
-            Application.runInBackground = true;//这个只对pc有效， ios、安卓无效 
-            //设置最大60帧，方便开发阶段观测不同机器的性能
-            //Application.targetFrameRate = 60;
-
-
+            Application.runInBackground = true;//这个只对pc有效， ios、安卓无效  
+            Application.targetFrameRate = 60;//设置最大60帧，方便开发阶段观测不同机器的性能
 
             var resolution = Screen.currentResolution;
             var refreshRate = resolution.refreshRate;
@@ -80,41 +74,26 @@ namespace ZGame
                 reporterObj.gameObject.SetActive(false);
             }
 
-#if UNITY_EDITOR && OriginLuaFile
-            DebugExt.Log("UseOriginLuaScript ， true");
-            UseOriginLuaScript = true;
-#else
-            DebugExt.Log("UseOriginLuaScript ， false");
-            UseOriginLuaScript = false;
-#endif
-
             WindowManager.Instance.Init(launcherRootNode);
-#if HOTUPDATE
-            WindowManager.Instance.ShowWindow("HotUpdateWindow", WindowLayer.Basic, false, false, false,true, null, null); 
-            ServerListDownload.Instance.Download(); 
-#else
-#if XLua
-            ScriptManager.Instance.Init();
-#else
-            WindowManager.Instance.ShowWindow(WindowNames.NetMaskWindow, WindowLayer.NetMask, false, true, false, true, null);
-            WindowManager.Instance.ShowWindow(WindowNames.TipWindow, WindowLayer.Msg, false, true, false, true, null);
+
+            WindowManager.Instance.ShowWindow(WindowNames.NetMaskWindow, WindowLayer.NetMask, false, true, true, null);
+            WindowManager.Instance.ShowWindow(WindowNames.TipWindow, WindowLayer.Msg, false, true, true, null);
 
             Debug.Log("show firstOpenWindowName:" + Config.firstOpenWindowName);
-            WindowManager.Instance.ShowWindow(Config.firstOpenWindowName, WindowLayer.Hud, false, false, false, true, null);
+            WindowManager.Instance.ShowWindow(Config.firstOpenWindowName, WindowLayer.Hud, false, false, true, null);
 
-#endif
-#endif
+
 
 #if UNITY_ANDROID || UNITY_IOS
             //屏幕适配相关 
             if (Config.screenOrientation == (int)ScreenOrientation.Portrait)
             {
-                WindowManager.Instance.UIVerticalFitPad();
+                ////WindowManager.Instance.UIVerticalFitPad();
                 WindowManager.Instance.UIVerticalFitSafeArea();
             }
             else if (Config.screenOrientation == (int)ScreenOrientation.Landscape)
             {
-                Debug.Log("TODO:");
+                //Debug.Log("TODO:");
                 //WindowManager.Instance.UIHorizentalFitSafeArea();
             }
             else
@@ -130,12 +109,6 @@ namespace ZGame
         float memeryClearDuration = 120f;
         private void Update()
         {
-#if XLua
-            luaSocketManager.Update();
-            ScriptManager.Instance.Update();
-#endif
-
-
 
             //////this.memeryClearDuration -= Time.deltaTime;
             //////if (this.memeryClearDuration < 0)
@@ -145,19 +118,8 @@ namespace ZGame
             //////    //GC.Collect();
             //////}
         }
-        private void LateUpdate()
-        {
-#if XLua
-            luaSocketManager.LateUpdate();
-#endif
-        }
-        private void OnDestroy()
-        {
-#if XLua
-            luaSocketManager.Destroy();
-            ScriptManager.Instance.OnDestroy();
-#endif
-        }
+
+
 
         public void Quit()
         {

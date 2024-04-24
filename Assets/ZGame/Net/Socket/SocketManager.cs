@@ -66,4 +66,32 @@ public class SocketManager : Singleton<SocketManager>
                 break;
         }
     }
+
+    public void Close()
+    {
+        switch (NetConfig.clientSocketType)
+        {
+            case ClientSocketType.TCPIP:
+                TcpIpSocketManager.Instance.Close();
+                break;
+            case ClientSocketType.WEBSOCKET:
+                WebSocketManager.Instance.Close();
+                break;
+
+        }
+    }
+
+    public void ForbidReconnet()
+    {
+        switch (NetConfig.clientSocketType)
+        {
+            case ClientSocketType.TCPIP:
+                TcpIpSocketManager.Instance.ForbidReconnet();
+                break;
+            case ClientSocketType.WEBSOCKET:
+                WebSocketManager.Instance.ForbidReconnet();
+                break;
+
+        }
+    }
 }

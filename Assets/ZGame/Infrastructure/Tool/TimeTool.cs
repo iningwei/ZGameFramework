@@ -1,13 +1,51 @@
-using Codice.Client.Common;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Globalization;
-using UnityEngine;
 
 
 public class TimeTool
 {
+    //判断当前时间是否在某两个日期的时间断内
+    //startTimeStr,形如：2024-03-01
+    //endtTimeStr,形如：2024-04-21
+    public static bool IsSuitDayDuration(string startDayStr, string endDatStr)
+    {
+        DateTime startTime = DateTime.Parse(startDayStr);
+        DateTime endTime = DateTime.Parse(endDatStr);
+
+        //当前时间
+        DateTime curTime = DateTime.Now;
+        if (curTime >= startTime && curTime <= endTime)
+        {
+            return true;
+        }
+        return false;
+    }
+    public static bool IsSuitDayDuration(string startDayStr, int addedDayCount)
+    {
+        DateTime startTime = DateTime.ParseExact(startDayStr, "yyyy-MM-dd", null);
+        DateTime newDateTime = startTime.AddDays(addedDayCount);
+        string endDay = newDateTime.ToString("yyyy-MM-dd");
+        return IsSuitDayDuration(startDayStr, endDay);
+    }
+
+    //startTimeStr，形如：14:00:00
+    //endTimeStr,形如：24:00:00
+    public static bool IsSuitTimeDuration(string startTimeStr, string endTimeStr)
+    {
+        // 将时间字符串解析为 TimeSpan 对象
+        TimeSpan startTime = TimeSpan.Parse(startTimeStr);
+        TimeSpan endTime = TimeSpan.Parse(endTimeStr);
+
+        // 获取当前时间的时间部分
+        TimeSpan currentTime = DateTime.Now.TimeOfDay;
+
+        if (currentTime >= startTime && currentTime <= endTime)
+        {
+            return true;
+        }
+        return false;
+    }
+
+
     /// <summary>
     /// 获得当前时间对应的时间戳（单位毫秒）
     /// </summary>
@@ -181,6 +219,21 @@ public class TimeTool
         }
     }
 
+    /// <summary>
+    /// 格式化秒
+    /// 3:2:1 (小时:分钟:秒)
+    /// </summary>
+    /// <param name="seconds"></param>
+    /// <returns></returns>
+    public static string FormatSeconds3(long seconds)
+    {
+        long h = seconds / 3600;
+        long m = seconds % 3600 / 60;
+        long s = seconds % 60;
+        //输出为：00:00
+        return $"{h,2:00}:{m,2:00}:{s,2:00}";
+    }
+
 
     /// <summary>
     /// 单位毫秒
@@ -263,12 +316,13 @@ public class TimeTool
         return resultArray;
     }
 
-    public static int[] GetYMDHMS(long seconds) {
+    public static int[] GetYMDHMS(long seconds)
+    {
         DateTime dateTime = DateTimeOffset.FromUnixTimeSeconds(seconds).LocalDateTime;
-        int[] resultArray = new int[6]; 
-        resultArray[0]= dateTime.Year;
-        resultArray[1]= dateTime.Month;
-        resultArray[2]= dateTime.Day;
+        int[] resultArray = new int[6];
+        resultArray[0] = dateTime.Year;
+        resultArray[1] = dateTime.Month;
+        resultArray[2] = dateTime.Day;
         resultArray[3] = dateTime.Hour;
         resultArray[4] = dateTime.Minute;
         resultArray[5] = dateTime.Second;

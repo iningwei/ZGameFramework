@@ -121,32 +121,40 @@ public class TcpIpSocketManager : SingletonMonoBehaviour<TcpIpSocketManager>
             }
         }
     }
-
+    bool canReconnect = true;
     Timer delayReconnectTimer;
     long delayReconnectTimerId;
     int reconnectCount = 0;
     public void Reconnect(float timeOut = 5)
     {
-        WindowUtil.ShowNetMask();
+        if (canReconnect == false)
+        {
+            return;
+        }
+        WindowUtil.ShowNetMaskWithRoll();
 
         TimerTween.Cancel(delayReconnectTimer, delayReconnectTimerId);
 
         //重连加个延迟，避免服务器或者网络通道还没有清理干净导致的重连不上
         delayReconnectTimer = TimerTween.Delay(2f, () =>
         {
-            reconnectCount++;
-            if (reconnectCount > 5)
+            if (canReconnect)
             {
-                Debug.LogError("reconnect reach max count!");
+                reconnectCount++;
+                if (reconnectCount > 5)
+                {
+                    Debug.LogError("reconnect reach max count!");
 
-                WindowUtil.ShowTip("连接超时，请检查网络！", TipLevel.Error);
-                WindowUtil.HideNetMask();
-                TcpIpSocketManager.Instance.Close();
-                return;
+                    WindowUtil.ShowTip("连接超时，请检查网络！", TipLevel.Error);
+                    WindowUtil.HideNetMask();
+                    TcpIpSocketManager.Instance.Close();
+                    return;
+                }
+                this.checkAndRemoveConnectedCallback(this.connectedCallback);
+                this.onConnected += connectedCallback;
+                this.Connect(this.ip, this.port, timeOut);
             }
-            this.checkAndRemoveConnectedCallback(this.connectedCallback);
-            this.onConnected += connectedCallback;
-            this.Connect(this.ip, this.port, timeOut);
+
         });
         delayReconnectTimer.Start(out delayReconnectTimerId);
     }
@@ -163,6 +171,7 @@ public class TcpIpSocketManager : SingletonMonoBehaviour<TcpIpSocketManager>
         WindowUtil.HideNetMask();
         Debug.LogError("连上了，设置 reconnectCount 为0");
         this.reconnectCount = 0;
+        this.cancelReconnect();
     }
 
     public void Connect(string ip, int port, float timeOut = 5)
@@ -215,8 +224,17 @@ public class TcpIpSocketManager : SingletonMonoBehaviour<TcpIpSocketManager>
             clientSocket.Close();
             clientSocket = null;
             state = SocketState.UnConnect;
-
         }
+    }
+    void cancelReconnect()
+    {
+        TimerTween.Cancel(delayReconnectTimer, delayReconnectTimerId);
+    }
+
+    public void ForbidReconnet()
+    {
+        this.canReconnect = false;
+        this.cancelReconnect();
     }
 
     public void Destroy()

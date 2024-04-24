@@ -1,8 +1,8 @@
 {
-	"ProductName": "meta",
-	"AppVersion": "1.0.1",
+	"ProductName": "星启Metaverse",
+	"AppVersion": "1.0.2",
 	"AppBundleVersion": "1",
-	"ResVersion": "0",
+	"ResVersion": "1",
 	"PackTimeStamp": "2402061240",
 	"GameChannelId": 100,
 	"PaymentChannelId": 2,
@@ -10,22 +10,19 @@
 	"ABResNameCryptoKey": "hijack88",
 	"ABResByteOffset": 3,
 	"GameDesignRatio": "1080,1920",
-	"ScreenOrientation": 0,
+	"ScreenOrientation": 1,
 	"GameInputType": 1,
 	"ResLoadType": 0,
 	"FirstOpenWindowName": "LoginWindow",
-	"SocketIgnoreLogMsgIds": [
-		"C2SPing",
-		"S2CPing"
-	],
+	 
 	"LoginData": [
 		{
 			"LoginType": "PUB",
-			"URL": "http://47.108.170.236:18000/login"
+			"PostURL": "http://47.108.170.236:18000"
 		},
 		{
 			"LoginType": "DEV",
-			"URL": "http://172.16.10.45:18000/login"
+			"PostURL": "http://172.16.10.45:18000"
 		}
 	],
 	"PackData": [

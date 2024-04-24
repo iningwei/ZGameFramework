@@ -1,14 +1,14 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using UnityEditor;
 using UnityEngine;
 
-public class OpenByNotepadPP : MonoBehaviour
+public class OpenByNotepadPP
 {
     //http://docs.unity3d.com/ScriptReference/MenuItem.html
-    [MenuItem("Assets/open with Notepad++", false, 1)]
+    [MenuItem("Assets/open with Notepad++(win) or 文本编辑(mac)", false, 1)]
     static void openByNotepadPP()
     {
-        if (Selection.objects.Length != 1)//由于文本文件不属于GameObject类型，因此这里使用Selection.gameObjects是无法获取选择的文本文件的
+        if (Selection.objects.Length != 1)
         {
             UnityEngine.Debug.LogError("you can only open one file per time");
             return;
@@ -20,13 +20,21 @@ public class OpenByNotepadPP : MonoBehaviour
             || path.EndsWith(".shader")
             || path.EndsWith(".bin")
             || path.EndsWith(".bytes")
-             || path.EndsWith(".json")))
+             || path.EndsWith(".json")
+             || path.EndsWith(".m")
+             || path.EndsWith(".mm")
+             || path.EndsWith(".h")))
         {
-            UnityEngine.Debug.LogError("you can only open .cs .txt .bin .xml .shader .bin .bytes file");
+            UnityEngine.Debug.LogError("not support current file:" + path);
             return;
         }
         UnityEngine.Debug.Log(path + ",opened");
+#if UNITY_EDITOR_WIN
         //Process.Start(path);//使用默认打开方式打开文本文件
         Process.Start("notepad++.exe", path);//使用notepad++打开，需要机器安装了该软件
+#elif UNITY_EDITOR_OSX
+//使用mac上的文本编辑打开文件
+        Application.OpenURL("file://" + path);
+#endif 
     }
 }

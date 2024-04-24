@@ -744,7 +744,6 @@ namespace ZGame.Ress.AB
 
         private void loadMat(string matName, Action<MatRes> callback, bool sync)
         {
-            Material mat = null;
             var cacheRes = this.GetCachedRes<MatRes>(matName);
             if (cacheRes == null)
             {
@@ -835,7 +834,7 @@ namespace ZGame.Ress.AB
                     }
                     catch (Exception ex)
                     {
-                        Debug.LogError("error, texName:" + texName + ", tran:" + targetTrs.GetHierarchy());
+                        Debug.LogError($"error:{ex.ToString()}, texName:{texName}, tran:{targetTrs.GetHierarchy()}");
                     }
                 }
 
@@ -1052,15 +1051,6 @@ namespace ZGame.Ress.AB
         public void LoadLogic(string name, Action<TextAsset[]> callback)
         {
             ABLogic.LoadAll(name, callback);
-        }
-
-
-
-        public void UnpackLogicABToMap(string logicABName)
-        {
-#if XLua
-            LuaResLoader.Instance.LoadScriptBundle(logicABName);
-#endif
         }
 
         public override void OnDestroy()

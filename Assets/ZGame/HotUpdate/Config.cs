@@ -21,7 +21,7 @@ namespace ZGame
     public class LoginData
     {
         public string loginType;
-        public string url;
+        public string postURL; 
     }
 
     //打包(热更)相关信息
@@ -108,7 +108,7 @@ namespace ZGame
 
         public static string firstOpenWindowName;
 
-        public static List<ProtobufMsgID> socketIgnoreLogMsgIds = new List<ProtobufMsgID>();
+        
 
         public static List<LoginData> loginDataList = new List<LoginData>();
 
@@ -221,13 +221,7 @@ namespace ZGame
             resLoadType = (int)(long)dic["ResLoadType"];
             firstOpenWindowName = (string)dic["FirstOpenWindowName"];
 
-            socketIgnoreLogMsgIds.Clear();
-            var ignoreIds = dic["SocketIgnoreLogMsgIds"] as List<object>;
-            for (int i = 0; i < ignoreIds.Count; i++)
-            {
-                var msgId = (ProtobufMsgID)Enum.Parse(typeof(ProtobufMsgID), (string)ignoreIds[i]);
-                socketIgnoreLogMsgIds.Add(msgId);
-            }
+            
 
             loginDataList.Clear();
             var loginDataArray = dic["LoginData"] as List<object>;
@@ -236,7 +230,8 @@ namespace ZGame
                 var loginDataDic = loginDataArray[i] as Dictionary<string, object>;
                 LoginData data = new LoginData();
                 data.loginType = (string)loginDataDic["LoginType"];
-                data.url = (string)loginDataDic["URL"];
+                data.postURL = (string)loginDataDic["PostURL"];
+                
 
                 loginDataList.Add(data);
             }
@@ -294,7 +289,7 @@ namespace ZGame
             configDic["GameInputType"] = gameInputType;
             configDic["ResLoadType"] = resLoadType;
             configDic["FirstOpenWindowName"] = firstOpenWindowName;
-            configDic["SocketIgnoreLogMsgIds"] = Config.socketIgnoreLogMsgIds;
+            
 
 
             //组装LoginData
@@ -307,7 +302,7 @@ namespace ZGame
                     var tmpData = loginDataList[i];
                     Dictionary<string, object> loginDataDic = new Dictionary<string, object>();
                     loginDataDic["LoginType"] = tmpData.loginType;
-                    loginDataDic["URL"] = tmpData.url;
+                    loginDataDic["PostURL"] = tmpData.postURL; 
                     loginList.Add(loginDataDic);
                 }
             }

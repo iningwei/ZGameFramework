@@ -14,7 +14,7 @@ using System.IO;
 
 public class Launcher : MonoBehaviour
 {
-    private void Start()
+    private void Start() 
     {
         byte[] a = { 0b1010010 };
         byte[] b = { 0x52 };
@@ -30,10 +30,3 @@ public class Launcher : MonoBehaviour
         AppManager.Instance.Init(this.transform);
     }
 }
-
-
-
-
-
-
-

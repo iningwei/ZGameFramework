@@ -271,6 +271,7 @@ public class WebSocketManager : SingletonMonoBehaviour<WebSocketManager>
         WindowUtil.HideNetMask();
         status = WebSocketStatus.Connected;
         Debug.Log("连接ws成功");
+        this.cancelReconnect();
         reconnectCount = 0;
 
         if (this.onOpen != null)
@@ -338,30 +339,50 @@ public class WebSocketManager : SingletonMonoBehaviour<WebSocketManager>
 
     }
 
+    bool canReconnect = true;
     Timer delayReconnectTimer = null;
     long delayReconnectTimerId;
     int reconnectCount = 0;
     public void Reconnect()
     {
-        WindowUtil.ShowNetMask();
+        if (canReconnect == false)
+        {
+            return;
+        }
+        reconnectCount = 0;
+        WindowUtil.ShowNetMaskWithRoll();
         TimerTween.Cancel(delayReconnectTimer, delayReconnectTimerId);
 
         //重连加个延迟，避免服务器或者网络通道还没有清理干净导致的重连不上
         delayReconnectTimer = TimerTween.Delay(3f, () =>
         {
-            Debug.LogError("Do reconnect!");
-            reconnectCount++;
-            if (reconnectCount >= 10)
+            if (canReconnect)
             {
-                Debug.LogError("reconnect reach max value!");
-                WindowUtil.ShowTip("网络错误，请检查网络状态后，重启！", TipLevel.Error);
-                return;
+                Debug.LogError("Do reconnect!");
+                reconnectCount++;
+                if (reconnectCount >= 10)
+                {
+                    Debug.LogError("reconnect reach max value!");
+                    WindowUtil.ShowTip("网络错误，请检查网络状态后，重启！", TipLevel.Error);
+                    return;
+                }
+                this.antiInit();
+                NetTool.socketConnectedStyle = SocketConnectedStyle.ReConnect;
+                this.Connect(this.url, this.headerDic);
             }
-            this.antiInit();
-            NetTool.socketConnectedStyle = SocketConnectedStyle.ReConnect;
-            this.Connect(this.url, this.headerDic);
+
         });
         delayReconnectTimer.Start(out delayReconnectTimerId);
+    }
 
+    void cancelReconnect()
+    {
+        TimerTween.Cancel(delayReconnectTimer, delayReconnectTimerId);
+    }
+
+    public void ForbidReconnet()
+    {
+        this.canReconnect = false;
+        this.cancelReconnect();
     }
 }

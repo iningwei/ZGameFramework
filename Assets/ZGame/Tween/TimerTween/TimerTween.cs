@@ -86,14 +86,7 @@ namespace ZGame.TimerTween
         }
 
         public static Timer Repeat(float interval, Func<bool> repeatCallback, bool callOnAwake)
-        {
-            if (callOnAwake)
-            {
-                if (repeatCallback != null)
-                {
-                    repeatCallback();
-                }
-            }
+        { 
             Timer timer = TimerManager.Instance.GetFreeTimer(out long id);
             timer.SetDuration(interval).SetLoop(0).SetOnComplete(() =>
             {
@@ -106,8 +99,20 @@ namespace ZGame.TimerTween
                     }
                 }
             });
-
             TimerManager.Instance.RegisterTimer(timer);
+
+            if (callOnAwake)
+            {
+                if (repeatCallback != null)
+                {
+                    bool r = repeatCallback();
+                    if (!r)
+                    {
+                        Cancel(timer, id);
+                    }
+                }
+            }
+           
             return timer;
         }
 
@@ -136,14 +141,7 @@ namespace ZGame.TimerTween
                 UnityEngine.Debug.LogError("error, count<0");
                 return null;
             }
-            if (callOnawake)
-            {
-                count--;
-                if (repeatCallback != null)
-                {
-                    repeatCallback();
-                }
-            }
+
 
             Timer timer = TimerManager.Instance.GetFreeTimer(out long id);
             timer.SetDuration(interval);
@@ -161,6 +159,19 @@ namespace ZGame.TimerTween
             });
 
             TimerManager.Instance.RegisterTimer(timer);
+            if (callOnawake)
+            {
+                count--;
+                if (repeatCallback != null)
+                {
+                    bool r = repeatCallback();
+                    if (!r)
+                    {
+                        Cancel(timer, id);
+                    }
+                }
+            }
+            
             return timer;
         }
 

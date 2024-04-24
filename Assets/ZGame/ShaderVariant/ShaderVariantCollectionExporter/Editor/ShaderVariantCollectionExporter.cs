@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using Debug = UnityEngine.Debug;
+using ZGame.Res;
 
 
 //TODO：
@@ -70,6 +71,16 @@ public static class ShaderVariantCollectionExporter
             }
         }
 
+        //加载shaderlist
+        List<string> usedShaderList = new List<string>();
+        var shaderListObj = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/ArtResources/ShaderList/ShaderList.prefab");
+        var shaderArray = shaderListObj.GetComponent<ShaderList>().Shaders;
+        for (int i = 0; i < shaderArray.Length; i++)
+        {
+            usedShaderList.Add(shaderArray[i].name);
+        }
+        //TODO:是否要把几个内置的加进去？比如天空盒等等
+
         var materials = new List<Material>();
         var shaderDict = new Dictionary<Shader, List<Material>>();
         foreach (var assetPath in dict.Keys)
@@ -77,7 +88,7 @@ public static class ShaderVariantCollectionExporter
             var material = AssetDatabase.LoadAssetAtPath<Material>(assetPath);
             if (material != null)
             {
-                if (material.shader != null)
+                if (material.shader != null && usedShaderList.Contains(material.shader.name))
                 {
                     if (!shaderDict.ContainsKey(material.shader))
                     {
@@ -87,13 +98,17 @@ public static class ShaderVariantCollectionExporter
                     if (!shaderDict[material.shader].Contains(material))
                     {
                         shaderDict[material.shader].Add(material);
+                        Debug.Log("shader:" + material.shader.name + ", attached mat:" + assetPath);
+                    }
+
+
+                    if (!materials.Contains(material))
+                    {
+                        materials.Add(material);
                     }
                 }
 
-                if (!materials.Contains(material))
-                {
-                    materials.Add(material);
-                }
+
             }
         }
 

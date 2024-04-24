@@ -14,7 +14,7 @@ public class PingManager : Singleton<PingManager>
     int sendPingIndex = 0;
     int rcvPingIndex = 0;
     long curPingTimeStamp;
-    float intervalTime;
+    float intervalTime = 30f;
 
     byte pingStatus = 0;//1为开，0为关
 
@@ -24,7 +24,7 @@ public class PingManager : Singleton<PingManager>
 
     Func<int, long, IMessage> c2sAssemble;
     Func<byte[], int> s2cHandle;
-    public void StartPing(ProtobufMsgID c2sID, ProtobufMsgID s2cID, Func<int, long, IMessage> c2sAssemble, Func<byte[], int> s2cHandle, float pingIntervalTime = 10)
+    public void StartPing(ProtobufMsgID c2sID, ProtobufMsgID s2cID, Func<int, long, IMessage> c2sAssemble, Func<byte[], int> s2cHandle)
     {
         Debug.Log("start Ping");
         ProtobufMessage.AddListener(s2cID, onS2CPing);
@@ -34,7 +34,6 @@ public class PingManager : Singleton<PingManager>
         this.c2sAssemble = c2sAssemble;
         this.s2cHandle = s2cHandle;
 
-        intervalTime = pingIntervalTime;
         rcvPingIndex = sendPingIndex;
 
         sendTimer = TimerTween.Repeat(intervalTime, () =>
