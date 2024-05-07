@@ -21,7 +21,7 @@ namespace ZGame
     public class LoginData
     {
         public string loginType;
-        public string postURL; 
+        public string postURL;
     }
 
     //打包(热更)相关信息
@@ -93,13 +93,11 @@ namespace ZGame
         /// </summary>
         public static int screenOrientation;
 
-
         /// <summary>
         /// 游戏内操作类型
-        /// 1为鼠标键盘、2为触屏        
+        /// 1为鼠标键盘、2为触屏
         /// </summary>
         public static int gameInputType;
-
 
         /// <summary>
         /// 见ResLoadType枚举
@@ -108,10 +106,7 @@ namespace ZGame
 
         public static string firstOpenWindowName;
 
-        
-
         public static List<LoginData> loginDataList = new List<LoginData>();
-
 
         public static List<PackData> packDataList = new List<PackData>();
 
@@ -221,7 +216,7 @@ namespace ZGame
             resLoadType = (int)(long)dic["ResLoadType"];
             firstOpenWindowName = (string)dic["FirstOpenWindowName"];
 
-            
+
 
             loginDataList.Clear();
             var loginDataArray = dic["LoginData"] as List<object>;
@@ -231,7 +226,7 @@ namespace ZGame
                 LoginData data = new LoginData();
                 data.loginType = (string)loginDataDic["LoginType"];
                 data.postURL = (string)loginDataDic["PostURL"];
-                
+
 
                 loginDataList.Add(data);
             }
@@ -289,7 +284,7 @@ namespace ZGame
             configDic["GameInputType"] = gameInputType;
             configDic["ResLoadType"] = resLoadType;
             configDic["FirstOpenWindowName"] = firstOpenWindowName;
-            
+
 
 
             //组装LoginData
@@ -302,7 +297,7 @@ namespace ZGame
                     var tmpData = loginDataList[i];
                     Dictionary<string, object> loginDataDic = new Dictionary<string, object>();
                     loginDataDic["LoginType"] = tmpData.loginType;
-                    loginDataDic["PostURL"] = tmpData.postURL; 
+                    loginDataDic["PostURL"] = tmpData.postURL;
                     loginList.Add(loginDataDic);
                 }
             }

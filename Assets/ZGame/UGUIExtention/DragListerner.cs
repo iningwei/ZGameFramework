@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
-public class DragListerner : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler 
+public class DragListerner : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     public Action onDragBegin;
     public Action<Vector2> onDrag;
@@ -26,5 +26,5 @@ public class DragListerner : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
         onDragEnd?.Invoke();
     }
 
- 
+
 }

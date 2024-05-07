@@ -1,10 +1,9 @@
-﻿#if IAP
+#if IAP
 using LitJson;
 
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using ZGame.HotUpdate;
 using ZGame.SDK;
 using UnityEngine.Purchasing;
 using UnityEngine.Purchasing.Security;
@@ -63,7 +62,7 @@ namespace ZGame.SDK.IAP
         {
             if (PayVerifyDataDic.ContainsKey(inner_order_id))
             {
-                DebugExt.LogE("duplicated inner_order_id:" + inner_order_id);
+                Debug.LogError("duplicated inner_order_id:" + inner_order_id);
                 return;
             }
             if (pay_platform == PaymentChannelId.GooglePlay)
@@ -76,7 +75,7 @@ namespace ZGame.SDK.IAP
             }
             else
             {
-                DebugExt.LogE("unsupported pay_platform:" + pay_platform);
+                Debug.LogError("unsupported pay_platform:" + pay_platform);
             }
         }
 
@@ -84,7 +83,7 @@ namespace ZGame.SDK.IAP
         {
             if (PayVerifyDataDic.ContainsKey(inner_order_id))
             {
-                DebugExt.LogE("delete local order data success ，inner_order_id：" + inner_order_id);
+                Debug.LogError("delete local order data success ，inner_order_id：" + inner_order_id);
                 PayVerifyDataDic.Remove(inner_order_id);
             }
         }
@@ -99,14 +98,14 @@ namespace ZGame.SDK.IAP
                 var newJson = new JsonData();
                 newJson["inner_order_id"] = item.Key;
 
-                if (ZGame.HotUpdate.Config.paymentChannelId == PaymentChannelId.AppleStore)
+                if (ZGame.Config.paymentChannelId == PaymentChannelId.AppleStore)
                 {
                     var data = item.Value as AppleStorePayVerifyData;
                     newJson["inner_app_id"] = data.inner_app_id;
                     newJson["receipt_data"] = data.receipt_data;
                     newJson["pay_platform"] = data.pay_platform;
                 }
-                else if (ZGame.HotUpdate.Config.paymentChannelId == PaymentChannelId.GooglePlay)
+                else if (ZGame.Config.paymentChannelId == PaymentChannelId.GooglePlay)
                 {
                     var data = item.Value as GooglePlayPayVerifyData;
                     newJson["inner_app_id"] = data.inner_app_id;
@@ -196,14 +195,14 @@ namespace ZGame.SDK.IAP
 
         public void Init(string[] consumableProductIds, string[] nonConsumableProductIds, string[] subscriptionProductIds)
         {
-            DebugExt.Log("begin init IAP");
+            Debug.Log("begin init IAP");
             var module = StandardPurchasingModule.Instance();
             builder = ConfigurationBuilder.Instance(module);
 
             this.addConsumableProducts(consumableProductIds);
 #if !UNITY_EDITOR
             validator = new CrossPlatformValidator(GooglePlayTangle.Data(), AppleTangle.Data(), Application.identifier);
-            UnityPurchasing.Initialize(this, builder);
+            UnityPurchasing.Initialize(this, builder); 
 #endif
         }
 
@@ -215,12 +214,12 @@ namespace ZGame.SDK.IAP
                 return;
             }
             int count = productIds.Length;
-            //DebugExt.LogE("add consumable products,count:" + count);
+            Debug.LogError("add consumable products,count:" + count);
             if (count > 0)
             {
                 for (int i = 0; i < count; i++)
                 {
-                    //DebugExt.LogE("add:" + productIds[i]);
+                    Debug.LogError("add:" + productIds[i]);
                     builder.AddProduct(productIds[i], ProductType.Consumable);
                 }
             }
@@ -230,7 +229,7 @@ namespace ZGame.SDK.IAP
 
         public void OnInitialized(IStoreController controller, IExtensionProvider extensions)
         {
-            DebugExt.Log("IAP initialize success");
+            Debug.Log("IAP initialize success");
             this.controller = controller;
 
             this.appleExtensions = extensions.GetExtension<IAppleExtensions>();
@@ -239,37 +238,40 @@ namespace ZGame.SDK.IAP
 
         public void OnInitializeFailed(InitializationFailureReason error)
         {
-            DebugExt.LogE("IAP InitializeFailed, reason:" + error.ToString());
+            Debug.LogError("IAP InitializeFailed, reason:" + error.ToString());
         }
-
-        public void OnPurchaseFailed(Product i, PurchaseFailureReason p)
+        public void OnInitializeFailed(InitializationFailureReason error, string message)
         {
-            DebugExt.LogE("OnPurchaseFailed,reason:" + p.ToString());
+            Debug.LogError("IAP InitializeFailed, reason:" + error.ToString() + ",message:" + message);
+        }
+        public void OnPurchaseFailed(Product i, PurchaseFailureReason r)
+        {
+            Debug.LogError("OnPurchaseFailed,reason:" + r.ToString());
             if (this.onPurchaseFailed != null)
             {
-                this.onPurchaseFailed("PurchaseFailed,reason:"+p.ToString());
+                this.onPurchaseFailed(r);
                 this.onPurchaseFailed = null;
             }
         }
 
         public PurchaseProcessingResult ProcessPurchase(PurchaseEventArgs e)
         {
-            DebugExt.LogE("purchase finished ");
-            //DebugExt.LogE("receipt:" + e.purchasedProduct.receipt);
+            Debug.LogError("purchase finished ");
+            //Debug.LogE("receipt:" + e.purchasedProduct.receipt);
             var result = validator.Validate(e.purchasedProduct.receipt);
             foreach (IPurchaseReceipt productReceipt in result)
             {
-                //DebugExt.Log(" --------->productId:" + productReceipt.productID);
-                //DebugExt.Log(" --------->purchaseData:" + productReceipt.purchaseDate);
-                //DebugExt.Log(" --------->transactionID:" + productReceipt.transactionID);
+                //Debug.Log(" --------->productId:" + productReceipt.productID);
+                //Debug.Log(" --------->purchaseData:" + productReceipt.purchaseDate);
+                //Debug.Log(" --------->transactionID:" + productReceipt.transactionID);
 #if UNITY_ANDROID
                 GooglePlayReceipt google = productReceipt as GooglePlayReceipt;
                 if (google != null)
                 {
 
-                    //DebugExt.Log(" --------->purchaseState:" + google.purchaseState);
-                    //DebugExt.Log(" --------->purchaseToken:" + google.purchaseToken);
-                    //DebugExt.Log(" --------->packageName:" + google.packageName);
+                    //Debug.Log(" --------->purchaseState:" + google.purchaseState);
+                    //Debug.Log(" --------->purchaseToken:" + google.purchaseToken);
+                    //Debug.Log(" --------->packageName:" + google.packageName);
                     if (this.onPurchaseSuccess != null)
                     {
                         //json格式字符串
@@ -298,11 +300,11 @@ namespace ZGame.SDK.IAP
 
 
 
-        private Action<string> onPurchaseFailed;
+        private Action<PurchaseFailureReason> onPurchaseFailed;
         private Action<string> onPurchaseSuccess;
-        public void PurchaseProduct(string productId, Action onControllerIsNull, Action<string> onFailed, Action<string> onSuccess)
+        public void PurchaseProduct(string productId, Action onControllerIsNull, Action<PurchaseFailureReason> onFailed, Action<string> onSuccess)
         {
-            DebugExt.LogE("purchaseProduct, productId:" + productId);
+            Debug.LogError("purchaseProduct, productId:" + productId);
             this.onPurchaseFailed = onFailed;
             this.onPurchaseSuccess = onSuccess;
 
@@ -315,23 +317,25 @@ namespace ZGame.SDK.IAP
                 }
                 else
                 {
-                    DebugExt.LogE("no product with productId:" + productId);
+                    Debug.LogError("no product with productId:" + productId);
                     if (this.onPurchaseFailed != null)
                     {
-                        this.onPurchaseFailed("No product with id:"+ productId);
+                        this.onPurchaseFailed(PurchaseFailureReason.ProductUnavailable);// "No product with id:" + productId
                     }
                 }
             }
             else
             {
                 //controller 为null，表明IAP初始化就已经失败，通常是由于GooglePlayService不可用等原因导致
-                DebugExt.LogE("controller is null,can not do purchase!!");
+                Debug.LogError("controller is null,can not do purchase!!");
                 if (onControllerIsNull != null)
                 {
                     onControllerIsNull();
                 }
             }
         }
+
+
     }
 }
 #endif

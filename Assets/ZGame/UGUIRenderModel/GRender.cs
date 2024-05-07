@@ -23,7 +23,27 @@ public class GRender : MonoBehaviour
 
     public Transform refCamTran;
 
-
+    bool enableUpdateCamPR2RefCam = false;
+    public void SetUpdatePR2RefCam(bool status)
+    {
+        enableUpdateCamPR2RefCam = status;
+    }
+    private void LateUpdate()
+    {
+        if (refCamTran != null && enableUpdateCamPR2RefCam)
+        {
+            if (blackCam != null)
+            {
+                blackCam.transform.position = refCamTran.position;
+                blackCam.transform.rotation = refCamTran.rotation;
+            }
+            if (whiteCam != null)
+            {
+                whiteCam.transform.position = refCamTran.position;
+                whiteCam.transform.rotation = refCamTran.rotation;
+            }
+        }
+    }
 
 
     public void StartRender(Vector2 rtSize, RawImage rawImg, Transform refCamTran)
@@ -48,7 +68,7 @@ public class GRender : MonoBehaviour
 
         blackCam.targetTexture = blackRT;
         whiteCam.targetTexture = whiteRT;
-         
+
         AddImage(rawImg);
     }
 
@@ -102,7 +122,6 @@ public class GRender : MonoBehaviour
             this.rawImg = rawImg;
             this.AddImage(rawImg);
         }
-
     }
 
 
@@ -231,6 +250,5 @@ public class GRender : MonoBehaviour
         mat.SetTexture("_BlackTex", blackRT);
         return mat;
     }
-
 
 }

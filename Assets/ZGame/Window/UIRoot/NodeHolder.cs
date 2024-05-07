@@ -54,7 +54,7 @@ namespace ZGame.Window
             return node;
         }
 
-        void clearNodes()
+        public void ClearNodes()
         {
             if (nodes.Count > 0)
             {
@@ -73,7 +73,7 @@ namespace ZGame.Window
         public virtual void Destroy()
         {
             RemoveEventListener();
-            this.clearNodes();
+            this.ClearNodes();
             if (Config.resLoadType == (int)ResLoadType.AssetBundle)
             {
                 GameObjectHelper.DestroyImmediate(this.rootObj);

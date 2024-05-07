@@ -1,3 +1,4 @@
+using GluonGui.WorkspaceWindow.Views.WorkspaceExplorer;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,6 +8,7 @@ using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
+using ZGame.Obfuscation;
 using ZGame.Res;
 using ZGame.Ress.AB.Holder;
 using ZGame.Ress.Info;
@@ -111,14 +113,7 @@ namespace ZGame.RessEditor
 
 
                 // 完成后要删除一些无用的文件
-                var files = Directory.GetFileSystemEntries(BuildConfig.outputPath);
-                foreach (var v in files)
-                {
-                    if (!v.EndsWith(IOTools.abSuffix))
-                    {
-                        File.Delete(v);
-                    }
-                }
+                DeleteUselessAfterBuildAB();
 
                 Debug.Log("一键打所有资源ab包    完毕");
             }
@@ -128,81 +123,8 @@ namespace ZGame.RessEditor
             }
 
         }
+         
 
-        [MenuItem("工具/打包/打ab包/对所有窗体打AB包")]
-        public static void BuildAllWindow()
-        {
-            var prefabGuids = AssetDatabase.FindAssets("t:Prefab", new[] { "Assets" });
-            for (int i = 0; i < prefabGuids.Length; i++)
-            {
-                string guid = prefabGuids[i];
-                string path = AssetDatabase.GUIDToAssetPath(guid);
-                if (path.Contains("temp_for_prefab"))
-                {
-                    continue;
-                }
-                if (path.EndsWith("Window.prefab") == false)
-                {
-                    continue;
-                }
-
-                string fullPath = Application.dataPath + path.Replace("Assets", "");
-                string fileName = Path.GetFileNameWithoutExtension(fullPath);
-
-
-                GameObject asset = AssetDatabase.LoadAssetAtPath(path, typeof(GameObject)) as GameObject;
-                if (asset != null)
-                {
-                    var holder = asset.GetComponent<RootCompInfoHolder>();
-                    if (holder != null)
-                    {
-                        Debug.LogError("begin build ab for:" + fullPath);
-                        BuildConfig.getBuildFunc(path, asset)(asset);
-                    }
-                }
-            }
-
-
-            // 完成后要删除一些无用的文件
-            var files = Directory.GetFileSystemEntries(BuildConfig.outputPath);
-            foreach (var v in files)
-            {
-                if (!v.EndsWith(IOTools.abSuffix))
-                {
-                    File.Delete(v);
-                }
-            }
-            Debug.Log("打所有窗体AB包完毕");
-        }
-
-        [MenuItem("工具/打包/打ab包/对所有Texture打AB包")]
-        public static void BuildAllTexture()
-        {
-            var textureGuids = AssetDatabase.FindAssets("t:Texture", new[] { "Assets/ArtResources/Texture" });
-            for (int i = 0; i < textureGuids.Length; i++)
-            {
-                string guid = textureGuids[i];
-                string path = AssetDatabase.GUIDToAssetPath(guid);
-
-                string allPath = Application.dataPath + path.Replace("Assets", "");
-                string fileName = Path.GetFileNameWithoutExtension(allPath);
-
-                Texture asset = AssetDatabase.LoadAssetAtPath<Texture>(path);
-                BuildConfig.getBuildFunc(path, asset)(asset);
-            }
-
-
-            // 完成后要删除一些无用的文件
-            var files = Directory.GetFileSystemEntries(BuildConfig.outputPath);
-            foreach (var v in files)
-            {
-                if (!v.EndsWith(IOTools.abSuffix))
-                {
-                    File.Delete(v);
-                }
-            }
-            Debug.Log("对所有texture打ab完成");
-        }
 
         [MenuItem("Assets/对选择项打AB包")]
         public static void Build()
@@ -220,7 +142,7 @@ namespace ZGame.RessEditor
                 BuildConfig.getBuildFunc(path, assets[i])(assets[i]);
             }
 
-            DeleteAfterBuildAB();
+            DeleteUselessAfterBuildAB();
             Debug.Log("finished bundle build!");
         }
 
@@ -264,7 +186,7 @@ namespace ZGame.RessEditor
                 new BuildOtherPrefab().Build(asset);
             }
 
-            DeleteAfterBuildAB();
+            DeleteUselessAfterBuildAB();
         }
 
 
@@ -285,7 +207,7 @@ namespace ZGame.RessEditor
                 new BuildTexture().Build(asset);
             }
 
-            DeleteAfterBuildAB();
+            DeleteUselessAfterBuildAB();
         }
 
         [MenuItem("Assets/对选择文件夹内所有窗体打ab")]
@@ -309,7 +231,7 @@ namespace ZGame.RessEditor
                 new BuildWindow().Build(asset);
             }
 
-            DeleteAfterBuildAB();
+            DeleteUselessAfterBuildAB();
         }
 
 
@@ -425,12 +347,12 @@ namespace ZGame.RessEditor
 
             new BuildScene().BuildSceneAB(assets[0]);
 
-            DeleteAfterBuildAB();
+            DeleteUselessAfterBuildAB();
         }
 
 
         [MenuItem("工具/打包/打ab包/删除无用文件")]
-        public static void DeleteAfterBuildAB()
+        public static void DeleteUselessAfterBuildAB()
         {
             // 完成后要删除一些无用的文件（manifest、meta等文件）
             var files = Directory.GetFileSystemEntries(BuildConfig.outputPath);
@@ -453,6 +375,7 @@ namespace ZGame.RessEditor
         //check common res
         public static bool CheckCommonRes()
         {
+            Debug.Log("CheckCommonRes!!!");
             commonResMap = new AssetBundleBuild();
             commonResMap.assetBundleName = "common";
             commonResMap.assetBundleVariant = IOTools.abSuffixWithoutPoint;
@@ -469,7 +392,7 @@ namespace ZGame.RessEditor
             }
 
             shaders = new List<Shader>(shaderList.GetComponent<ShaderList>().Shaders);
-
+            Debug.Log("shaderList shader count:" + shaders.Count);
             for (int i = 0; i < shaders.Count; i++)
             {
                 if (shaders[i] == null)

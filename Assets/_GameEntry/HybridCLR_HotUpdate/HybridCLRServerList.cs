@@ -42,7 +42,6 @@ public class HybridCLRServerList : HybridCLRSingleton<HybridCLRServerList>
         this.IOSJumpStoreKey = dic["IOSJumpStoreKey"].ToString();
         this.AndroidJumpStoreKey = dic["AndroidJumpStoreKey"].ToString();
 
-        Debug.LogError("IOSJumpStoreKey:" + IOSJumpStoreKey);
         var list = dic["AppMsg"] as List<object>;
 
         for (int i = 0; i < list.Count; i++)
@@ -77,6 +76,7 @@ public class HybridCLRServerList : HybridCLRSingleton<HybridCLRServerList>
 
     public bool IsPassed(string appVersion)
     {
+#if HybridCLR_HOTUPDATE
         if (AppMsgDic.ContainsKey(appVersion))
         {
             return AppMsgDic[appVersion].IsPassed;
@@ -86,5 +86,8 @@ public class HybridCLRServerList : HybridCLRSingleton<HybridCLRServerList>
             Debug.LogError($"IsPassed error, no appVersion:{appVersion} in serverlist");
             return false;
         }
+#endif
+
+        return true;
     }
 }

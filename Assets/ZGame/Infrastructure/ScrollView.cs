@@ -182,7 +182,9 @@ namespace ZGame.UGUIExtention
             public void Destroy()
             {
                 if (transform != null)
+                {
                     UnityEngine.Object.Destroy(transform.gameObject);
+                }
             }
         }
         #endregion
@@ -326,6 +328,12 @@ namespace ZGame.UGUIExtention
         [SerializeField]
         private ScrollRenderEvent m_OnItemRender = new ScrollRenderEvent();
         public ScrollRenderEvent onItemRender { get { return m_OnItemRender; } set { m_OnItemRender = value; } }
+
+
+        //组件内的Item的销毁事件
+        [SerializeField]
+        private ScrollRenderEvent m_OnItemDestroy = new ScrollRenderEvent();
+        public ScrollRenderEvent onItemDestroy { get { return m_OnItemDestroy; } set { m_OnItemDestroy = value; } }
 
         [SerializeField]
         private ScrollRenderBackLastEvent m_OnItemRenderBackLastIndex = new ScrollRenderBackLastEvent();
@@ -1369,6 +1377,11 @@ namespace ZGame.UGUIExtention
                 {
                     var item = m_VirtualItems[0];
                     m_VirtualItems.RemoveAt(0);
+                    if (item.transform != null)
+                    {
+                        m_OnItemDestroy?.Invoke(item.actualIndex, item.transform);
+                    }
+
                     item.Destroy();
                 }
             }

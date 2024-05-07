@@ -9,6 +9,7 @@ using ZGame.SDK.IAP;
 
 using ZGame;
 using System.Runtime.InteropServices;
+using UnityEngine.Purchasing;
 #if Facebook
 using Facebook.Unity;
 #endif
@@ -66,8 +67,7 @@ namespace ZGame.SDK
     {
         public static void Init()
         {
-            //IAPMgr的初始化移到获得商品id后再初始化
-            //IAPMgr.Instance.Init();
+        
 #if Firebase
             FirebaseSdkManager.Instance.Init();
 #endif
@@ -235,7 +235,7 @@ namespace ZGame.SDK
 
 
         #region 支付
-        public static void PurchaseProduct(string productID, Action onControllerIsNull, Action<string> onFailed, Action<string> onSuccess)
+        public static void PurchaseProduct(string productID, Action onControllerIsNull, Action<PurchaseFailureReason> onFailed, Action<string> onSuccess)
         {
 #if IAP
             IAPMgr.Instance.PurchaseProduct(productID, onControllerIsNull, onFailed, onSuccess);

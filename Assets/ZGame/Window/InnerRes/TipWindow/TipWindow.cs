@@ -1,8 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-#if UseTMP
 using TMPro;
-#endif
 using UnityEngine;
 using UnityEngine.UI;
 using ZGame;
@@ -19,11 +17,9 @@ public enum TipLevel
 public class TipWindow : Window
 {
     public Transform ui_TipTran;
-#if UseTMP
+
     public TextMeshProUGUI ui_TipTxt;
-#else
-    public Text ui_TipTxt;
-#endif
+
 
 
     Timer delayHideTimer;

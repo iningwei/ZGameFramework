@@ -1,8 +1,8 @@
 {
 	"ProductName": "星启Metaverse",
-	"AppVersion": "1.0.2",
+	"AppVersion": "1.0.6",
 	"AppBundleVersion": "1",
-	"ResVersion": "1",
+	"ResVersion": "2",
 	"PackTimeStamp": "2402061240",
 	"GameChannelId": 100,
 	"PaymentChannelId": 2,
@@ -18,14 +18,14 @@
 	"LoginData": [
 		{
 			"LoginType": "PUB",
-			"PostURL": "http://47.108.170.236:18000"
+			"PostURL": "https://metaverse.elfeye.cn/gateway"
 		},
 		{
 			"LoginType": "DEV",
-			"PostURL": "http://172.16.10.45:18000"
+			"PostURL": "https://meta923.vip.cpolar.top"
 		}
 	],
-	"PackData": [
+	"PackData": [ 
 		{
 			"PackType": "PUB",
 			"FtpTxtFileURL": "http://log.qiyoogame.com/hot/meta_v2/pub",
@@ -49,6 +49,6 @@
 	"IsShowDebugBtn": false,
 	"IsEnableLogTrace": false,
 	"IsEnableLogRealtimeWriteToLocal": false,
-	"IsEnableLogUpdate2Server": true,
+	"IsEnableLogUpdate2Server": false,
 	"IsShowReporter": false
 }

@@ -23,6 +23,8 @@ public class CompResCollection
             }
         }
 
+       
+
 
         string bundleName = ABTypeUtil.GetPreFix(abType) + assetName.ToLower() + IOTools.abSuffix;
         if (buildMap.ContainsKey(bundleName) == false)

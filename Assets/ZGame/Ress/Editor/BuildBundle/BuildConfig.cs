@@ -59,6 +59,7 @@ namespace ZGame.RessEditor
 
         public static void Init()
         {
+            ignoredMats.Clear();
             ignoredMats.Add("SourceHanSansSC-Medium Atlas Material");
             ignoredMats.Add("arial Atlas Material");
 

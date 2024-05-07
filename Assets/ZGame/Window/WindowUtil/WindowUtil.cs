@@ -1,9 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-#if UseTMP
 using TMPro;
-#endif
 using UnityEngine;
 using UnityEngine.UI;
 using ZGame;
@@ -35,11 +33,12 @@ public class WindowUtil
         WindowManager.Instance.SendWindowMessage(WindowNames.TipWindow, WindowMsgID.OnAddTip, tipContent, tipLevel);
     }
 
+
     public static void ShowMessageBox(string content, Action confirmCallback, bool layoutOnlyConfirm = false, string tipTitle = "提示")
     {
         WindowManager.Instance.ShowWindow(WindowNames.MessageBoxWindow, WindowLayer.Hud2, false, false, true, null, content, confirmCallback, layoutOnlyConfirm, tipTitle);
     }
-#if UseTMP
+
     public static void SetAppVersionDes(TextMeshProUGUI targetDesTxt)
     {
         var localResVersion = PlayerPrefs.GetString("resversion_" + Config.appVersion, "-1");
@@ -47,17 +46,7 @@ public class WindowUtil
         {
             localResVersion = Config.resVersion;
         }
-        targetDesTxt.text = "version:" + Config.appVersion + "_" + Config.resVersion + "_" + localResVersion;
+        targetDesTxt.text = "v:" + Config.appVersion + "_" + Config.resVersion + "_" + localResVersion;
     }
-#else
-    public static void SetAppVersionDes(Text targetDesTxt)
-    {
-        var localResVersion = PlayerPrefs.GetString("resversion_" + Config.appVersion, "-1");
-        if (localResVersion == "-1")
-        {
-            localResVersion = Config.resVersion;
-        }
-        targetDesTxt.text = "version:" + Config.appVersion + "_" + Config.resVersion + "_" + localResVersion;
-    }
-#endif
+
 }

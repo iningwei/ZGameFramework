@@ -4,7 +4,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace ZGame.UGUIExtentio
+namespace ZGame.UGUIExtention
 {
     public static class RectTransformExt
     {

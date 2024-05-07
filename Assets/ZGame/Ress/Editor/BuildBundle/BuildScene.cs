@@ -168,7 +168,7 @@ namespace ZGame.RessEditor
             AssetDatabase.Refresh();
             DebugExt.Log("-------->build scene bundle:" + obj.name + ", finished");
 
-            BuildCommand.DeleteAfterBuildAB();
+            BuildCommand.DeleteUselessAfterBuildAB();
         }
     }
 }

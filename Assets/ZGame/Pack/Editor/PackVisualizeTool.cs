@@ -41,7 +41,7 @@ public class PackVisualizeTool : EditorWindow
     public static bool isShowReporter;
 
     public static bool[] diyMacros;
-    public static string[] macroNames = {   "UseTMP", "HybridCLR_HOTUPDATE", "HybridCLR_INSTALLED", "MOBILE_INPUT", };
+    public static string[] macroNames = { "HybridCLR_HOTUPDATE", "HybridCLR_INSTALLED", "SKIP_SPLASH", "IAP", };
 
     public static bool isDIYMacros;
     public static bool isProjectMacros;

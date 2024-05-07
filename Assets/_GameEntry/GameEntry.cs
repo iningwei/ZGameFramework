@@ -32,6 +32,8 @@ public class GameEntry : MonoBehaviour
 
     public Transform bigUpdateTran;
 
+
+
     void Start()
     {
         normalTipTran.gameObject.SetActive(false);
@@ -103,7 +105,7 @@ public class GameEntry : MonoBehaviour
         errorTipTran.gameObject.SetActive(true);
         errorTipTxt.text = tip;
     }
- 
+
     public void ShowBigUpdate()
     {
         this.bigUpdateTran.gameObject.SetActive(true);
@@ -126,6 +128,7 @@ public class GameEntry : MonoBehaviour
 #endif
 #endif 
     }
+
 
     public void ShowProgress(float ratio)
     {
