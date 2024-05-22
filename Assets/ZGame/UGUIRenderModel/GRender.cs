@@ -56,7 +56,6 @@ public class GRender : MonoBehaviour
         }
         this.refCamTran = refCamTran;
 
-
         if (!blackCam)
             blackCam = CreateCamera("BlackCameraForRT", Color.black);
         if (!whiteCam)
@@ -65,7 +64,8 @@ public class GRender : MonoBehaviour
             blackRT = CreateTexture();
         if (!whiteRT)
             whiteRT = CreateTexture();
-
+        blackCam.allowHDR = false;
+        whiteCam.allowHDR = false;//有些低端机型不支持HDR，暂时禁用
         blackCam.targetTexture = blackRT;
         whiteCam.targetTexture = whiteRT;
 

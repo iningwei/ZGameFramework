@@ -32,8 +32,9 @@ public class GameEntry : MonoBehaviour
 
     public Transform bigUpdateTran;
 
-
-
+    public Image splashImage;
+    float splashUsedTime = 0f;
+    bool isSplashFinished = false;
     void Start()
     {
         normalTipTran.gameObject.SetActive(false);
@@ -41,22 +42,38 @@ public class GameEntry : MonoBehaviour
         progressTran.gameObject.SetActive(false);
         bigUpdateTran.gameObject.SetActive(false);
 
-        SDKExt.TryWebRequest();
+
+        splashImage.gameObject.SetActive(true);
+
     }
 
 
-    bool isCheckingNetwork = true;
+    bool isNetworkReachable = false;
     int checkedCount = 0;
+
     private void Update()
     {
-        if (checkedCount > 200)
+        splashUsedTime += Time.deltaTime;
+        if (splashUsedTime > 3 && isSplashFinished == false)
         {
-            return;
+            isSplashFinished = true;
+            splashImage.gameObject.SetActive(false);
+
+            SDKExt.TryWebRequest();
         }
-        if (isCheckingNetwork && IsNetworkReachability())
+        if (this.isSplashFinished)
         {
-            isCheckingNetwork = false;
-            startWork();
+            Debug.Log("checkedCount:" + checkedCount);
+            if (checkedCount > 100)
+            {
+                ShowNormalTip("当前网络不通！");
+                return;
+            }
+            if (isNetworkReachable == false && IsNetworkReachability())
+            {
+                isNetworkReachable = true;
+                startWork();
+            }
         }
     }
 

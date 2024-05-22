@@ -36,7 +36,7 @@ namespace ZGame.TimerTween
         private bool hasAutoDestroyOwner;
         private float startTime;
         private float lastUpdateTime;
-        public int loopedCount;//Already played count
+        public long loopedCount;//Already played count
         private Func<float, float> easeFunc = EaseTool.Get(Ease.Linear);
 
 
@@ -49,7 +49,7 @@ namespace ZGame.TimerTween
 
         public float Duration { get; private set; }
 
-        public int Loop { get; private set; }
+        public long Loop { get; private set; }
 
         public bool IsCompleted { get; private set; }
 

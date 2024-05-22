@@ -39,7 +39,7 @@ public class HybridCLRServerListDownload : HybridCLRSingleton<HybridCLRServerLis
     private void onCmp(long id, byte[] datas)
     {
         string str = System.Text.Encoding.Default.GetString(datas);
-        Debug.LogError("serverlist download success,id:" + id + ", content:" + str);
+        Debug.Log("serverlist download success,id:" + id + ", content:" + str);
 
         HybridCLRServerList.Instance.Init(str);
         Debug.Log("channelId:" + HybridCLRConfig.gameChannelId);

@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-
 public static class UGUIRenderModel
 {
     public static void RenderToUGUIRawImage(this GameObject targetModelObj, Vector2 rtSize, RawImage visualRawImg, Transform refCamTran, bool updateRef = false)

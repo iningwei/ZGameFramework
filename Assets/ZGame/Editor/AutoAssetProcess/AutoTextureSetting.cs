@@ -31,11 +31,13 @@ public class AutoTextureSetting : AssetPostprocessor
         {
             androidSettings.format = TextureImporterFormat.ETC2_RGBA8;
         }
-        if (assetPath.Contains("pet_fragment1.png")|| assetPath.Contains("pet_fragment2.png")|| assetPath.Contains("pet_fragment3.png"))
+
+        //navigation图集使用清晰度更高的格式
+        if (assetPath.Contains("navigation.png"))
         {
-            androidSettings.format = TextureImporterFormat.ETC2_RGBA8;
+            androidSettings.format = TextureImporterFormat.ASTC_4x4;
         }
-       
+
         androidSettings.name = "Android";
         androidSettings.overridden = true;
         importer.SetPlatformTextureSettings(androidSettings);

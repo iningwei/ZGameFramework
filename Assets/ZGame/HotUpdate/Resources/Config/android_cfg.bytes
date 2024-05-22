@@ -1,8 +1,8 @@
 {
-	"ProductName": "星启Metaverse",
-	"AppVersion": "1.0.6",
+	"ProductName": "星启Meta",
+	"AppVersion": "1.0.10",
 	"AppBundleVersion": "1",
-	"ResVersion": "2",
+	"ResVersion": "1",
 	"PackTimeStamp": "2402061240",
 	"GameChannelId": 100,
 	"PaymentChannelId": 2,
@@ -13,7 +13,7 @@
 	"ScreenOrientation": 1,
 	"GameInputType": 1,
 	"ResLoadType": 0,
-	"FirstOpenWindowName": "LoginWindow",
+	"FirstOpenWindowName": "LoginFakeWindow",
 	 
 	"LoginData": [
 		{
@@ -22,7 +22,7 @@
 		},
 		{
 			"LoginType": "DEV",
-			"PostURL": "https://meta923.vip.cpolar.top"
+			"PostURL": "http://172.16.10.45:18000"
 		}
 	],
 	"PackData": [ 

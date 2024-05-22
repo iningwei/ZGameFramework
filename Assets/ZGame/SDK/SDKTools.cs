@@ -5,11 +5,12 @@ using System.Net.NetworkInformation;
 using UnityEngine;
 #if IAP
 using ZGame.SDK.IAP;
+using UnityEngine.Purchasing;
 #endif
 
 using ZGame;
 using System.Runtime.InteropServices;
-using UnityEngine.Purchasing;
+
 #if Facebook
 using Facebook.Unity;
 #endif
@@ -235,13 +236,14 @@ namespace ZGame.SDK
 
 
         #region 支付
+#if IAP
         public static void PurchaseProduct(string productID, Action onControllerIsNull, Action<PurchaseFailureReason> onFailed, Action<string> onSuccess)
         {
-#if IAP
-            IAPMgr.Instance.PurchaseProduct(productID, onControllerIsNull, onFailed, onSuccess);
-#endif
-        }
 
+            IAPMgr.Instance.PurchaseProduct(productID, onControllerIsNull, onFailed, onSuccess);
+
+    }
+#endif
 
         public static void AddPayVerifyData(string inner_order_id, string inner_app_id, string receipt_data, int pay_platform)
         {

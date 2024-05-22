@@ -1,6 +1,6 @@
 {
-	"ProductName": "星启Metaverse",
-	"AppVersion": "1.0.1",
+	"ProductName": "星启Meta",
+	"AppVersion": "1.0.3",
 	"AppBundleVersion": "1",
 	"ResVersion": "0",
 	"PackTimeStamp": "2402061240",
@@ -13,7 +13,7 @@
 	"ScreenOrientation": 1,
 	"GameInputType": 1,
 	"ResLoadType": 0,
-	"FirstOpenWindowName": "LoginWindow",
+	"FirstOpenWindowName": "LoginFakeWindow",
 	 
 	"LoginData": [
 		{
@@ -42,7 +42,7 @@
 			"FtpZipFileURL": "http://log.qiyoogame.com/hot/meta_v2/test"
 		}
 	],
-	"LoginType": "DEV",
+	"LoginType": "PUB",
 	"PackType": "PUB",
 	"IsRealPurchase": true,
 	"IsShowProtoMsgLog": true,

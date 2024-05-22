@@ -35,8 +35,16 @@ public class BuildInCompRendererCollection : CompResCollection, IRefResCollectio
             if (renderer is MeshRenderer)
             {
                 var mesh = renderer.transform.GetComponent<MeshFilter>().sharedMesh;
-                meshName = mesh.name;
-                meshPath = AssetDatabase.GetAssetPath(mesh);
+                if (mesh != null)
+                {
+                    meshName = mesh.name;
+                    meshPath = AssetDatabase.GetAssetPath(mesh);
+                }
+                else
+                {
+                    Debug.LogWarning("mesh is null:" + renderer.transform.GetHierarchy());
+                }
+
             }
             else if (renderer is SkinnedMeshRenderer)
             {
@@ -171,9 +179,17 @@ public class BuildInCompRendererCollection : CompResCollection, IRefResCollectio
             if (renderer is MeshRenderer)
             {
                 var mesh = renderer.transform.GetComponent<MeshFilter>().sharedMesh;
-                meshName = mesh.name;
-                meshPath = AssetDatabase.GetAssetPath(mesh);
-                //Debug.LogError("meshName:" + meshName + ", meshPath:" + meshPath);
+                if (mesh != null)
+                {
+                    meshName = mesh.name;
+                    meshPath = AssetDatabase.GetAssetPath(mesh);
+                    //Debug.LogError("meshName:" + meshName + ", meshPath:" + meshPath);
+
+                }
+                else
+                {
+                    Debug.LogWarning("mesh is null:" + renderer.transform.GetHierarchy());
+                }
 
             }
             else if (renderer is SkinnedMeshRenderer)
@@ -231,7 +247,7 @@ public class BuildInCompRendererCollection : CompResCollection, IRefResCollectio
 
             if (meshName != "")
             {
-                if (meshPath.EndsWith(".mesh")|| meshPath.EndsWith(".asset"))//.asset是使用MantisLODEditor生成的mesh资源的后缀
+                if (meshPath.EndsWith(".mesh") || meshPath.EndsWith(".asset"))//.asset是使用MantisLODEditor生成的mesh资源的后缀
                 {
                     Debug.Log($"meshName:{meshName},meshPath:{meshPath}");
                     this.AddBundleBuildData(meshName, meshPath, ABType.Mesh, ref buildMap);

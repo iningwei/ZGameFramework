@@ -88,11 +88,20 @@ public class WebSocketManager : SingletonMonoBehaviour<WebSocketManager>
 
     public bool IsConnected()
     {
-        return webSocket != null && status == WebSocketStatus.Connected;
+        return status == WebSocketStatus.Connected;
+    }
+    public bool IsNull()
+    {
+        return webSocket == null;
     }
 
     private void Update()
     {
+        if (IsNull())
+        {
+            return;
+        }
+
         if (IsConnected() == false && NetConfig.handleBlockMsgAfterUnConnected == false)
         {
             return;
